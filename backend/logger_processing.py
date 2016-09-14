@@ -34,7 +34,12 @@ def task():
                     data = req.content.split("------------")
                     #now need to strip out extra quotations and returns and newlines
                     data = data[1].strip('"').strip().split('\r\n')
-                    data = (data[-20::]) #gets the last 20 lines/minutes
+                    # data = (data[-20::]) #gets the last 20 lines/minutes
+                    # not sure how many lines to get? maybe go by latest date in the db
+                    # and ignore anything with a <= timestamp?
+
+                    data = (data[1:]) # skip headers
+
                     data  = [d.split(",") for d in data ]
                     try:
                         cur.execute("SELECT id from log order by id desc limit 1 ")

@@ -4,7 +4,7 @@
       <div class="col-md-12">
         <h1>Which research center is leading the team this week?</h1>
         <!-- STILL USES DUMMY DATA!!!!!!!!!!!!! -->
-        <race-track-graph data="vm.leaderboardData"></race-track-graph>
+        <race-track-graph ng-if="vm.leaderboardReady" data="vm.leaderboardData"></race-track-graph>
       </div>
     </div>
     <div class="row">

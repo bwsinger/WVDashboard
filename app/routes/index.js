@@ -22,10 +22,10 @@ router.get('/api/leaderboard', function(req, res){
        }
        var query = client.query("SELECT * FROM log WHERE (logged >= date_trunc('week', CURRENT_TIMESTAMP - interval '1 week'));");
        var counter = 0;
-       var b1 = {};
-       var b2 = {};
-       var b3 = {};
-       var b4 = {};
+       var b1 = { address: "215" };
+       var b2 = { address: "1590" };
+       var b3 = { address: "1605" };
+       var b4 = { address: "1715" };
        // ****************** INSERT REAL ZNE GOALS HERE *******************
        b1.energy_sum_week = 0;
        b2.energy_sum_week = 0;

@@ -6,12 +6,15 @@
   .controller('Building', buildingController);
 
   //add all the directives and services
-  buildingController.$inject = ['$routeParams'];  //, 'hobo'];
+  buildingController.$inject = ['$routeParams', 'hobo'];
 
-  function buildingController($routeParams){
+  function buildingController($routeParams, hobo){
     var address = $routeParams.address;
     console.log(address);
     var vm = this;
+
+    vm.leaderboardReady = false;
+
     vm.address = address;
 
     // For footer display on site (used: building.client.view.html)
@@ -25,25 +28,31 @@
     
     // test data for the Leaderboard graph
     // buildings always in order 215,1590,1605,1715
-    vm.leaderboardData = [
-      {                 
-        "energy_sum_week": 100, // (sum(end uses) - solar) over this last week
-        "zne_sum_week": 90,     // sum(ZNE daily goals) over this last week
-        "address": "215"
-      },{
-        "energy_sum_week": 70,
-        "zne_sum_week": 90,
-        "address": "1590"
-      },{
-        "energy_sum_week": 80,
-        "zne_sum_week": 90,
-        "address": "1605"
-      },{
-        "energy_sum_week": 130,
-        "zne_sum_week": 90,
-        "address": "1715"
-      }
-    ];
+    // vm.leaderboardData = [
+    //   {                 
+    //     "energy_sum_week": 100, // (sum(end uses) - solar) over this last week
+    //     "zne_sum_week": 90,     // sum(ZNE daily goals) over this last week
+    //     "address": "215"
+    //   },{
+    //     "energy_sum_week": 70,
+    //     "zne_sum_week": 90,
+    //     "address": "1590"
+    //   },{
+    //     "energy_sum_week": 80,
+    //     "zne_sum_week": 90,
+    //     "address": "1605"
+    //   },{
+    //     "energy_sum_week": 130,
+    //     "zne_sum_week": 90,
+    //     "address": "1715"
+    //   }
+    // ];
+
+    hobo.getZNE().then(function(data) {
+      vm.leaderboardData = data;
+      vm.leaderboardReady = true;
+    })
+
 
     console.log('From Controller leaderboardData: ', vm.leaderboardData);
 

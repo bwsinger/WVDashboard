@@ -8,27 +8,25 @@
 
 */
 
-CREATE TABLE log(
-	id int,
-	address char(10),
-	logged timestamp,
-	kitchen real,
-	plugload real,
-	lights real,
-	solar real,
-	ev real,
-	hvac real,
-	instahot real
+CREATE TABLE "log" (
+	"id" SERIAL PRIMARY KEY,
+	"building" CHAR(4) NOT NULL,
+	"datetime" TIMESTAMP NOT NULL,
+	"kitchen" REAL DEFAULT 0,
+	"plugs" REAL DEFAULT 0,
+	"lights" REAL DEFAULT 0,
+	"solar" REAL DEFAULT 0,
+	"ev" REAL DEFAULT 0
 );
 
 
-CREATE TABLE hourly_goal(
-	weekof timestamp,
-	goal real
-);
+-- CREATE TABLE hourly_goal(
+-- 	weekof timestamp,
+-- 	goal real
+-- );
 
 
-CREATE TABLE daily_goal(
-	weekof timestamp,
-	goal real
-);
+-- CREATE TABLE daily_goal(
+-- 	weekof timestamp,
+-- 	goal real
+-- );

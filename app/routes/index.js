@@ -45,7 +45,7 @@ router.get('/api/leaderboard', function(req, res){
                    }
                    else if (row['address'] == 1590) {
                      console.log('adding to 1509');
-		     b2.energy_sum_week = row['kitchen'] + row['plugload'] + row['lights'] + row['ev'] + row['hvac'] + row['instahot'] - row['solar'];
+		                 b2.energy_sum_week = row['kitchen'] + row['plugload'] + row['lights'] + row['ev'] + row['hvac'] + row['instahot'] - row['solar'];
 
                    } else if (row['address'] == 1605) {
                      console.log('adding to 1605');
@@ -57,7 +57,6 @@ router.get('/api/leaderboard', function(req, res){
                      console.log(row);
                      b4.energy_sum_week = row['kitchen'] + row['plugload'] + row['lights'] + row['ev'] + row['hvac'] + row['instahot'] - row['solar'];
                    }
-
        });
        query.on('end', function(){
          done();

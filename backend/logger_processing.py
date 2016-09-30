@@ -39,7 +39,6 @@ def task():
                     # and ignore anything with a <= timestamp?
 
                     data = (data[1:]) # skip headers
-
                     data  = [d.split(",") for d in data ]
                     try:
                         cur.execute("SELECT id from log order by id desc limit 1 ")

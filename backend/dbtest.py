@@ -11,7 +11,7 @@ sched = BlockingScheduler()
 # @sched.scheduled_job('cron', minute='1,11,21,31,41,51')
 def task():
         try:
-            conn = psycopg2.connect("dbname='feed' user='postgres' host='postgres' password='postgres'")
+            conn = psycopg2.connect("dbname='feed' user='postgres' host='192.168.99.100' password='postgres'")
             cur = conn.cursor()
         except:
             logging.debug("I am unable to connect to the database")
@@ -90,6 +90,7 @@ def task():
                         logging.info("kitchen: " + str(kitchen))
                         logging.info("ev: " + str(ev))
                         logging.info("plugs: " + str(plugs))
+                        # parameterized quieries
                         query = "INSERT INTO log VALUES ("  + str(index) + ", " + "\'" + str(b) + "\'" + ", " +  "\'" +str(date)+ "\'"+ ", "+str(kitchen)+", "+str(plugs)+" , "+str(lights)+", "+str(solar)+", "+str(ev)+", "+str(hvac)+", "+str(instahot)+")"
                         if(int(index) <= int(dbindex)):
                             logging.debug("\t\tDID NOT INSERT=> dbindex\t: "+str(dbindex) + "\t\tindex: " + str(index) )
@@ -102,3 +103,4 @@ def task():
 
 
 # sched.start()
+task()

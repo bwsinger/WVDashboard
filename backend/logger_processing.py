@@ -1,104 +1,128 @@
-from buildings import buildings
-import requests, csv, os
 import psycopg2
-from apscheduler.schedulers.blocking import BlockingScheduler
+import requests
 import logging
+import csv
+import yaml
+import os
+from datetime import datetime
+from dateutil import parser
+from apscheduler.schedulers.blocking import BlockingScheduler
 
-logging.basicConfig(filename="output.log", level=logging.DEBUG)
-sched = BlockingScheduler()
+def parse_row(row, columns):
+    total = 0
+    if len(columns):
+        for column in columns:
+            total += float(row[column])
+    return total
 
-# runs ever ten minutes
-# @sched.scheduled_job('cron', minute='1,11,21,31,41,51')
-def task():
-        try:
-            conn = psycopg2.connect("dbname='feed' user='postgres' host='postgres' password='postgres'")
-            cur = conn.cursor()
-        except:
-            logging.debug("I am unable to connect to the database")
-        #pull last twenty lines and prepare them to check against the new pool of data
+def fetch():
 
-        for b in buildings:
-            #print b
-            for s in buildings[b]["serials"]:
-                serials = s
-                for serial_num in serials:
-                    #print serial_num
-                    usecases = serials[serial_num] #dictionary with serial_num giving back the value which is also a dictionary
-                    #store the channels for each use
-                    light_channels = usecases['lights']
-                    kitchen_channels = usecases['kitchen']
-                    solar_channels = usecases['solar']
-                    ev_channels = usecases['ev']
-                    plugs_channels= usecases['plugs']
-                    req = requests.get("http://webservice.hobolink.com/rest/public/devices/"+str(serial_num)+"/data_files/latest/txt")
-                    data = req.content.split("------------")
-                    #now need to strip out extra quotations and returns and newlines
-                    data = data[1].strip('"').strip().split('\r\n')
-                    # data = (data[-20::]) #gets the last 20 lines/minutes
-                    # not sure how many lines to get? maybe go by latest date in the db
-                    # and ignore anything with a <= timestamp?
+    logging.info("Starting run @ {}".format(datetime.now()))
 
-                    data = (data[1:]) # skip headers
-                    data  = [d.split(",") for d in data ]
-                    try:
-                        cur.execute("SELECT id from log order by id desc limit 1 ")
-                        rows = cur.fetchone()
-                        dbindex = rows[0]
-                        logging.debug("dbindex: "+str(dbindex))
-                    except:
-                        logging.debug("hit exception")
-                        dbindex = 0
-
-                    for d in data:
-                        #if d.timestamp and d.index is the same as the last pull of lines then skip this step
-                        #use continue to skip to the next step
-                        index = d[0]
-                        date = d[1]
-                        lights = 0
-                        ev = 0
-                        solar = 0
-                        plugs = 0
-                        kitchen = 0
-                        hvac = 0
-                        instahot = 0
-                        for i in light_channels:
-                                #print("i: " + str(i))
-                                lights += float(d[i+1])
-                                #print("Lights :" + str(lights))
-                        for i in kitchen_channels:
-                                #print("i: " + str(i))
-                                kitchen +=  float(d[i+1])
-                                #print("Kitchen :" + str(kitchen))
-
-                        for i in ev_channels:
-                                #print("i: " + str(i))
-                                ev += float(d[i+1])
-                                #print("EV :" + str(ev))
-
-                        for i in plugs_channels:
-                                #print("i: " + str(i))
-                                plugs += float(d[i+1])
-                                #print("Plugs :" + str(plugs))
-
-                        for i in solar_channels:
-                                #print("i: " + str(i))
-                                solar += float(d[i+1])
-                                #print("solar :" + str(solar))
-                        logging.info("index: " + str(index))
-                        logging.info("lights: " + str(lights))
-                        logging.info("solar: " + str(solar))
-                        logging.info("kitchen: " + str(kitchen))
-                        logging.info("ev: " + str(ev))
-                        logging.info("plugs: " + str(plugs))
-                        query = "INSERT INTO log VALUES ("  + str(index) + ", " + "\'" + str(b) + "\'" + ", " +  "\'" +str(date)+ "\'"+ ", "+str(kitchen)+", "+str(plugs)+" , "+str(lights)+", "+str(solar)+", "+str(ev)+", "+str(hvac)+", "+str(instahot)+")"
-                        if(int(index) <= int(dbindex)):
-                            logging.debug("\t\tDID NOT INSERT=> dbindex\t: "+str(dbindex) + "\t\tindex: " + str(index) )
-                            continue
-                        else:
-                            logging.info(query)
-                            cur.execute(query)
-                            conn.commit()
+    # connect to db
+    try:
+        # conn = psycopg2.connect("dbname='feed' user='postgres' host='postgres' password='postgres'")
+        conn = psycopg2.connect("dbname='feed' user='postgres' host='172.18.0.2' password='postgres'")
+        cur = conn.cursor()
+        logging.debug("Successfully connected to the database")
+    except:
+        logging.error("Cannot connect to the database")
         return
 
+    # grab building data
+    if os.path.isfile('buildings.yaml'):
+        buildings = yaml.load(open('buildings.yaml'))
+    else:
+        logging.error("Missing building configuration file")
+        return
 
-# sched.start()
+    for b in buildings:
+        logging.debug("Starting building {}".format(b))
+
+        # get the last timestamp from db for this building
+        cur.execute("""
+            SELECT "datetime"
+            FROM "log"
+            WHERE "building" = %s
+            ORDER BY "datetime" DESC
+            LIMIT 1
+        """, (b, ))
+        result = cur.fetchone()
+        lasttimestamp = None
+        if result is not None:
+            lasttimestamp = result[0]
+
+        logging.debug("Looking for data after {}".format(lasttimestamp))
+
+        for s in buildings[b]['serials']:
+            logging.debug("Starting hobo logger with serial {}".format(s))
+
+            # grab the latest file
+            req = requests.get("http://webservice.hobolink.com/rest/public/devices/{}/data_files/latest/txt".format(s))
+
+            # split csv portion from the junk at the top
+            # trim excess whitespace
+            # split into lines and feed to the reader
+            reader = csv.reader(req.content.split("------------")[1].strip().split('\n'))
+
+            next(reader) #headers
+
+            skipped = 0
+            rowstoinsert = []
+
+            for row in reader:
+
+                currtimestamp = parser.parse(row[1])
+
+                # is the row newer?
+                if lasttimestamp is None or currtimestamp > lasttimestamp:
+
+                    logging.debug("Found row with more recent timestamp: {}".format(currtimestamp))
+
+                    # aggregate stats from relevant columns
+                    kitchen = parse_row(row, buildings[b]['serials'][s]['kitchen'])
+                    plugs = parse_row(row, buildings[b]['serials'][s]['plugs'])
+                    lights = parse_row(row, buildings[b]['serials'][s]['lights'])
+                    solar = parse_row(row, buildings[b]['serials'][s]['solar'])
+                    ev = parse_row(row, buildings[b]['serials'][s]['ev'])
+
+                    rowstoinsert.append((b, currtimestamp, kitchen, plugs, lights, solar, ev))
+                    
+                else:
+                    logging.debug("Skipped old row with timestamp: {}".format(currtimestamp))
+                    skipped+= 1
+
+
+            # insert if needed
+            if len(rowstoinsert):
+                cur.executemany("""
+                        INSERT INTO "log"
+                        ("building", "datetime", "kitchen", "plugs", "lights", "solar", "ev")
+                        VALUES(%s, %s, %s, %s, %s, %s, %s)
+                    """, rowstoinsert)
+                conn.commit()
+
+                logging.info("Inserted {} new rows".format(len(rowstoinsert)))
+
+            if skipped > 0:
+                logging.info("Skipped {} old rows".format(skipped))
+
+    logging.info("Finished run")
+
+if __name__ == "__main__":
+
+    # log debug to file
+    logging.basicConfig(filename="output.log", level=logging.DEBUG)
+
+    # log info to console
+    console = logging.StreamHandler()
+    console.setLevel(logging.INFO)
+    logging.getLogger('').addHandler(console)
+
+    # setup scheduler and start
+    logging.info("Starting scheduler")
+    sched = BlockingScheduler()
+    sched.start()
+
+    # runs ever ten minutes
+    sched.add_job(fetch, 'cron', minute='1,11,21,31,41,51')

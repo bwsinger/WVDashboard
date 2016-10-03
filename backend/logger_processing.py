@@ -21,8 +21,7 @@ def fetch():
 
     # connect to db
     try:
-        # conn = psycopg2.connect("dbname='feed' user='postgres' host='postgres' password='postgres'")
-        conn = psycopg2.connect("dbname='feed' user='postgres' host='172.18.0.2' password='postgres'")
+        conn = psycopg2.connect("dbname='feed' user='postgres' host='postgres' password='postgres'")
         cur = conn.cursor()
         logging.debug("Successfully connected to the database")
     except:
@@ -111,18 +110,20 @@ def fetch():
 
 if __name__ == "__main__":
 
-    # log debug to file
-    logging.basicConfig(filename="output.log", level=logging.DEBUG)
-
+    
     # log info to console
-    console = logging.StreamHandler()
-    console.setLevel(logging.INFO)
-    logging.getLogger('').addHandler(console)
+    logging.basicConfig(level=logging.INFO)
 
-    # setup scheduler and start
-    logging.info("Starting scheduler")
+    # log debug to file   
+    # logfile = logging.FileHandler('output.log')
+    # logfile.setLevel(logging.DEBUG)
+    # logging.getLogger('').addHandler(logfile)
+
+    # setup scheduler
     sched = BlockingScheduler()
-    sched.start()
 
-    # runs ever ten minutes
+    # runs every ten minutes
     sched.add_job(fetch, 'cron', minute='1,11,21,31,41,51')
+
+    sched.start()
+    logging.info("Starting scheduler")

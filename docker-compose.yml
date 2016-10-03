@@ -16,7 +16,6 @@ services:
   build: ./backend
   links:
     - postgres
-  command: bash -c "python /usr/src/app/logger_processing.py"
  postgres:
   container_name: postgres
   environment:
@@ -25,8 +24,6 @@ services:
   image: postgres
   volumes:
     - ./database/entrypoint:/docker-entrypoint-initdb.d/
-  ports:
-    - "5432:5432"
  bot:
   container_name: bot
   build: ./twitterBot

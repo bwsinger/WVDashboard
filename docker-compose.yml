@@ -24,6 +24,7 @@ services:
   image: postgres
   volumes:
     - ./database/entrypoint:/docker-entrypoint-initdb.d/
+    - ./data:/var/lib/postgresql/data
  bot:
   container_name: bot
   build: ./twitterBot

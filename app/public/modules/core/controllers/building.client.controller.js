@@ -31,19 +31,19 @@
     // vm.leaderboardData = [
     //   {                 
     //     "energy_sum_week": 100, // (sum(end uses) - solar) over this last week
-    //     "zne_sum_week": 90,     // sum(ZNE daily goals) over this last week
+    //     "zne_week": 90,         // the zne goal of usage for the current week
     //     "address": "215"
     //   },{
     //     "energy_sum_week": 70,
-    //     "zne_sum_week": 90,
+    //     "zne_week": 90,
     //     "address": "1590"
     //   },{
     //     "energy_sum_week": 80,
-    //     "zne_sum_week": 90,
+    //     "zne_week": 90,
     //     "address": "1605"
     //   },{
     //     "energy_sum_week": 130,
-    //     "zne_sum_week": 90,
+    //     "zne_week": 90,
     //     "address": "1715"
     //   }
     // ];
@@ -52,7 +52,6 @@
       vm.leaderboardData = data;
       vm.leaderboardReady = true;
     })
-
 
     console.log('From Controller leaderboardData: ', vm.leaderboardData);
 

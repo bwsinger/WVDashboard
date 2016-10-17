@@ -1,119 +1,29 @@
-<div class="jumboron vertical-center">
-  <div class="container">
-    <div class="row">
-      <div class="col-md-12">
-        <h1>Which research center is leading the team this week?</h1>
-        <!-- STILL USES DUMMY DATA!!!!!!!!!!!!! -->
-        <race-track-graph ng-if="vm.leaderboardReady" data="vm.leaderboardData"></race-track-graph>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-12">
-        <h1>How does our energy use stack up to our ZNE goal?</h1>
-        <!-- STILL USES DUMMY DATA!!!!!!!!!!!!! -->
-        <percent-zne-goal data="vm.percentGoalData"></percent-zne-goal>
-      </div>
-    </div>
-    <h1>How much power are we using now?</h1>
-    <!-- STILL USES DUMMY DATA!!!!!!!!!!!!! -->
-    <!-- <end-use-graph data="vm.energyDemandData"></end-use-graph> -->
-    <!-- MOVE ALL OF THIS INTO THE END-USES DIRECTIVE (even the html?) -->
-    <div class="row" id="vertical-half-screen-end-use">
-      <div class="col-mid-2">
-        <div class="vertical-text">Production</div>
-        <div class="full-image">
-          <object type="image/svg+xml" data="/images/eu_sun.svg"></object>
-          <p class="text-center">105 kW</p>
-        </div>
-      </div>
-    </div>
-    <div class="row" id="vertical-half-screen-end-use">    
-      <div class="col-mid-2">
-        <div class="vertical-text">Consumption</div>
-        <div class="full-image">
-          <object type="image/svg+xml" data="/images/eu_plugs.svg"></object>
-          <p class="text-center">105 kW</p>
-        </div>
-      </div>
-      <div class="col-mid-2">
-        <div class="full-image">
-          <object type="image/svg+xml" data="/images/eu_lights.svg"></object>
-          <p class="text-center">105 kW</p>
-        </div>
-      </div>
-      <div class="col-mid-2">
-        <div class="full-image">
-          <object type="image/svg+xml" data="/images/eu_hvac.svg"></object>
-          <p class="text-center">105 kW</p>
-        </div>
-      </div>
-      <div class="col-mid-2">
-        <div class="full-image">
-          <object type="image/svg+xml" data="/images/eu_kitchen.svg"></object>
-          <p class="text-center">105 kW</p>
-        </div>
-      </div>
-      <div class="col-mid-2">
-        <div class="full-image">
-          <object type="image/svg+xml" data="/images/eu_EV.svg"></object>
-          <p class="text-center">105 kW</p>
-        </div>
-      </div>
-      <div class="col-mid-2">
-        <div class="full-image">
-          <object type="image/svg+xml" data="/images/eu_sum2.svg"></object>
-          <p class="text-center">105 kW</p>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-9">
-        <h1>How much power are we using daily?</h1>
-        <!-- STILL USES DUMMY DATA!!!!!!!!!!!!! -->
-        <energy-demand-graph data="vm.energyDemandData"></energy-demand-graph>
-      </div>
-      <div class="col-md-3">
-        <!-- <div class="onoffswitch">
-          <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch1" checked>
-          <label class="onoffswitch-label" for="myonoffswitch1">
-              <div class="onoffswitch-inner"></div>
-              <div class="onoffswitch-switch"></div>
-          </label>
-        </div>
-        <div class="onoffswitch">
-          <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch2" checked>
-          <label class="onoffswitch-label" for="myonoffswitch2">
-              <div class="onoffswitch-inner"></div>
-              <div class="onoffswitch-switch"></div>
-          </label>
-        </div>
-        <div class="onoffswitch">
-          <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch3" checked>
-          <label class="onoffswitch-label" for="myonoffswitch3">
-              <div class="onoffswitch-inner"></div>
-              <div class="onoffswitch-switch"></div>
-          </label>
-        </div>
-        <div class="onoffswitch">
-          <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch4" checked>
-          <label class="onoffswitch-label" for="myonoffswitch4">
-              <div class="onoffswitch-inner"></div>
-              <div class="onoffswitch-switch"></div>
-          </label>
-        </div>
-        <div class="onoffswitch">
-          <input type="checkbox" name="onoffswitch" class="onoffswitch-checkbox" id="myonoffswitch5" checked>
-          <label class="onoffswitch-label" for="myonoffswitch5">
-              <div class="onoffswitch-inner"></div>
-              <div class="onoffswitch-switch"></div>
-          </label>
-        </div> -->
-      </div>
-    </div>
-  </div>
-  <footer class="footer">
-    <div class="container">
-      <p>{{vm.display_address}}</p>
-    </div>
-  </footer>
+<div class="jumboron">
+  <div class="row" id="row_main">
+    <div class="col-xs-9 col-sm-9 col-md-9 col-lg-9">
+      <div class="row" id="row_top">
+        <div class="col-xs-4 col-sm-4 col-md-4 col-lg-4">
+          <!-- WVDashboard logo:  -->
+          <a href="#!/"><img class="pull-left" id="WVED_logo" alt="Brand" src="/images/WVED_logo_white.svg"></a>
+          <h1 class="graph_header">Horse Flag Box</h1>
+        </div> <!-- Horse Mascot Section -->
+        <div class="col-xs-8 col-sm-8 col-md-8 col-lg-8">
+          <h1 class="graph_header">Leaderboard Graph Box</h1>
+        </div> <!-- Leaderboard -->
+      </div> <!-- row_top -->
+      <div class="row" id="row_middle">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <h1 class="graph_header">Energy Demand Icons</h1>
+        </div> <!-- Energy Demand (the icon one) -->
+      </div> <!-- row_middle -->
+      <div class="row" id="row_bottom">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12">
+          <h1 class="graph_header">Line Graph Box</h1>
+        </div> <!-- End Use (the line graph) -->
+      </div> <!-- row_bottom -->
+    </div> <!-- main left column -->
+    <div class="col-xs-3 col-sm-3 col-md-3 col-lg-3">
+      <h1 class="graph_header">Percent Goal Graph</h1>
+    </div> <!-- main right column -->
+  </div> <!-- row_main -->
 </div>

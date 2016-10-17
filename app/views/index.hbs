@@ -7,23 +7,18 @@
     <link rel='stylesheet' href='/modules/core/styles/nav.css' />
   </head>
   <body style="background-color:#222222;">
-    <div id="body-wrapper">
-       <div class="overlay"></div>
-       <!-- sidebar -->
-  	   <nav ng-include=" './modules/core/views/header.client.view.html' " ></nav>
-       <!-- page content -->
-       <div id="page-content-wrapper">
-          <button type="button" class="hamburger is-closed" data-toggle="offcanvas">
-            <span class="hamb-top"></span>
-            <span class="hamb-middle"></span>
-            <span class="hamb-bottom"></span>
-          </button>
-          <div class="fluid-container ng-cloak">
-    		    {{{ body  }}}
-    		    <div ng-view> </div>
-          </div>
-       </div> <!-- /#page-content-wrapper -->
-    </div> <!-- /#body-wrapper -->
+    <!-- sidebar -->
+    <nav ng-include=" './modules/core/views/header.client.view.html' " ></nav>
+    <!-- Hamburger icon/button -->
+    <button type="button" class="hamburger is-closed" data-toggle="offcanvas">
+      <span class="hamb-top"></span>
+      <span class="hamb-middle"></span>
+      <span class="hamb-bottom"></span>
+    </button>
+    <div class="fluid-container ng-cloak">
+	    {{{ body  }}}
+	    <div ng-view> </div>
+    </div>
   </body>
 
 	<!-- JS  Libraries -->

@@ -30,5 +30,42 @@
 
  	angular.element(document).ready(function(){
 		angular.bootstrap(document, ['dashboard']);
+
+		// ******************************************
+		// 	Controls the on click actions relating
+		// 	to the sidebar including hiding and 
+		//  showing the sidebar
+		// ******************************************
+		var trigger = $('.hamburger'),
+        overlay = $('.overlay'),
+        isClosed = false;
+	    trigger.click(function() {
+	        hamburger_cross();
+	    });
+
+	    function hamburger_cross() {
+	        if (isClosed == true) {
+	            overlay.hide();
+	            trigger.removeClass('is-open');
+	            trigger.addClass('is-closed');
+	            isClosed = false;
+	        } else {
+	            overlay.show();
+	            trigger.removeClass('is-closed');
+	            trigger.addClass('is-open');
+	            isClosed = true;
+	        }
+	    }
+	    $('[data-toggle="offcanvas"]').click(function() {
+	        $('#sidebar-wrapper').toggleClass('toggled');
+	    });
+	    // Change sidebar link style on click
+	    $(function() {
+	        var links = $('a.nav-item').click(function() {
+	            links.removeClass('active');
+	            $(this).addClass('active');
+	        });
+	    });
+	    // ******************************************
 	});
 })();

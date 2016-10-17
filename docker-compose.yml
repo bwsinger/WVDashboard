@@ -23,7 +23,7 @@ services:
     - POSTGRES_DB=feed
   image: postgres
   volumes:
-    - ./database/entrypoint:/docker-entrypoint-initdb.d/
+    - ./schema:/docker-entrypoint-initdb.d/
     - ./data:/var/lib/postgresql/data
  bot:
   container_name: bot

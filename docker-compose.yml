@@ -1,7 +1,6 @@
 version: '2'
 services:
  web:
-  container_name: web
   build: ./app
   volumes:
     - /app:/usr/app/src
@@ -12,12 +11,10 @@ services:
   links:
    - postgres
  tasks:
-  container_name: tasks
   build: ./backend
   links:
     - postgres
  postgres:
-  container_name: postgres
   environment:
     - POSTGRES_PASSWORD=postgres
     - POSTGRES_DB=feed
@@ -26,8 +23,6 @@ services:
     - ./schema:/docker-entrypoint-initdb.d/
     - ./data:/var/lib/postgresql/data
  bot:
-  container_name: bot
   build: ./twitterBot
   links:
     - postgres
-  command: ["-u", "sendTwitter.py"]

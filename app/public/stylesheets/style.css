@@ -1,7 +1,7 @@
 body {
   /*padding: 50px;*/
-  padding-left: 90px;
-  padding-right: 50px;
+  /*padding-left: 90px;
+  padding-right: 50px;*/
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
   position: relative;
   overflow-x: hidden;
@@ -50,25 +50,118 @@ fluid-container > .col-sm-30 {
 
 
 /* ################################################ */
-/* ######## Graph Container Class ################# */
-/* ##### (attributes inherited by all graphs) ##### */
+/* ############ Building Page Layout ############## */
 /* ################################################ */
 
-/*Header formatting*/
-.vertical-center {
-  /*All text color is white*/
+/* Header formatting (h1) */
+.graph_header {
+  position: relative;
+  text-align: left;
+  min-height: 100%;
+  background-color: darkblue;
   color: white;
-  /*All axis lines and bar fill colors are white unless
-  otherwise specified in the javascript code*/
-  fill: white;	
+  margin: 10px;
 }
 
-/*Overall Graph Formatting*/
-.jumboron > .container > .row{
-	min-height: 100%;	/*Fallback for browsers do NOT support vh unit */
-	min-height: 100vh;	/* These two lines are counted as one*/
-	display: flex;
-	align-items: center;
+/* ---------------------- */
+/*        Row Main        */
+/* ---------------------- */
+#row_main {
+  min-height: 100%;   /*Fallback for browsers do NOT support vh unit */
+  min-height: 100vh;  /* These two lines are counted as one*/
+  display: flex;
+  align-items: center;
+  margin: 0px;
+}
+
+/* ---------------------- */
+/*     Main Col Left      */
+/* ---------------------- */
+#row_main > .col-xs-9.col-sm-9.col-md-9.col-lg-9 {
+  min-height: 100%;
+  min-height: 100vh;
+  margin: 0px;
+  padding: 0px;
+}
+
+/* ---------------------- */
+/*     Main Col Right     */
+/* ---------------------- */
+#row_main > .col-xs-3.col-sm-3.col-md-3.col-lg-3{
+  min-height: 100%;
+  min-height: 100vh;
+  margin: 0px;
+  padding: 0px;
+}
+
+/* ---------------------- */
+/*        Top row         */
+/* ---------------------- */
+#row_top {
+  min-height: 40%;   /*Fallback for browsers do NOT support vh unit */
+  min-height: 40vh;  /* These two lines are counted as one*/
+  display: flex;
+  align-items: center;
+  margin: 0px;
+}
+
+#WVED_logo {
+  position: relative;
+  margin-left: 10px;
+  margin-top: 10px;
+  height: 50px;
+  top: 0px;
+  left: 0px;
+}
+
+#row_top > .col-xs-4.col-sm-4.col-md-4.col-lg-4 {
+  min-height: 40%;
+  min-height: 40vh;
+  margin: 0px;
+  padding: 0px;
+}
+
+#row_top > .col-xs-8.col-sm-8.col-md-8.col-lg-8 {
+  min-height: 40%;
+  min-height: 40vh;
+  margin: 0px;
+  padding: 0px;
+}
+
+/* ---------------------- */
+/*       Middle row       */
+/* ---------------------- */
+#row_middle {
+  min-height: 20%;   /*Fallback for browsers do NOT support vh unit */
+  min-height: 20vh;  /* These two lines are counted as one*/
+  display: flex;
+  align-items: center;
+  margin: 0px;
+}
+
+#row_middle > .col-xs-12.col-sm-12.col-md-12.col-lg-12 {
+  min-height: 20%;
+  min-height: 20vh;
+  margin: 0px;
+  padding: 0px;
+}
+
+/* ---------------------- */
+/*       Bottom row       */
+/* ---------------------- */
+#row_bottom {
+  min-height: 40%;   /*Fallback for browsers do NOT support vh unit */
+  min-height: 40vh;  /* These two lines are counted as one*/
+  display: flex;
+  align-items: center;
+  margin: 0px;
+}
+
+#row_bottom > .col-xs-12.col-sm-12.col-md-12.col-lg-12 {
+  min-height: 40%;
+  min-height: 40vh;
+  margin: 0px;
+  padding: 0px;
 }
 
 /* ################################################ */

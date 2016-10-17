@@ -1,28 +1,28 @@
 version: '2'
 services:
- web:
-  build: ./app
-  volumes:
-    - /app:/usr/app/src
-  ports:
-    - "3000:3000"
-  expose:
-    - "3000"
-  links:
-   - postgres
- tasks:
-  build: ./backend
-  links:
-    - postgres
- postgres:
-  environment:
-    - POSTGRES_PASSWORD=postgres
-    - POSTGRES_DB=feed
-  image: postgres
-  volumes:
-    - ./schema:/docker-entrypoint-initdb.d/
-    - ./data:/var/lib/postgresql/data
- bot:
-  build: ./twitterBot
-  links:
-    - postgres
+  bot:
+    build: ./bot
+    links:
+      - db
+  db:
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=feed
+    image: postgres
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d/
+      - ./data:/var/lib/postgresql/data
+  tasks:
+    build: ./tasks
+    links:
+      - db
+  web:
+    build: ./web
+    volumes:
+      - /web:/usr/app/src
+    ports:
+      - "3000:3000"
+    expose:
+      - "3000"
+    links:
+     - db

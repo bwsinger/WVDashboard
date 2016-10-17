@@ -1,7 +1,7 @@
 {
   "name": "WVDashboard",
   "description": "West Village Energy Dashboard",
-  "main": "app.js",
+  "main": "server.js",
   "authors": [
     "stcalica <kycalica@gmail.com>"
   ],

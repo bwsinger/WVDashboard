@@ -1,5 +1,5 @@
-backend/venv/
+tasks/venv/
 data/
-app/node_modules/
-app/public/lib/
+web/node_modules/
+web/public/lib/
 

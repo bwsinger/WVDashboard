@@ -53,14 +53,17 @@ fluid-container > .col-sm-30 {
 /* ############ Building Page Layout ############## */
 /* ################################################ */
 
-/* Header formatting (h1) */
+/* ------------------------- */
+/*   Header Formatting (h1)  */
+/* ------------------------- */
 .graph_header {
   position: relative;
   text-align: left;
   min-height: 100%;
-  background-color: darkblue;
+  background-color: #29343f;
   color: white;
   margin: 10px;
+  font-size: 2em;
 }
 
 /* ---------------------- */
@@ -92,6 +95,20 @@ fluid-container > .col-sm-30 {
   min-height: 100vh;
   margin: 0px;
   padding: 0px;
+  background-color: #46605A;
+  overflow: hidden;
+
+  border-color: yellow;
+  border-style: solid;
+}
+
+#row_main > .col-xs-3.col-sm-3.col-md-3.col-lg-3 > h1{
+  /*
+  -ms-transform
+  -webkit-transform
+  */
+
+  transform: rotate(-15deg) translate(0px,0px);
 }
 
 /* ---------------------- */
@@ -112,6 +129,7 @@ fluid-container > .col-sm-30 {
   height: 50px;
   top: 0px;
   left: 0px;
+  z-index: 2;
 }
 
 #row_top > .col-xs-4.col-sm-4.col-md-4.col-lg-4 {
@@ -119,6 +137,10 @@ fluid-container > .col-sm-30 {
   min-height: 40vh;
   margin: 0px;
   padding: 0px;
+  background-color: #29343F;
+
+  border-color: yellow;
+  border-style: solid;
 }
 
 #row_top > .col-xs-8.col-sm-8.col-md-8.col-lg-8 {
@@ -126,6 +148,11 @@ fluid-container > .col-sm-30 {
   min-height: 40vh;
   margin: 0px;
   padding: 0px;
+  background-color: #A7BCB6;
+  overflow: hidden;
+
+  border-color: yellow;
+  border-style: solid;
 }
 
 /* ---------------------- */
@@ -137,6 +164,7 @@ fluid-container > .col-sm-30 {
   display: flex;
   align-items: center;
   margin: 0px;
+  overflow: hidden;
 }
 
 #row_middle > .col-xs-12.col-sm-12.col-md-12.col-lg-12 {
@@ -144,6 +172,10 @@ fluid-container > .col-sm-30 {
   min-height: 20vh;
   margin: 0px;
   padding: 0px;
+  background-color: #7FA097;
+
+  border-color: yellow;
+  border-style: solid;
 }
 
 /* ---------------------- */
@@ -155,6 +187,7 @@ fluid-container > .col-sm-30 {
   display: flex;
   align-items: center;
   margin: 0px;
+  overflow: hidden;
 }
 
 #row_bottom > .col-xs-12.col-sm-12.col-md-12.col-lg-12 {
@@ -162,6 +195,10 @@ fluid-container > .col-sm-30 {
   min-height: 40vh;
   margin: 0px;
   padding: 0px;
+  background-color: #7FA097;
+
+  border-color: yellow;
+  border-style: solid;
 }
 
 /* ################################################ */

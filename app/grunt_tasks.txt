@@ -1,5 +1,0 @@
-npm install
-bower install
-<optional> java script linter (throws errors for style formatting)
-<optional> watcher (refreshes the browser when a change is made)
-npm start

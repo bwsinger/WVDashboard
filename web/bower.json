@@ -1,0 +1,17 @@
+{
+  "name": "WVDashboard",
+  "description": "West Village Energy Dashboard",
+  "main": "server.js",
+  "authors": [
+    "stcalica <kycalica@gmail.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/stcalica/WVDashboard",
+  "moduleType": [],
+  "dependencies": {
+    "angular": "^1.5.2",
+    "bootstrap": "4.0",
+    "d3": "^3.5.16",
+    "angular-route": "^1.5.3"
+  }
+}

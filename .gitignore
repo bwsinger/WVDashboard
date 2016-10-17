@@ -1,11 +1,5 @@
-venv/
+tasks/venv/
 data/
-backend/*.log
-*.csv
-*.pyc
-./backend/newdata.txt
-./app/node_modules/*
-./app/node_modules
-./app/public/lib
-./app/public/lib/*
-./.bash_profile
+web/node_modules/
+web/public/lib/
+

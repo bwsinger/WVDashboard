@@ -1,33 +1,26 @@
 version: '2'
 services:
- web:
-  container_name: web
-  build: ./app
-  volumes:
-    - /app:/usr/app/src
-  ports:
-    - "3000:3000"
-  expose:
-    - "3000"
-  links:
-   - postgres
- tasks:
-  container_name: tasks
-  build: ./backend
-  links:
-    - postgres
- postgres:
-  container_name: postgres
-  environment:
-    - POSTGRES_PASSWORD=postgres
-    - POSTGRES_DB=feed
-  image: postgres
-  volumes:
-    - ./database/entrypoint:/docker-entrypoint-initdb.d/
-    - ./data:/var/lib/postgresql/data
- bot:
-  container_name: bot
-  build: ./twitterBot
-  links:
-    - postgres
-  command: ["-u", "sendTwitter.py"]
+  bot:
+    build: ./bot
+    links:
+      - db
+  db:
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=feed
+    image: postgres
+    volumes:
+      - ./schema:/docker-entrypoint-initdb.d/
+      - ./data:/var/lib/postgresql/data
+  tasks:
+    build: ./tasks
+    links:
+      - db
+  web:
+    build: ./web
+    volumes:
+      - /web:/usr/app/src
+    ports:
+      - "3000:3000"
+    links:
+     - db

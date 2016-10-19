@@ -1,9 +1,14 @@
 'use strict';
 
 var pg = require('pg'),
-	client = new pg.Client('postgres://postgres:postgres@172.18.0.2:5432/feed');
+	connString = 'postgres://postgres:postgres@172.18.0.2:5432/feed',
+	buildings = ['1590', '1650'],
+	timespans = ['hourly', 'daily', 'weekly', 'monthly'];
 
-function _buildHistoricalQuery(interval, period) {
+function _buildHistoricalQuery(start, minutes) {
+
+	var interval = minutes+" minutes";
+	var seconds = minutes * 60;
 
 	return `
 		SELECT "series"."interval",
@@ -13,21 +18,22 @@ function _buildHistoricalQuery(interval, period) {
 			COALESCE("values"."solar", 0) as "solar",
 			COALESCE("values"."ev", 0) as "ev"
 		FROM (
-			SELECT to_timestamp(ceil(extract('epoch' from "datetime") / ${period}) * ${period}) AT TIME ZONE 'UTC' as "interval",
+			SELECT to_timestamp(ceil(extract('epoch' from "datetime") / ${seconds}) * ${seconds}) AT TIME ZONE 'UTC' as "interval",
 				ROUND(AVG("kitchen"), 2) as "kitchen",
 				ROUND(AVG("plugs"), 2) as "plugs",
 				ROUND(AVG("lights"), 2) as "lights",
 				ROUND(AVG("solar"), 2) as "solar",
 				ROUND(AVG("ev"), 2) as "ev"
 			FROM "log"
-			WHERE "datetime" > NOW() - INTERVAL ${interval}
+			WHERE "datetime" > NOW() - INTERVAL '${start}' + INTERVAL '${interval}'
+			AND "building" = $1
 			GROUP BY "interval"
 		) as "values"
 		RIGHT JOIN (
 			SELECT generate_series(
-				to_timestamp(ceil(extract('epoch' from max("datetime") - INTERVAL ${interval}) / ${period}) * ${period}) AT TIME ZONE 'UTC',
-				to_timestamp(ceil(extract('epoch' from max("datetime")) / ${period}) * ${period}) AT TIME ZONE 'UTC',
-				${interval}) as "interval"
+				to_timestamp(ceil(extract('epoch' from max("datetime") - INTERVAL '${start}') / ${seconds}) * ${seconds}) AT TIME ZONE 'UTC' + INTERVAL '${interval}',
+				to_timestamp(ceil(extract('epoch' from max("datetime")) / ${seconds}) * ${seconds}) AT TIME ZONE 'UTC',
+				'${interval}') as "interval"
 			FROM log
 		) as "series"
 		USING("interval")
@@ -41,65 +47,108 @@ exports.leaderboard = function(req, res) {
 
 exports.current = function(req, res) {
 	// return average of last 10 minutes of data in the database for the passed building in Watts
-	// TODO sanitize building number
 	// TODO handle no data
 
-	client.connect(function(err) {
-		if (err) throw err;
+	if(buildings.indexOf(req.params.building) === -1) {
+		res.status(400).send({
+			message: 'Invalid building'
+		});
+		return;
+	}
 
-		var query = 'SELECT AVG("kitchen") as "kitchen", \
-							AVG("plugs") as "plugs", \
-							AVG("lights") as "lights", \
-							AVG("solar") as "solar", \
-							AVG("ev") as "ev" \
-						FROM (SELECT * FROM "log" \
-								WHERE "building" = $1 \
-								ORDER BY "datetime" DESC \
-								LIMIT 10) as lastTen';
+	pg.connect(connString, function(err, dbClient, done) {
+		if(err) throw err;
 
-		client.query(query, [req.params.building], function(err, result) {
+		var query = 'SELECT ROUND(AVG("kitchen"), 2) as "kitchen", \
+							ROUND(AVG("plugs"), 2) as "plugs", \
+							ROUND(AVG("lights"), 2) as "lights", \
+							ROUND(AVG("solar"), 2) as "solar", \
+							ROUND(AVG("ev"), 2) as "ev" \
+					FROM (SELECT * FROM "log" \
+						WHERE "building" = $1 \
+						ORDER BY "datetime" DESC \
+						LIMIT 10) as lastTen';
+
+		dbClient.query(query, [req.params.building], function(err, result) {
 			if (err) throw err;
 
 			res.status(200).send({
-				kithen: result.rows[0].kitchen,
-				plugs: result.rows[0].plugs,
-				lights: result.rows[0].lights,
-				solar: result.rows[0].solar,
-				ev: result.rows[0].ev,
-			})
+				kitchen: parseFloat(result.rows[0].kitchen),
+				plugs: parseFloat(result.rows[0].plugs),
+				lights: parseFloat(result.rows[0].lights),
+				solar: parseFloat(result.rows[0].solar),
+				ev: parseFloat(result.rows[0].ev),
+			});
+
+			done();
 		});
+
 	});
 };
 
 exports.historical = function(req, res) {
 
-	var period = '';
-	var interval = 0;
+	if(timespans.indexOf(req.params.time) === -1 || buildings.indexOf(req.params.building) === -1) {
+		res.status(400).send({
+			message: 'Invalid request'
+		});
+		return;
+	}
+
+	var start = '';
+	var minutes = 0;
 
 	switch(req.params.time) {
 		case 'hourly':
 			//every 10 minutes for the last 25 hours
-			period = '25 hours';
-			interval = 10;
+			start = '25 hours';
+			minutes = 10;
 			break;
 		case 'daily':
 			//every 10 minutes for the last 8 days
-			period = '8 days';
-			interval = 10;
+			start = '8 days';
+			minutes = 10;
 			break;
 		case 'weekly':
-			period = '5 weeks';
-			interval = 30;
+			start = '5 weeks';
+			minutes = 30;
 			break;
 		case 'monthly':
-			period = '13 months';
-			interval = 30;
+			start = '13 months';
+			minutes = 30;
 			break;
 	}
 
-	interval *= 60; //convert minutes to seconds
+	pg.connect(connString, function(err, dbClient, done) {
+		if(err) throw err;
 
-	res.status(200).send('Historical data for building '+req.params.building+' ('+req.params.time+')');
+		var query = _buildHistoricalQuery(start, minutes);
+
+		dbClient.query(query, [req.params.building], function(err, result) {
+			if (err) throw err;
+
+			console.log(result.rows[0]);
+
+			var data = [];
+
+			for(var i = 0, len = result.rows.length; i < len; i++) {
+				data.push({
+					kitchen: parseFloat(result.rows[i].kitchen),
+					plugs: parseFloat(result.rows[i].plugs),
+					lights: parseFloat(result.rows[i].lights),
+					solar: parseFloat(result.rows[i].solar),
+					ev: parseFloat(result.rows[i].ev),
+					interval: result.rows[i].interval,
+				});
+			}
+
+			res.status(200).send(data);
+
+			done();
+		});
+
+	});
+
 };
 
 exports.percentzne = function(req, res) {

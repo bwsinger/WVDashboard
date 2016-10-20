@@ -141,7 +141,7 @@ exports.historical = function(req, res) {
 		case 'monthly':
 			//every 30 minutes for the last 13 months
 			start = '13 months';
-			minutes = 30;
+			minutes = 60;
 			break;
 	}
 
@@ -216,40 +216,98 @@ exports.percentzne = function(req, res) {
 	pg.connect(connString, function(err, dbClient, done) {
 		if(err) throw err;
 
-		var query = _buildPercentQuery(start, unit);
+		var query = '';
 
-		dbClient.query(query, [req.params.building], function(err, result) {
-			if (err) throw err;
+		if(req.params.building === 'ALL') {
+			query = _buildPercentQueryAll(start, unit);
 
-			var data = [];
+			dbClient.query(query, [], function(err, result) {
+				if (err) throw err;
 
-			// Build the array to return
-			for(var i = 0, len = result.rows.length; i < len; i++) {
-				data.push({
-					interval: result.rows[i].interval,
-					kw: result.rows[i].kw,
-				});
-			}
+				var data = {};
 
-			res.status(200).send(data); // send response
+				// Build the array to return
+				for(var i = 0, len = result.rows.length; i < len; i++) {
+					if(!data.hasOwnProperty(result.rows[i].building)) {
+						data[result.rows[i].building] = [];
+					}
 
-			done(); // close db connection
-		});
+					data[result.rows[i].building].push({
+						interval: result.rows[i].interval,
+						kw: result.rows[i].kw,
+					});
+				}
+
+				res.status(200).send(data); // send response
+
+				done(); // close db connection
+			});
+		}
+		else {
+			query = _buildPercentQuery(start, unit);
+
+			dbClient.query(query, [req.params.building], function(err, result) {
+				if (err) throw err;
+
+				var data = [];
+
+				// Build the array to return
+				for(var i = 0, len = result.rows.length; i < len; i++) {
+					data.push({
+						interval: result.rows[i].interval,
+						kw: result.rows[i].kw,
+					});
+				}
+
+				res.status(200).send(data); // send response
+
+				done(); // close db connection
+			});
+		}		
 	});
-
 };
 
-function _buildPercentQuery(start, unit) {
 
-	var extract = unit;
-	var start = start+' '+unit+'s';
-	var interval = '1 '+unit;
+function _buildPercentQueryAll(start, unit) {
+	var start = `${start} ${unit}s`;
+	var interval = `1 ${unit}`;
 
 	return `
 		SELECT "series"."interval",
-			ROUND((("kitchen" + "plugs" + "lights" + "ev") - "solar") / 1000, 2) as "kw"
+				"values"."building",
+			ROUND((("values"."kitchen" + "values"."plugs" + "values"."lights" + "values"."ev") - "values"."solar") / 1000, 2) as "kw"
 		FROM (
-			SELECT date_trunc('${extract}',  "datetime") as "interval",
+			SELECT date_trunc('${unit}',  "datetime") as "interval",
+				SUM("kitchen") as "kitchen",
+				SUM("plugs") as "plugs",
+				SUM("lights") as "lights",
+				SUM("solar") as "solar",
+				SUM("ev") as "ev",
+				"building"
+			FROM "log"
+			WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'
+			GROUP BY "building", "interval"
+		) as "values"
+		RIGHT JOIN (
+			SELECT generate_series(
+			date_trunc('${unit}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'),
+			date_trunc('${unit}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${interval}'),
+			'${interval}') as "interval"
+		) as "series"
+		USING("interval")
+		ORDER BY "series"."interval" DESC`;
+}
+
+function _buildPercentQuery(start, unit) {
+
+	var start = `${start} ${unit}s`;
+	var interval = `1 ${unit}`;
+
+	return `
+		SELECT "series"."interval",
+			ROUND((("values"."kitchen" + "values"."plugs" + "values"."lights" + "values"."ev") - "values"."solar") / 1000, 2) as "kw"
+		FROM (
+			SELECT date_trunc('${unit}',  "datetime") as "interval",
 				SUM("kitchen") as "kitchen",
 				SUM("plugs") as "plugs",
 				SUM("lights") as "lights",
@@ -262,8 +320,8 @@ function _buildPercentQuery(start, unit) {
 		) as "values"
 		RIGHT JOIN (
 			SELECT generate_series(
-			date_trunc('${extract}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'),
-			date_trunc('${extract}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${interval}'),
+			date_trunc('${unit}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'),
+			date_trunc('${unit}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${interval}'),
 			'${interval}') as "interval"
 		) as "series"
 		USING("interval")

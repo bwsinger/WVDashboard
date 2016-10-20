@@ -2,9 +2,12 @@
 
 var pg = require('pg'),
 	moment = require('moment'),
-	connString = 'postgres://postgres:postgres@172.18.0.2:5432/feed',
-	buildings = ['1590', '1650'],
-	timespans = ['hourly', 'daily', 'weekly', 'monthly'];
+	config = require('../../config/config');
+
+var connString = config.connString,
+	buildings = ['1590'],
+	timespans = ['hourly', 'daily', 'weekly', 'monthly'],
+	zne_goals = { '1590': 40000 };
 
 exports.leaderboard = function(req, res) {
 
@@ -27,15 +30,13 @@ exports.leaderboard = function(req, res) {
 
 			for(var i = 0, len = result.rows.length; i < len; i++) {
 				current_kw[result.rows[i].building] = parseFloat(result.rows[i].kw);
-			}
-
-			var zne_goals = {
-				'1590': 40000,
-			};
+			} 
 
 			var zne_ratio = .75;
-			var exaggeration_factor = .05;
+			var exaggeration_factor = 0;
 
+			// Caculate the ratio of the current time to the entire week to scale
+			// the weekly zne to the current day
 			var minutes_in_week = 60*24*7; // minutes * hours * days
 			var minutes_so_far = moment().diff(moment().startOf('isoWeek')) / (1000 * 60); // ms -> minutes
 			var minute_ratio = minutes_so_far / minutes_in_week;
@@ -44,10 +45,18 @@ exports.leaderboard = function(req, res) {
 				'ZNE': zne_ratio * minute_ratio, // location of zne "line" for current day
 			};
 
+			// Calculate the position of each building
 			for(var building in zne_goals) {
-				var percent_used = (current_kw[building] / zne_goals[building]) / minute_ratio; // how much have we used?
-				percent_used = 1+(1+exaggeration_factor)*(percent_used-1); //do exaggeration
-				positions[building] = positions['ZNE'] * (1/percent_used); // calculate position on track
+				// how much of the zne goal has been used
+				// (compared to adjusted goal for the current day)
+				var percent_used = current_kw[building] / (zne_goals[building] * minute_ratio);
+
+				//do exaggeration
+				percent_used = 1 + (1 + exaggeration_factor) * (percent_used - 1);
+
+				// calculate the position compared to the zne "line" for current day
+				// Inverted because values lower than ZNE are good and higher are bad
+				positions[building] = positions['ZNE'] / percent_used;
 			}
 
 			res.status(200).send(positions); // send response
@@ -177,8 +186,89 @@ exports.percentzne = function(req, res) {
 		return;
 	}
 
-	res.status(200).send('Percent ZNE for building '+req.params.building+' ('+req.params.timespan+')');
+	var start = 0;
+	var unit = '';
+
+	// Set the appropriate options to build the query
+	switch(req.params.timespan) {
+		case 'hourly':
+			// every hour for the last 8 hours
+			start = 8;
+			unit = 'hour';
+			break;
+		case 'daily':
+			// every day for the last 7 days
+			start = 7;
+			unit = 'day';
+			break;
+		case 'weekly':
+			// every week for the last 4 weeks
+			start = 4;
+			unit = 'week';
+			break;
+		case 'monthly':
+			// every month for the last 6 months
+			start = 6;
+			unit = 'month';
+			break;
+	}
+
+	pg.connect(connString, function(err, dbClient, done) {
+		if(err) throw err;
+
+		var query = _buildPercentQuery(start, unit);
+
+		dbClient.query(query, [req.params.building], function(err, result) {
+			if (err) throw err;
+
+			var data = [];
+
+			// Build the array to return
+			for(var i = 0, len = result.rows.length; i < len; i++) {
+				data.push({
+					interval: result.rows[i].interval,
+					kw: result.rows[i].kw,
+				});
+			}
+
+			res.status(200).send(data); // send response
+
+			done(); // close db connection
+		});
+	});
+
 };
+
+function _buildPercentQuery(start, unit) {
+
+	var extract = unit;
+	var start = start+' '+unit+'s';
+	var interval = '1 '+unit;
+
+	return `
+		SELECT "series"."interval",
+			ROUND((("kitchen" + "plugs" + "lights" + "ev") - "solar") / 1000, 2) as "kw"
+		FROM (
+			SELECT date_trunc('${extract}',  "datetime") as "interval",
+				SUM("kitchen") as "kitchen",
+				SUM("plugs") as "plugs",
+				SUM("lights") as "lights",
+				SUM("solar") as "solar",
+				SUM("ev") as "ev"
+			FROM "log"
+			WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'
+			AND "building" = $1
+			GROUP BY "interval"
+		) as "values"
+		RIGHT JOIN (
+			SELECT generate_series(
+			date_trunc('${extract}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'),
+			date_trunc('${extract}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${interval}'),
+			'${interval}') as "interval"
+		) as "series"
+		USING("interval")
+		ORDER BY "series"."interval" DESC`;
+}
 
 function _buildHistoricalQuery(start, minutes) {
 
@@ -200,7 +290,7 @@ function _buildHistoricalQuery(start, minutes) {
 				ROUND(AVG("solar"), 2) as "solar",
 				ROUND(AVG("ev"), 2) as "ev"
 			FROM "log"
-			WHERE "datetime" > NOW() - INTERVAL '${start}' + INTERVAL '${interval}'
+			WHERE "datetime" > NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}' + INTERVAL '${interval}'
 			AND "building" = $1
 			GROUP BY "interval"
 		) as "values"

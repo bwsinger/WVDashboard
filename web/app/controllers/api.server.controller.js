@@ -5,9 +5,8 @@ var pg = require('pg'),
 	config = require('../../config/config');
 
 var connString = config.connString,
-	buildings = ['1590'],
 	timespans = ['hourly', 'daily', 'weekly', 'monthly'],
-	zne_goals = { '1590': 40000 };
+	zne_goals = { '1590': 80000 }; // TODO generate this list from db
 
 exports.leaderboard = function(req, res) {
 
@@ -68,183 +67,103 @@ exports.leaderboard = function(req, res) {
 
 exports.current = function(req, res) {
 	// return average of last 10 minutes of data in the database for the passed building in Watts
-	// TODO handle no data (nulls) here? or handle at client?
-
-	if(buildings.indexOf(req.params.building) === -1) {
-		res.status(400).send({
-			message: 'Invalid request'
-		});
-		return;
-	}
 
 	pg.connect(connString, function(err, dbClient, done) {
 		if(err) throw err;
 
-		var query = `SELECT ROUND(AVG("kitchen"), 2) as "kitchen",
-							ROUND(AVG("plugs"), 2) as "plugs",
-							ROUND(AVG("lights"), 2) as "lights",
-							ROUND(AVG("solar"), 2) as "solar",
-							ROUND(AVG("ev"), 2) as "ev"
-					FROM (
-						SELECT * FROM "log"
-						WHERE "building" = $1
-						ORDER BY "datetime" DESC
-						LIMIT 10
-					) as "lastTen"`;
+		dbClient.query('SELECT DISTINCT "building" FROM "log"', [], function(err, result) {
 
-		dbClient.query(query, [req.params.building], function(err, result) {
-			if (err) throw err;
+			var buildings = [];
 
-			res.status(200).send({
-				kitchen: parseFloat(result.rows[0].kitchen),
-				plugs: parseFloat(result.rows[0].plugs),
-				lights: parseFloat(result.rows[0].lights),
-				solar: parseFloat(result.rows[0].solar),
-				ev: parseFloat(result.rows[0].ev),
-			}); // send response
+			for(var i = 0, len = result.rows.length; i < len; i++) {
+				buildings.push(result.rows[i].building);
+			}
 
-			done(); // close db connection
+			if(buildings.indexOf(req.params.building) === -1) {
+				res.status(400).send({
+					message: 'Invalid request'
+				});
+				return;
+			}
+
+			var query = `SELECT ROUND(AVG("kitchen"), 2) as "kitchen",
+								ROUND(AVG("plugs"), 2) as "plugs",
+								ROUND(AVG("lights"), 2) as "lights",
+								ROUND(AVG("solar"), 2) as "solar",
+								ROUND(AVG("ev"), 2) as "ev"
+						FROM (
+							SELECT * FROM "log"
+							WHERE "building" = $1
+							ORDER BY "datetime" DESC
+							LIMIT 10
+						) as "lastTen"`;
+
+			dbClient.query(query, [req.params.building], function(err, result) {
+				if (err) throw err;
+
+				res.status(200).send({
+					kitchen: result.rows[0].kitchen !== null ? parseFloat(result.rows[0].kitchen) : 0,
+					plugs: result.rows[0].plugs !== null ? parseFloat(result.rows[0].plugs) : 0,
+					lights: result.rows[0].lights !== null ? parseFloat(result.rows[0].lights) : 0,
+					solar: result.rows[0].solar !== null ? parseFloat(result.rows[0].solar) : 0,
+					ev: result.rows[0].ev !== null ? parseFloat(result.rows[0].ev) : 0,
+				}); // send response
+
+				done(); // close db connection
+			});
 		});
 	});
 };
 
 exports.historical = function(req, res) {
 
-	// Validate parameters
-	if(timespans.indexOf(req.params.timespan) === -1 || buildings.indexOf(req.params.building) === -1) {
-		res.status(400).send({
-			message: 'Invalid request'
-		});
-		return;
-	}
-
-	var start = '';
-	var minutes = 0;
-
-	// Set the appropriate options to build the query
-	switch(req.params.timespan) {
-		case 'hourly':
-			//every 10 minutes for the last 25 hours
-			start = '25 hours';
-			minutes = 10;
-			break;
-		case 'daily':
-			//every 10 minutes for the last 8 days
-			start = '8 days';
-			minutes = 10;
-			break;
-		case 'weekly':
-			//every 30 minutes for the last 5 weeks
-			start = '5 weeks';
-			minutes = 30;
-			break;
-		case 'monthly':
-			//every 30 minutes for the last 13 months
-			start = '13 months';
-			minutes = 60;
-			break;
-	}
-
 	pg.connect(connString, function(err, dbClient, done) {
 		if(err) throw err;
 
-		var query = _buildHistoricalQuery(start, minutes);
+		dbClient.query('SELECT DISTINCT "building" FROM "log"', [], function(err, result) {
 
-		dbClient.query(query, [req.params.building], function(err, result) {
-			if (err) throw err;
+			var buildings = [];
 
-			var data = [];
-
-			// Build the array to return
 			for(var i = 0, len = result.rows.length; i < len; i++) {
-				data.push({
-					kitchen: parseFloat(result.rows[i].kitchen),
-					plugs: parseFloat(result.rows[i].plugs),
-					lights: parseFloat(result.rows[i].lights),
-					solar: parseFloat(result.rows[i].solar),
-					ev: parseFloat(result.rows[i].ev),
-					interval: result.rows[i].interval,
-				});
+				buildings.push(result.rows[i].building);
 			}
 
-			res.status(200).send(data); // send response
+			// Validate parameters
+			if(timespans.indexOf(req.params.timespan) === -1 || buildings.indexOf(req.params.building) === -1) {
+				res.status(400).send({
+					message: 'Invalid request'
+				});
+				return;
+			}
 
-			done(); // close db connection
-		});
-	});
-};
+			var start = '';
+			var minutes = 0;
 
-exports.percentzne = function(req, res) {
+			// Set the appropriate options to build the query
+			switch(req.params.timespan) {
+				case 'hourly':
+					//every 10 minutes for the last 25 hours
+					start = '25 hours';
+					minutes = 10;
+					break;
+				case 'daily':
+					//every 10 minutes for the last 8 days
+					start = '8 days';
+					minutes = 10;
+					break;
+				case 'weekly':
+					//every 30 minutes for the last 5 weeks
+					start = '5 weeks';
+					minutes = 30;
+					break;
+				case 'monthly':
+					//every 30 minutes for the last 13 months
+					start = '13 months';
+					minutes = 60;
+					break;
+			}
 
-	// Validate parameters
-	if(timespans.indexOf(req.params.timespan) === -1 ||
-		(buildings.indexOf(req.params.building) === -1 &&
-			req.params.building !== 'ALL') ) {
-		res.status(400).send({
-			message: 'Invalid request'
-		});
-		return;
-	}
-
-	var start = 0;
-	var unit = '';
-
-	// Set the appropriate options to build the query
-	switch(req.params.timespan) {
-		case 'hourly':
-			// every hour for the last 8 hours
-			start = 8;
-			unit = 'hour';
-			break;
-		case 'daily':
-			// every day for the last 7 days
-			start = 7;
-			unit = 'day';
-			break;
-		case 'weekly':
-			// every week for the last 4 weeks
-			start = 4;
-			unit = 'week';
-			break;
-		case 'monthly':
-			// every month for the last 6 months
-			start = 6;
-			unit = 'month';
-			break;
-	}
-
-	pg.connect(connString, function(err, dbClient, done) {
-		if(err) throw err;
-
-		var query = '';
-
-		if(req.params.building === 'ALL') {
-			query = _buildPercentQueryAll(start, unit);
-
-			dbClient.query(query, [], function(err, result) {
-				if (err) throw err;
-
-				var data = {};
-
-				// Build the array to return
-				for(var i = 0, len = result.rows.length; i < len; i++) {
-					if(!data.hasOwnProperty(result.rows[i].building)) {
-						data[result.rows[i].building] = [];
-					}
-
-					data[result.rows[i].building].push({
-						interval: result.rows[i].interval,
-						kw: result.rows[i].kw,
-					});
-				}
-
-				res.status(200).send(data); // send response
-
-				done(); // close db connection
-			});
-		}
-		else {
-			query = _buildPercentQuery(start, unit);
+			var query = _buildHistoricalQuery(start, minutes);
 
 			dbClient.query(query, [req.params.building], function(err, result) {
 				if (err) throw err;
@@ -254,8 +173,9 @@ exports.percentzne = function(req, res) {
 				// Build the array to return
 				for(var i = 0, len = result.rows.length; i < len; i++) {
 					data.push({
+						demand: parseFloat(result.rows[i].demand),
+						production: parseFloat(result.rows[i].production),
 						interval: result.rows[i].interval,
-						kw: result.rows[i].kw,
 					});
 				}
 
@@ -263,7 +183,137 @@ exports.percentzne = function(req, res) {
 
 				done(); // close db connection
 			});
-		}		
+		});
+	});
+};
+
+exports.percentzne = function(req, res) {
+
+	pg.connect(connString, function(err, dbClient, done) {
+		if(err) throw err;
+
+		dbClient.query('SELECT DISTINCT "building" FROM "log"', [], function(err, result) {
+
+			var buildings = [];
+
+			for(var i = 0, len = result.rows.length; i < len; i++) {
+				buildings.push(result.rows[i].building);
+			}
+
+			// Validate parameters
+			if(timespans.indexOf(req.params.timespan) === -1 ||
+				(buildings.indexOf(req.params.building) === -1 &&
+					req.params.building !== 'ALL') ) {
+				res.status(400).send({
+					message: 'Invalid request'
+				});
+				return;
+			}
+
+			var start = 0;
+			var unit = '';
+			var multiplier = 1;
+
+			// Set the appropriate options to build the query
+			// Get the multiplier to adjust ZNE goals according to timespan
+			switch(req.params.timespan) {
+				case 'hourly':
+					// every hour for the last 8 hours
+					start = 8;
+					unit = 'hour';
+					multiplier = 1 / (24 * 7) // weekly to hourly
+					break;
+				case 'daily':
+					// every day for the last 7 days
+					start = 7;
+					unit = 'day';
+					multiplier = 1 / 7 // weekly to daily
+					break;
+				case 'weekly':
+					// every week for the last 4 weeks
+					start = 4;
+					unit = 'week';
+					multiplier = 1 // weekly
+					break;
+				case 'monthly':
+					// every month for the last 6 months
+					start = 6;
+					unit = 'month';
+					multiplier = 4 // weekly to monthly
+					break;
+			}
+
+			// Adjust the ZNE goals from weekly to the time span in question
+			var zne_adjusted = {};
+
+			for(var goal in zne_goals) {
+				zne_adjusted[goal] = zne_goals[goal] * multiplier;
+			}
+
+			var query = '';
+
+			if(req.params.building === 'ALL') {
+				query = _buildPercentQueryAll(start, unit);
+
+				dbClient.query(query, [], function(err, result) {
+					if (err) throw err;
+
+					var data = {};
+
+					// Build the array to return
+					for(var i = 0, len = result.rows.length; i < len; i++) {
+
+						if(result.rows[i].building !== null) {
+
+							if(!data.hasOwnProperty(result.rows[i].building)) {
+								data[result.rows[i].building] = [];
+							}
+
+							var percent = 0;
+							if(result.rows[i].kw !== null) {
+								percent = (1 - (parseFloat(result.rows[i].kw) / zne_adjusted[result.rows[i].building])) * 100;
+							}
+
+							data[result.rows[i].building].push({
+								interval: result.rows[i].interval,
+								percent: percent,
+							});
+						}
+					}
+
+					res.status(200).send(data); // send response
+
+					done(); // close db connection
+				});
+			}
+			else {
+				query = _buildPercentQuery(start, unit);
+
+				dbClient.query(query, [req.params.building], function(err, result) {
+					if (err) throw err;
+
+					var data = [];
+
+					// Build the array to return
+					for(var i = 0, len = result.rows.length; i < len; i++) {
+
+						var percent = 0;
+						if(result.rows[i].kw !== null) {
+							percent = (1 - (parseFloat(result.rows[i].kw) / zne_adjusted[req.params.building])) * 100;
+						}
+
+						data.push({
+							interval: result.rows[i].interval,
+							percent: percent,
+						});
+					}
+
+					res.status(200).send(data); // send response
+
+					done(); // close db connection
+				});
+			}		
+		});
 	});
 };
 
@@ -335,18 +385,15 @@ function _buildHistoricalQuery(start, minutes) {
 
 	return `
 		SELECT "series"."interval",
-			COALESCE("values"."kitchen", 0) as "kitchen",
-			COALESCE("values"."plugs", 0) as "plugs",
-			COALESCE("values"."lights", 0) as "lights",
-			COALESCE("values"."solar", 0) as "solar",
-			COALESCE("values"."ev", 0) as "ev"
+			ROUND(("values"."kitchen" + "values"."plugs" + "values"."lights" + "values"."ev") / 1000, 2) as "demand",
+			ROUND("values"."solar" / 1000, 2) as "production"
 		FROM (
 			SELECT to_timestamp(ceil(extract('epoch' from "datetime") / ${seconds}) * ${seconds}) AT TIME ZONE 'UTC' as "interval",
-				ROUND(AVG("kitchen"), 2) as "kitchen",
-				ROUND(AVG("plugs"), 2) as "plugs",
-				ROUND(AVG("lights"), 2) as "lights",
-				ROUND(AVG("solar"), 2) as "solar",
-				ROUND(AVG("ev"), 2) as "ev"
+				AVG("kitchen") as "kitchen",
+				AVG("plugs") as "plugs",
+				AVG("lights") as "lights",
+				AVG("solar") as "solar",
+				AVG("ev") as "ev"
 			FROM "log"
 			WHERE "datetime" > NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}' + INTERVAL '${interval}'
 			AND "building" = $1

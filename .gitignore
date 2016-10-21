@@ -2,4 +2,5 @@ tasks/venv/
 data/
 web/node_modules/
 web/public/lib/
+web/.sass-cache
 

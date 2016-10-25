@@ -11,9 +11,6 @@
 
 		var vm = this;
 
-		vm.timespans = ['hourly', 'daily', 'weekly', 'monthly'];
-
-		vm.building = $routeParams.building;
 		vm.changePercentTimespan = changePercentTimespan;
 		vm.changeHistoricalTimespan = changeHistoricalTimespan;
 
@@ -23,8 +20,31 @@
 
 		function activate() {
 
+			vm.building = $routeParams.building;
+			vm.timespans = ['hourly', 'daily', 'weekly', 'monthly'];
+
 			Hobo.getLeaderboard().then(function(data) {
 				vm.leaderboardData = data;
+
+				if(data.hasOwnProperty(vm.building)) {
+
+					if(data[vm.building] < data['ZNE']) {
+						vm.state = 'negative';
+					}
+					else {
+						vm.state = 'positive';
+					}
+
+					var place = 1;
+
+					for(var building in data) {
+						if(building != 'ZNE' && building != vm.building && data[building] > data[vm.building]) {
+								place++;
+						}
+					}
+
+					vm.place = place;
+				}
 			});
 
 			Hobo.getCurrent(vm.building).then(function(data) {

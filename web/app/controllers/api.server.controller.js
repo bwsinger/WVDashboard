@@ -101,13 +101,18 @@ exports.current = function(req, res) {
 			dbClient.query(query, [req.params.building], function(err, result) {
 				if (err) throw err;
 
-				res.status(200).send({
-					kitchen: result.rows[0].kitchen !== null ? parseFloat(result.rows[0].kitchen) : 0,
-					plugs: result.rows[0].plugs !== null ? parseFloat(result.rows[0].plugs) : 0,
-					lights: result.rows[0].lights !== null ? parseFloat(result.rows[0].lights) : 0,
+				var data = {
+					kitchen: result.rows[0].kitchen !== null ? -parseFloat(result.rows[0].kitchen) : 0,
+					plugs: result.rows[0].plugs !== null ? -parseFloat(result.rows[0].plugs) : 0,
+					lights: result.rows[0].lights !== null ? -parseFloat(result.rows[0].lights) : 0,
 					solar: result.rows[0].solar !== null ? parseFloat(result.rows[0].solar) : 0,
-					ev: result.rows[0].ev !== null ? parseFloat(result.rows[0].ev) : 0,
-				}); // send response
+					ev: result.rows[0].ev !== null ? -parseFloat(result.rows[0].ev) : 0,
+				};
+
+				data.total = data.solar+data.kitchen+data.plugs+data.lights+data.ev;
+				data.total = data.total.toFixed(2);
+
+				res.status(200).send(data); // send response
 
 				done(); // close db connection
 			});

@@ -7,7 +7,7 @@
 
 	AboutController.$inject = [];
 
-	function AboutController($routeParams) {
+	function AboutController() {
 
 		var vm = this;
 		var tiles = {

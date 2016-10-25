@@ -1,14 +1,14 @@
-<div class="container-fluid" style="height: 100%;">
-	<div class="row" style="height: 30%;"><br></div>
-	<div class="row" style="height: 60%;">
-		<div class="col-xs-6" style="background-color: grey; height: 100%;">
-			<h2>{{vm.title}}</h2>
+<div class="container-fluid full-height">
+	<!-- <div class="row" style="height: 30%;"><br></div> -->
+	<div class="row about-main">
+		<div class="col-xs-6 full-height about-content">
+			<h1>{{vm.title}}</h1>
 			<div ng-include="vm.currentTemplate"></div>
 		</div>
-		<div class="col-xs-6" style="background-color: yellow; height: 100%;">
-			<ul style="height: 100%;">
-				<li ng-repeat="(tile, title) in vm.tiles" ng-click="vm.changeTile(tile)" ng-show="vm.current != tile" style="height: 50%;">
-					{{title}}
+		<div class="col-xs-6 full-height">
+			<ul class="full-height about-list">
+				<li ng-repeat="(tile, title) in vm.tiles" ng-click="vm.changeTile(tile)" ng-if="vm.current != tile">
+					<h1>{{title}}</h1>
 				</li>
 			</ul>
 		</div>

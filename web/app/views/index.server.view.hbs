@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Eco Dashboard</title>
+
+    <link rel="stylesheet" href="./lib/bootstrap/dist/css/bootstrap.css">
+
+  </head>
+  <body ng-cloak>
+
+    <nav class="navbar navbar-default" ng-include="'./modules/core/views/header.client.view.html'"></nav>
+
+    <div ng-view> </div>
+  </body>
+
+  <script type='text/javascript' src='./lib/jquery/dist/jquery.js'></script>
+  <script type='text/javascript' src='./lib/bootstrap/dist/js/bootstrap.js'></script>
+
+  <script type='text/javascript' src='./lib/angular/angular.js'></script>
+  <script type='text/javascript' src='./lib/angular-route/angular-route.js'></script>
+
+  <script type='text/javascript' src='./modules/about/about.client.module.js'></script>
+  <script type='text/javascript' src='./modules/about/config/about.client.routes.js'></script>
+  <script type='text/javascript' src='./modules/about/controllers/about.client.controller.js'></script>
+
+  <script type='text/javascript' src='./modules/dashboard/dashboard.client.module.js'></script>
+  <script type='text/javascript' src='./modules/dashboard/config/dashboard.client.routes.js'></script>
+  <script type='text/javascript' src='./modules/dashboard/controllers/dashboard.client.controller.js'></script>
+
+  <script type='text/javascript' src='./modules/splash/splash.client.module.js'></script>
+  <script type='text/javascript' src='./modules/splash/config/splash.client.routes.js'></script>
+
+  <script type='text/javascript' src='./application.js'></script>
+</html>

@@ -1,0 +1,13 @@
+<div class="container-fluid">
+	<div class="row">
+		<div class="col-xs-6">
+			<h2>{{vm.title}}</h2>
+			<div ng-include="vm.currentTemplate"></div>
+		</div>
+		<div class="col-xs-6">
+			<ul>
+				<li ng-repeat="(tile, title) in vm.tiles" ng-click="vm.changeTile(tile)" ng-show="vm.current != tile">{{title}}</li>
+			</ul>
+		</div>
+	</div>
+</div>

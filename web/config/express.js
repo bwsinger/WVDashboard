@@ -32,8 +32,9 @@ module.exports = function() {
 	app.use(cookieParser()); // is this actually used/needed
 
 	// Templates
+	app.engine('server.view.hbs', require('hbs').__express);
+	app.set('view engine', 'server.view.hbs');
 	app.set('views', './app/views');
-	app.set('view engine', 'hbs');
 
 	// Routes
 	require('../app/routes/core.server.routes.js')(app);

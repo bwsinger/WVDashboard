@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" style="height:100%;">
+<html lang="en" class="full-height">
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,13 +8,18 @@
     <title>Eco Dashboard</title>
 
     <link rel="stylesheet" href="./lib/bootstrap/dist/css/bootstrap.css">
+    <link rel="stylesheet" href="./dist/css/main.css">
 
   </head>
-  <body ng-cloak style="height:100%;">
+  <body ng-cloak class="full-height">
 
-    <nav class="navbar navbar-default navbar-fixed-top" style="background: none; border: 0;" ng-include="'./modules/core/views/header.client.view.html'"></nav>
+    <!--<nav class="navbar navbar-default navbar-fixed-top" style="background: none; border: 0;" ng-include="'./modules/core/views/header.client.view.html'"></nav>-->
 
-    <div ng-view class="container-fluid" style="height:100%;"></div>
+    <div ng-include="'./modules/core/views/menu.client.view.html'" ng-controller="Menu as menu"></div>
+
+    <div class="logo"><a href="#!/"><img src="./images/WVED_logo_white.svg"></a></div>
+
+    <div ng-view class="container-fluid full-height"></div>
   </body>
 
   <script type='text/javascript' src='./lib/jquery/dist/jquery.js'></script>
@@ -22,6 +27,9 @@
 
   <script type='text/javascript' src='./lib/angular/angular.js'></script>
   <script type='text/javascript' src='./lib/angular-route/angular-route.js'></script>
+
+  <script type='text/javascript' src='./modules/core/core.client.module.js'></script>
+  <script type='text/javascript' src='./modules/core/controllers/menu.client.controller.js'></script>
 
   <script type='text/javascript' src='./modules/about/about.client.module.js'></script>
   <script type='text/javascript' src='./modules/about/config/about.client.routes.js'></script>

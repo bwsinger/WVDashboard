@@ -18,6 +18,8 @@ services:
       - db
   web:
     build: ./web
+    environment:
+      - NODE_ENV=docker
     volumes:
       - /web:/usr/app/src
     ports:

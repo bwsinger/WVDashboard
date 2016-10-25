@@ -1,0 +1,11 @@
+<img class="hamburger hamburger-top" ng-click="menu.toggle()" src="./images/Menu.svg">
+
+<div class="full-height menu" ng-show="menu.visible">
+  <img class="hamburger" src="./images/Menu.svg" ng-click="menu.toggle()">
+  <ul>
+    <li ng-repeat="item in menu.items" ng-class="{active: item.link !== '' && item.link == menu.location}">
+      <a ng-if="item.link !== menu.location && item.link !== ''" href="#!{{item.link}}">{{item.text}}</a>
+      <span ng-if="item.link === menu.location || item.link === ''" ng-class="{'text': item.link === ''}">{{item.text}}</span>
+    </li>
+  </ul>
+</div>

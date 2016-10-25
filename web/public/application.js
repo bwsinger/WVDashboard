@@ -3,6 +3,7 @@
 
 	var dependencies = [
 		'ngRoute',
+		'core',
 		'about',
 		'splash',
 		'dashboard',

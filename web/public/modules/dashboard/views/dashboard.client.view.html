@@ -1,1 +1,46 @@
-<h1>Dashboard for {{vm.building}}</h1>
+<div class="row" style="height:100%;">
+
+	<!-- Left column -->
+	<div class="col-xs-8" style="height:100%;">
+		<!-- Top section -->
+		<div class="row" style="height:40%;">
+			<!-- Horse section -->
+			<div class="col-xs-4" style="background-color: red; height: 100%;">
+				<h1 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Horse for {{vm.building}}</h1>
+			</div>
+			<!-- Leaderboard section -->
+			<div class="col-xs-8" style="background-color: blue; height: 100%;">
+				<h1 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Leaderboard</h1>
+			</div>
+		</div>
+		<div style="height:60%;">
+			<div class="row" style="height:20.8%;">
+				<!-- Current power section -->
+				<div class="col-xs-12" style="background-color: yellow; height: 100%; margin-top: 6%;">
+					<h1 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Current power demand</h1>
+				</div>
+			</div>
+			<div class="row" style="height:51%;">
+				<!-- Historical power section -->
+				<div class="col-xs-12" style="background-color: green; height: 100%; margin-top: 6%;">
+					<h1 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Historical power demand</h1>
+					<ul>
+						<li ng-repeat="timespan in vm.timespans" ng-click="vm.changeHistoricalTimespan(timespan)" ng-class="{'active': timespan === vm.historicalTimespan}">
+							{{timespan}}
+						</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Right column -->
+	<div class="col-xs-4" style="height:100%; background-color:grey;">
+		<h1 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Percent ZNE goal</h1>
+		<ul>
+			<li ng-repeat="timespan in vm.timespans" ng-click="vm.changePercentTimespan(timespan)" ng-class="{'active': timespan === vm.percentTimespan}">
+				{{timespan}}
+			</li>
+		</ul>
+	</div>
+</div>

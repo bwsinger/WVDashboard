@@ -1,0 +1,62 @@
+<!-- Current power section -->
+<div class="col-xs-12 full-height">
+	<div class="current-power">
+		<div class="current-power-tile">
+			<img class="current-power-img" src="./images/current/Solar.svg">
+			<div class="current-value current-value-solar">{{vm.currentData.solar}} W</div>
+		</div>
+
+		<div class="current-power-tile">
+			<img ng-if="vm.enabled.hvac" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggle('hvac');">
+			<img ng-if="!vm.enabled.hvac" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggle('hvac');">
+			<img class="current-power-img" src="./images/current/HVAC.svg">
+			<div class="current-value" ng-class="{'current-value-negative': vm.currentData.total < 0}">
+				{{vm.currentData.hvac}} W
+			</div>
+		</div>
+
+		<div class="current-power-tile">
+			<img ng-if="vm.enabled.lights" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggle('lights');">
+			<img ng-if="!vm.enabled.lights" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggle('lights');">
+			<img class="current-power-img" src="./images/current/Lights.svg">
+			<div class="current-value" ng-class="{'current-value-negative': vm.currentData.total < 0}">
+				{{vm.currentData.lights}} W
+			</div>
+		</div>
+
+		<div class="current-power-tile">
+			<img ng-if="vm.enabled.plugs" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggle('plugs');">
+			<img ng-if="!vm.enabled.plugs" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggle('plugs');">
+			<img class="current-power-img" src="./images/current/Plugs.svg">
+			<div class="current-value" ng-class="{'current-value-negative': vm.currentData.total < 0}">
+				{{vm.currentData.plugs}} W
+			</div>
+		</div>
+
+		<div class="current-power-tile">
+			<img ng-if="vm.enabled.kitchen" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggle('kitchen');">
+			<img ng-if="!vm.enabled.kitchen" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggle('kitchen');">
+			<img class="current-power-img" src="./images/current/Kitchen.svg">
+			<div class="current-value" ng-class="{'current-value-negative': vm.currentData.total < 0}">
+				{{vm.currentData.kitchen}} W
+			</div>
+		</div>
+
+		<div class="current-power-tile">
+			<img ng-if="vm.enabled.ev" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggle('ev');">
+			<img ng-if="!vm.enabled.ev" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggle('ev');">
+			<img class="current-power-img" src="./images/current/EV.svg">
+			<div class="current-value" ng-class="{'current-value-negative': vm.currentData.total < 0}">
+				{{vm.currentData.ev}} W
+			</div>
+		</div>
+
+		<div class="current-power-tile current-power-sum">
+			<img class="current-power-img" ng-if="vm.currentData.total >= 0" src="./images/current/sum_green.svg">
+			<img class="current-power-img" ng-if="vm.currentData.total < 0" src="./images/current/sum_red.svg">
+			<div class="current-value" ng-class="{'current-value-negative': vm.currentData.total < 0}">
+				{{vm.currentData.total}} W
+			</div>
+		</div>
+	</div>
+</div>

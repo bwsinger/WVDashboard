@@ -13,6 +13,7 @@
 
 		vm.changePercentTimespan = changePercentTimespan;
 		vm.changeHistoricalTimespan = changeHistoricalTimespan;
+		vm.toggle = toggle;
 
 		activate();
 
@@ -39,7 +40,7 @@
 
 					for(var building in data) {
 						if(building != 'ZNE' && building != vm.building && data[building] > data[vm.building]) {
-								place++;
+							place++;
 						}
 					}
 
@@ -49,11 +50,21 @@
 
 			Hobo.getCurrent(vm.building).then(function(data) {
 				vm.currentData = data;
+				
+				vm.enabled = {}
+
+				for(var enduse in data) {
+					vm.enabled[enduse] = true;
+				}
 			});
 
 			//defaults
 			changeHistoricalTimespan(vm.timespans[2]);
 			changePercentTimespan(vm.timespans[2]);
+		}
+
+		function toggle(enduse) {
+			vm.enabled[enduse] = ! vm.enabled[enduse];
 		}
 
 		function changeHistoricalTimespan(timespan) {

@@ -1,0 +1,8 @@
+<h1 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">Percent ZNE goal</h1>
+<ul>
+	<li ng-repeat="timespan in vm.timespans" ng-click="vm.changePercentTimespan(timespan)" ng-class="{'active': timespan === vm.percentTimespan}">
+		{{timespan}}
+	</li>
+</ul>
+
+<percentzneGraph data="vm.percentData"></percentzneGraph>

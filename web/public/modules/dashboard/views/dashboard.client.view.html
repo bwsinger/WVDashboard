@@ -1,61 +1,29 @@
-<div class="row" style="height:100%;">
+<div class="row full-height">
 
 	<!-- Left column -->
-	<div class="col-xs-8" style="height:100%; padding: 0;">
+	<div class="col-xs-8 full-height section-left">
+
 		<!-- Top section -->
-		<div class="row" style="height:40%;">
+		<div class="row section-left-top">
 			<!-- Horse section -->
-			<div class="col-xs-4" style="height: 100%;">
-				<img style=" height: 80%; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" src="./images/horses_main/{{vm.building}}-{{vm.place}}-{{vm.state}}.svg" alt="Horse for {{vm.building}}">
+			<div class="col-xs-4 full-height">
+				<img class="mascot" src="./images/horses_main/{{vm.building}}-{{vm.place}}-{{vm.state}}.svg" alt="Horse for {{vm.building}}">
 			</div>
 
 			<!-- Leaderboard section -->
-			<div class="col-xs-8" style="height: 100%; background-color: #a7bcb6;">
-				<h1 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">Leaderboard</h1>
-
-				<leaderboardGraph data="vm.leaderboardData"></leaderboardGraph>
-			</div>
+			<div class="col-xs-8 full-height leaderboard-container" ng-include="'./modules/dashboard/views/leaderboard.client.view.html'"></div>
 		</div>
-		<div style="height:60%; background-color: #7fa097;">
-			<div class="row" style="height:35%;">
-				<!-- Current power section -->
-				<div class="col-xs-12" style="height: 100%;">
-					<h1 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">Current power demand</h1>
 
-					<div>Solar: {{vm.currentData.solar}}</div>
-					<div>HVAC: <span ng-class="{'negative': vm.currentData.total < 0}">??</span></div>
-					<div>Lights: <span ng-class="{'negative': vm.currentData.total < 0}">{{vm.currentData.lights}}</span></div>
-					<div>Plugs: <span ng-class="{'negative': vm.currentData.total < 0}">{{vm.currentData.plugs}}</span></div>
-					<div>Kitchen: <span ng-class="{'negative': vm.currentData.total < 0}">{{vm.currentData.kitchen}}</span></div>
-					<div>EV: <span ng-class="{'negative': vm.currentData.total < 0}">{{vm.currentData.ev}}</span></div>
-					<div>Total: <span ng-class="{'negative': vm.currentData.total < 0}">{{vm.currentData.total}}</span></div>
-				</div>
-			</div>
-			<div class="row" style="height:65%;">
-				<!-- Historical power section -->
-				<div class="col-xs-12" style="height: 100%;">
-					<h1 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">Historical power demand</h1>
-					<ul>
-						<li ng-repeat="timespan in vm.timespans" ng-click="vm.changeHistoricalTimespan(timespan)" ng-class="{'active': timespan === vm.historicalTimespan}">
-							{{timespan}}
-						</li>
-					</ul>
+		<!-- Bottom section -->
+		<div class="section-left-bottom">
+			<!-- Current power section -->
+			<div class="row current-power-container" ng-include="'./modules/dashboard/views/current.client.view.html'"></div>
 
-					<historicalGraph data="vm.historicalData"></historicalGraph>
-				</div>
-			</div>
+			<!-- Historical power section -->
+			<div class="row historical-power-container" ng-include="'./modules/dashboard/views/historical.client.view.html'"></div>
 		</div>
 	</div>
 
 	<!-- Right column -->
-	<div class="col-xs-4" style="height:100%; background-color: #46605a;">
-		<h1 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); margin: 0;">Percent ZNE goal</h1>
-		<ul>
-			<li ng-repeat="timespan in vm.timespans" ng-click="vm.changePercentTimespan(timespan)" ng-class="{'active': timespan === vm.percentTimespan}">
-				{{timespan}}
-			</li>
-		</ul>
-
-		<percentzneGraph data="vm.percentData"></percentzneGraph>
-	</div>
+	<div class="col-xs-4 full-height section-right" ng-include="'./modules/dashboard/views/percentzne.client.view.html'"></div>
 </div>

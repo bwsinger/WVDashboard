@@ -1,0 +1,104 @@
+// LAYOUT
+
+.section-left {
+	padding: 0;
+}
+
+.section-left-top {
+	height:40%;
+}
+
+.section-left-bottom {
+	height:60%;
+	background-color: #7fa097;
+}
+
+.section-right {
+	background-color: #46605a;
+}
+
+// MASCOT
+
+.mascot {
+	height: 80%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+// TODO
+
+// LEADERBOARD
+
+.leaderboard-container {
+	background-color: #a7bcb6;
+}
+
+// CURRENT POWER
+
+.current-power-container {
+	height:35%;
+}
+
+.current-power {
+	width: 80%;
+	margin-left: 12%;
+	margin-top: 60px;
+	padding-bottom: 12px;
+	border-bottom: 10px solid #a7bcb6;
+	overflow: auto;
+}
+
+.current-power-tile {
+	width: 95px;
+	text-align: center;
+	float: left;
+	margin-left: 45px;
+	position: relative;
+
+	&:first-child {
+		margin-left: 25px;
+	}
+}
+
+.current-power-img {
+	height: 85px;
+	width: 85px;
+	margin-bottom: 10px;
+}
+
+.current-power-toggle {
+	height: 40px;
+	width: 22px;
+	position: absolute;
+	left: -5px;
+	top: 22px;
+	cursor: pointer;
+}
+
+.current-power-sum {
+	border-left: 5px solid #ffffff;
+	width: 135px;
+	padding-left: 30px;
+}
+
+.current-value {
+	font-weight: 700;
+	font-size: 1.2em;
+	color: #73c04a;
+}
+
+.current-value-negative {
+	color: red;
+}
+
+.current-value-solar {
+	color: #fecb45;
+}
+
+// HISTORICAL POWER
+
+.historical-power-container {
+	height:65%;
+}

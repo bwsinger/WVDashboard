@@ -16,7 +16,7 @@ exports.leaderboard = function(req, res) {
 		// gets the total kw since the start of the week (Monday) for each building
 		var query = `
 			SELECT "building",
-					ROUND(((SUM("kitchen") + SUM("plugs") + SUM("lights") + SUM("ev")) - SUM("solar")) / 1000, 2) as "kw"
+					ROUND( ( SUM("solar") - (SUM("kitchen") + SUM("plugs") + SUM("lights") + SUM("ev")) ) / 1000, 2) as "kw"
 			FROM "log"
 			WHERE "datetime" >= date_trunc('week', NOW())
 			GROUP BY "building"`;

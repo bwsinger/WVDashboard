@@ -23,10 +23,10 @@
 			vm.items = [
 				{ 'text': 'HOME', 'link': '/',},
 				{ 'text': 'DASHBOARDS', 'link': '',},
-				{ 'text': '+215 SAGE', 'link': '/dashboard/215',},
+				// { 'text': '+215 SAGE', 'link': '/dashboard/215',},
 				{ 'text': '+1590 TILIA', 'link': '/dashboard/1590',},
-				{ 'text': '+1605 TILIA', 'link': '/dashboard/1605',},
-				{ 'text': '+1715 TILIA', 'link': '/dashboard/1715',},
+				// { 'text': '+1605 TILIA', 'link': '/dashboard/1605',},
+				// { 'text': '+1715 TILIA', 'link': '/dashboard/1715',},
 				{ 'text': 'ABOUT', 'link': '/about',},
 			];
 

@@ -6,15 +6,74 @@
 
 .section-left-top {
 	height:40%;
+	margin: 0;
+	z-index: 1200;
+	position: relative;
 }
 
 .section-left-bottom {
 	height:60%;
-	background-color: #7fa097;
 }
 
 .section-right {
 	background-color: #46605a;
+}
+
+// COMMON
+.section-banner {
+	width: 750px;
+	background-color: #29343f;
+	overflow: auto;
+	padding: 2px;
+	transform: rotate(-12deg);
+	position: absolute;
+	left: -25px;
+	min-height: 63px;
+	z-index: inherit;
+}
+
+.section-banner-title {
+	font-size: 2em;
+	font-family: cursive;
+	float: left;
+	margin-left: 10px;
+	margin-top: 15px;
+}
+
+.section-banner-title-solo {
+	margin-left: 60px;
+}
+
+.timespan {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	width: 82px;
+	margin-left: 40px;
+	float: left;
+
+	li {
+		text-align: center;
+		margin: 0;
+		padding: 0;
+		border-bottom: solid #aad6cd 1px;
+		color: #aad6cd;
+		cursor: pointer;
+		line-height: 1em;
+		font-size: 1em;
+
+		&:last-child {
+			border-bottom: 0;
+		}
+
+		&.active {
+			font-size: 1.2em;
+			line-height: 1.1em;
+			font-weight: 700;
+			color: white;
+			cursor: default;
+		}
+	}
 }
 
 // MASCOT
@@ -27,8 +86,6 @@
 	transform: translate(-50%, -50%);
 }
 
-// TODO
-
 // LEADERBOARD
 
 .leaderboard-container {
@@ -38,12 +95,19 @@
 // CURRENT POWER
 
 .current-power-container {
-	height:35%;
+	margin: 0;
+	z-index: 1100;
+	position: relative;
+}
+
+.current-power-wrapper {
+	background-color: #7fa097;
+	padding: 0;
 }
 
 .current-power {
-	width: 80%;
-	margin-left: 12%;
+	margin-left: 15%;
+	width: 75%;
 	margin-top: 60px;
 	padding-bottom: 12px;
 	border-bottom: 10px solid #a7bcb6;
@@ -54,11 +118,11 @@
 	width: 95px;
 	text-align: center;
 	float: left;
-	margin-left: 45px;
+	margin-left: 55px;
 	position: relative;
 
 	&:first-child {
-		margin-left: 25px;
+		margin-left: 20px;
 	}
 }
 
@@ -101,4 +165,10 @@
 
 .historical-power-container {
 	height:65%;
+	margin: 0;
+	background-color: #7fa097;
 }
+
+// PERCENT ZNE
+
+// TODO

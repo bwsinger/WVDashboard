@@ -6,7 +6,7 @@ var pg = require('pg'),
 
 var connString = config.connString,
 	timespans = ['hourly', 'daily', 'weekly', 'monthly'],
-	zne_goals = { '1590': 80000 }; // TODO generate this list from db
+	zne_goals = { '1590': 30000 }; // TODO generate this list from db
 
 exports.leaderboard = function(req, res) {
 
@@ -110,7 +110,13 @@ exports.current = function(req, res) {
 				};
 
 				data.total = data.solar+data.kitchen+data.plugs+data.lights+data.ev;
-				data.total = data.total.toFixed(2);
+
+				data.total = Math.round(data.total);
+				data.kitchen = Math.round(data.kitchen);
+				data.plugs = Math.round(data.plugs);
+				data.lights = Math.round(data.lights);
+				data.solar = Math.round(data.solar);
+				data.ev = Math.round(data.ev);
 
 				res.status(200).send(data); // send response
 

@@ -2,20 +2,38 @@
 	height: 60%;
 	color: #a7bcb6;
 	margin-top: 15%;
+
+
+	::-webkit-scrollbar {
+		width: 12px;
+	}
+	::-webkit-scrollbar-thumb{
+		background-color:rgb(87, 112, 106);
+		border-radius: 12px;
+	}
+	::-webkit-scrollbar-track{
+		background-color:rgb(41, 52, 63);
+		border-radius: 12px;
+	}
+}
+
+.about-content-container {
+	background-color: #35414d;
+	padding: 2em 1.2em 2em 3em;
 }
 
 .about-content {
-	background-color: #35414d;
-	padding: 3em;
+	height: 100%;
 	overflow-y: scroll;
+	padding-right: 3em;
 
 	h1 {
 		font-weight: 600;
-		border-bottom: #29343f 0.7em solid;
+		border-bottom: #29343f 0.5em solid;
 		margin: 0;
 		padding: 0;
 		padding-bottom: 0.4em;
-		margin-bottom: 0.7em;
+		margin-bottom: 0.4em;
 		display:inline-block; 
 	}
 

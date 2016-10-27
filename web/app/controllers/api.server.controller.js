@@ -129,18 +129,18 @@ exports.current = function(req, res) {
 exports.historical = function(req, res) {
 
 	var enabled = {
-		'lights': false,
-		'plugs': false,
-		'kitchen': false,
-		'ev': false,
+		'lights': true,
+		'plugs': true,
+		'kitchen': true,
+		'ev': true,
 	};
 
-	if(req.query.enabled) {
-		var passed = req.query.enabled.split(',');
+	if(req.query.disabled) {
+		var passed = req.query.disabled.split(',');
 
 		for(var use in enabled) {
 			if(passed.indexOf(use) !== -1) {
-				enabled[use] = true;
+				enabled[use] = false;
 			}
 		}
 	}

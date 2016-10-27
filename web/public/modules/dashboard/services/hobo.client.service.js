@@ -36,12 +36,18 @@
 
 			var uses = [];
 			for(var use in enabled) {
-				if(enabled[use]) {
+				if(!enabled[use]) {
 					uses.push(use);
 				}
 			}
 
-			return $http.get('./api/historical/'+timespan+'/'+building+'?enabled='+uses.join(',')).then(function(res) {
+			var url = './api/historical/'+timespan+'/'+building;
+
+			if(uses.length) {
+				url+= '?disabled='+uses.join(',');
+			}
+
+			return $http.get(url).then(function(res) {
 				return res.data;
 			});
 		}

@@ -26,10 +26,19 @@ module.exports = function(grunt) {
             },
             html: {
                 files: [
-                    'app/views/*.html',
+                    'app/views/*.hbs',
                     'public/modules/**/*.html',
                 ],
                 tasks: []
+            },
+            js: {
+                files: [
+                    'server.js',
+                    'config/**/*.js',
+                    'app/**/*.js',
+                    'public/application.js',
+                    'public/modules/**/*.js',
+                ],
             },
             grunt: {
                 files: ['Gruntfile.js']

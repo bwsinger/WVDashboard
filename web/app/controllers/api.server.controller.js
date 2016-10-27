@@ -170,7 +170,7 @@ exports.historical = function(req, res) {
 				case 'monthly':
 					//every 30 minutes for the last 13 months
 					start = '13 months';
-					minutes = 60;
+					minutes = 30;
 					break;
 			}
 

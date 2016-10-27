@@ -184,6 +184,42 @@
 	height: 62%;
 }
 
+.historicalGraph {
+	width: 100%;
+	height: 350px;
+
+	.line-prod {
+		fill: none;
+		stroke: yellow;
+		stroke-width: 3px;
+	}
+
+	.y-axis-label {
+		font-size: 2em;
+	}
+
+	.domain {
+		stroke: white;
+		stroke-width: 3px;
+	}
+
+	.tick {
+		line {
+			stroke: white;
+			stroke-width: 3px;
+			transform: translate(0, -7.5px);
+		}
+
+		text {
+			fill: #fff;
+			font-weight: 700;
+			font-size: 2em;
+		}
+	}
+}
+
+
+
 // PERCENT ZNE
 
 // TODO

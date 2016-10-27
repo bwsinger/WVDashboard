@@ -20,8 +20,6 @@ services:
     build: ./web
     environment:
       - NODE_ENV=docker
-    volumes:
-      - /web:/usr/app/src
     ports:
       - "3000:3000"
     links:

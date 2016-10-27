@@ -32,8 +32,16 @@
 			});
 		}
 
-		function getHistorical(timespan, building) {
-			return $http.get('./api/historical/'+timespan+'/'+building).then(function(res) {
+		function getHistorical(timespan, building, enabled) {
+
+			var uses = [];
+			for(var use in enabled) {
+				if(enabled[use]) {
+					uses.push(use);
+				}
+			}
+
+			return $http.get('./api/historical/'+timespan+'/'+building+'?enabled='+uses.join(',')).then(function(res) {
 				return res.data;
 			});
 		}

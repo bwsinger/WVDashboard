@@ -128,6 +128,23 @@ exports.current = function(req, res) {
 
 exports.historical = function(req, res) {
 
+	var enabled = {
+		'lights': false,
+		'plugs': false,
+		'kitchen': false,
+		'ev': false,
+	};
+
+	if(req.query.enabled) {
+		var passed = req.query.enabled.split(',');
+
+		for(var use in enabled) {
+			if(passed.indexOf(use) !== -1) {
+				enabled[use] = true;
+			}
+		}
+	}
+
 	pg.connect(connString, function(err, dbClient, done) {
 		if(err) throw err;
 
@@ -174,7 +191,7 @@ exports.historical = function(req, res) {
 					break;
 			}
 
-			var query = _buildHistoricalQuery(start, minutes);
+			var query = _buildHistoricalQuery(start, minutes, enabled);
 
 			dbClient.query(query, [req.params.building], function(err, result) {
 				if (err) throw err;
@@ -389,14 +406,23 @@ function _buildPercentQuery(start, unit) {
 		ORDER BY "series"."interval" DESC`;
 }
 
-function _buildHistoricalQuery(start, minutes) {
+function _buildHistoricalQuery(start, minutes, enabled) {
 
 	var interval = minutes+" minutes";
 	var seconds = minutes * 60;
 
+	var uses = []
+	for(var use in enabled) {
+		if(enabled[use]) {
+			uses.push('"values"."'+use+'"');
+		}
+	}
+
+	var demandString = uses.length ? uses.join(" + ") : 0;
+
 	return `
 		SELECT "series"."interval",
-			ROUND(("values"."kitchen" + "values"."plugs" + "values"."lights" + "values"."ev") / 1000, 2) as "demand",
+			ROUND((${demandString}) / 1000, 2) as "demand",
 			ROUND("values"."solar" / 1000, 2) as "production"
 		FROM (
 			SELECT to_timestamp(ceil(extract('epoch' from "datetime") / ${seconds}) * ${seconds}) AT TIME ZONE 'UTC' as "interval",

@@ -54,27 +54,30 @@
 				vm.enabled = {}
 
 				for(var enduse in data) {
-					vm.enabled[enduse] = true;
+					if(enduse != 'total' && enduse != 'solar') {
+						vm.enabled[enduse] = true;
+					}
 				}
+
+				changeHistoricalTimespan(vm.timespans[2]);
 			});
 
 			//defaults
-			changeHistoricalTimespan(vm.timespans[2]);
 			changePercentTimespan(vm.timespans[2]);
 		}
 
 		function toggle(enduse) {
 			vm.enabled[enduse] = ! vm.enabled[enduse];
+
+			changeHistoricalTimespan(vm.historicalTimespan);
 		}
 
 		function changeHistoricalTimespan(timespan) {
-			if(timespan !== vm.historicalTimespan) {
-				vm.historicalTimespan = timespan;
+			vm.historicalTimespan = timespan;
 
-				Hobo.getHistorical(vm.historicalTimespan, vm.building).then(function(data) {
-					vm.historicalData = data;
-				});
-			}
+			Hobo.getHistorical(vm.historicalTimespan, vm.building, vm.enabled).then(function(data) {
+				vm.historicalData = data;
+			});
 		}
 
 		function changePercentTimespan(timespan) {

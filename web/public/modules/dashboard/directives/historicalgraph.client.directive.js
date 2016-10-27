@@ -100,12 +100,6 @@
 									.tickSize(15)
 									.tickSizeOuter(1);
 
-					// var stops = [
-					// 	{offset: '0%', color: 'green'},
-					// 	{offset: '75%', color: 'green'},
-					// 	{offset: '75%', color: 'red'},
-					// 	{offset: '100%', color: 'red'},
-					// ];
 					var stops = [];
 					var badColor = 'red';
 					var goodColor = 'green';
@@ -142,9 +136,7 @@
 					}
 					else {
 						stops.push({offset: '100%', color: badColor});
-					}
-
-					console.log(stops);
+					};
 
 					cont.append('linearGradient')
 						.attr('id', 'demand-gradient')

@@ -1,37 +1,71 @@
-# WVDashboard
-Senior Design Project Energy Feedback for West Village in Davis, CA
---UPDATED MARCH 31st -- 
+# About
 
+Project by Cenergi to provide feedback on energy usage in West Village. Hobo loggers collect data on energy use. This application downloads that data and uses it to drive a dashboard for each building logged. The dashboard displays current usage, historical usage, and historical performance compared to zero net energy goals. Also, the dashboard compares performance with respect to the zne goal among all the buildings on a weekly leaderboard.
 
-Using Docker means to test something we can do it if it is local. But to run docker and have these moving components means to change the names to the containersspecified in the Dockerfile 
+# Using Docker
 
+##### Prequisites
 
---UPDATED MARCH 21st--
+ - Docker
+ - Compose
 
-We made this project way more exciting!
+##### Production
+```
+docker-compose up -d
+```
 
-First make sure you have the Docker Engine installed and that the Dockerfile and docker-compose.yml 
-is in the root directory of the project. 
+##### Development
+```
+docker-compose -f docker-compose.yml -f docker-compose-dev.yml up -d
+```
 
-Now just do 
-	
-	docker-compose up 
+Grunt will compile SASS and livereload on changes.
 
-and the docker images will be built and the containers will be strung together. 
+Web server will be at [http://localhost:3000/](http://localhost:3000/)
 
-Visit your localhost and check that the website is running, 
-also make sure the rabbitmq server and postgresql server is running using 
-	
-	docker-compose up
+# Outside of Docker
 
-and check to see that the status is up. 
+## DB
 
-Now the volumes are attached to the containers, which means that any changes to the files will create
-changes to the docker container running.  
+1. `CREATE DATABASE "feed";`
+2. `psql feed < schema/feed.sql`
 
+## Tasks
 
-Dockerized: 
+Pulls data from hobo link every 10 minutes and inserts into the database. 
 
-Docker uses internal DNS to set host names of links in docker-compose.yml 
+##### Prequisites
 
-just use postgres to connect. Tuts coming soon! 
+ - python3, pip3
+ - postgres server running on localhost @ 5432 with feed database, log tabled created
+
+##### Starting
+
+1. `cd tasks\`
+2. `pip install -r requirements.txt`
+3. `python logger_processing.py`
+
+## Web Server
+
+Serves front-end content and runs api to access backend data
+
+##### Prequisites
+
+ - node and npm ([package info](https://nodejs.org/en/download/package-manager/#debian-and-ubuntu-based-linux-distributions))
+ - ruby (apt install ruby)
+ - sass (gem install sass)
+ - postgres server running on localhost @ 5432 with feed database, log tabled created, and populated
+ - grunt (npm install -g grunt-cli)
+ - bower (npm install -g bower)
+
+##### Starting
+
+1. `cd web\`
+2. `bower install`
+3. `npm install`
+4. `grunt`
+5. Open [http://localhost:3000/](http://localhost:3000/) in browser
+
+## Twitter Bot
+
+??

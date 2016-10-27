@@ -87,6 +87,18 @@
 	transform: translate(-50%, -50%);
 }
 
+.mascot-glow {
+	height: 80%;
+	position: absolute;
+	top: 50%;
+	left: 46%;
+	height: 20px;
+	width: 20px;
+
+	border-radius: 50%;
+	box-shadow: 0 0 140px 40px #fff;
+}
+
 // LEADERBOARD
 
 .leaderboard-container {

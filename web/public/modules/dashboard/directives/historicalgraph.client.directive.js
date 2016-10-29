@@ -24,7 +24,7 @@
 		function link(scope, element) {
 			d3Service.d3().then(function(d3) {
 
-				var margin = {top: 30, right: 20, bottom: 50, left: 110};
+				var margin = {top: 30, right: 110, bottom: 50, left: 110};
 
 				var svg = d3.select(element[0])
 							.append('svg')
@@ -47,9 +47,6 @@
 
 				//Render the chart
 				scope.render = function(data) {
-
-					var width = +svg.attr("width") - margin.left - margin.right,
-						height = +svg.attr("height") - margin.top - margin.bottom;
 
 					// Setup sizing
 					var height = svg.nodes()[0].getBoundingClientRect().height - margin.top - margin.bottom,
@@ -101,8 +98,8 @@
 									.tickSizeOuter(1);
 
 					var stops = [];
-					var badColor = 'red';
-					var goodColor = 'green';
+					var badColor = '#bf2626';
+					var goodColor = '#71c241';
 					var isGood = false;
 					var xMax = d3.max(data, function(d) { return d3.isoParse(d.interval); })
 					var xMin = d3.min(data, function(d) { return d3.isoParse(d.interval); })

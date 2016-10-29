@@ -13,7 +13,8 @@
 
 		vm.changePercentTimespan = changePercentTimespan;
 		vm.changeHistoricalTimespan = changeHistoricalTimespan;
-		vm.toggle = toggle;
+		vm.toggleUse = toggleUse;
+		vm.toggleAll = toggleAll;
 
 		activate();
 
@@ -23,6 +24,7 @@
 
 			vm.building = $routeParams.building;
 			vm.timespans = ['hourly', 'daily', 'weekly', 'monthly'];
+			vm.showAll = true;
 
 			Hobo.getLeaderboard().then(function(data) {
 				vm.leaderboardData = data;
@@ -59,35 +61,50 @@
 					}
 				}
 
+				// weekly by default
 				changeHistoricalTimespan(vm.timespans[2]);
 			});
 
-			//defaults
+			// weekly by default
 			changePercentTimespan(vm.timespans[2]);
 		}
 
-		function toggle(enduse) {
+		function toggleUse(enduse) {
 			vm.enabled[enduse] = ! vm.enabled[enduse];
-
-			changeHistoricalTimespan(vm.historicalTimespan);
+			getHistoricalData();
 		}
 
 		function changeHistoricalTimespan(timespan) {
-			vm.historicalTimespan = timespan;
+			if(timespan !== vm.historicalTimespan) {
+				vm.historicalTimespan = timespan;
+				getHistoricalData();
+			}
+		}
 
+		function getHistoricalData() {
 			Hobo.getHistorical(vm.historicalTimespan, vm.building, vm.enabled).then(function(data) {
 				vm.historicalData = data;
 			});
 		}
 
+		function toggleAll() {
+			vm.showAll = ! vm.showAll;
+			getPercentData();
+		}
+
 		function changePercentTimespan(timespan) {
 			if(timespan !== vm.percentTimespan) {
 				vm.percentTimespan = timespan;
-
-				Hobo.getPercentZNE(vm.percentTimespan, vm.building).then(function(data) {
-					vm.percentData = data;
-				});
+				getPercentData();
 			}
+		}
+
+		function getPercentData() {
+			var building = vm.showAll ? 'ALL' : vm.building;
+
+			Hobo.getPercentZNE(vm.percentTimespan, building).then(function(data) {
+				vm.percentData = data;
+			});
 		}
 
 	}

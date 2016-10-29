@@ -56,6 +56,12 @@ exports.leaderboard = function(req, res) {
 				// calculate the position compared to the zne "line" for current day
 				// Inverted because values lower than ZNE are good and higher are bad
 				positions[building] = positions['ZNE'] / percent_used;
+
+				// TODO: fix negative net energy usage in this calculationg
+				// workaround is just to cap at 1
+				if(positions[building] > 1) {
+					positions[building] = 1;
+				}
 			}
 
 			res.status(200).send(positions); // send response
@@ -287,29 +293,46 @@ exports.percentzne = function(req, res) {
 					if (err) throw err;
 
 					var data = {};
+					var intervals = [];
 
-					// Build the array to return
+					// Grab all the intervals in the result
 					for(var i = 0, len = result.rows.length; i < len; i++) {
-
-						if(result.rows[i].building !== null) {
-
-							if(!data.hasOwnProperty(result.rows[i].building)) {
-								data[result.rows[i].building] = [];
-							}
-
-							var percent = 0;
-							if(result.rows[i].kw !== null) {
-								percent = (1 - (parseFloat(result.rows[i].kw) / zne_adjusted[result.rows[i].building])) * 100;
-							}
-
-							data[result.rows[i].building].push({
-								interval: result.rows[i].interval,
-								percent: percent,
-							});
+						var current = result.rows[i].interval.toISOString();
+						if(intervals.indexOf(current) === -1) {
+							intervals.push(current);
 						}
 					}
 
-					res.status(200).send(data); // send response
+					// Build a 0 result set for each interval
+					for(var j = 0, len_j = intervals.length; j < len_j; j++) {
+						data[intervals[j]] = {};
+						for(var k = 0, len_k = buildings.length; k < len_k; k++) {
+							data[intervals[j]][buildings[k]] = 0;
+						}
+					}
+
+					// Change any values that exist in the result
+					for(var i = 0, len = result.rows.length; i < len; i++) {
+
+						// building null means an interval with no data from any building
+						// kw null means an interval with no data for that building
+						if(result.rows[i].building !== null && result.rows[i].kw !== null) {
+
+							// calculate the percent of the zne
+							var percent = percent = (1 - (parseFloat(result.rows[i].kw) / zne_adjusted[result.rows[i].building])) * 100;
+							data[result.rows[i].interval.toISOString()][result.rows[i].building] = percent;
+						}
+					}
+
+					var newData = [];
+
+					// Make the interval a property of the object and return an array
+					for(var interval in data) {
+						data[interval]['interval'] = interval;
+						newData.push(data[interval]);
+					}
+
+					res.status(200).send(newData); // send response
 
 					done(); // close db connection
 				});
@@ -320,7 +343,22 @@ exports.percentzne = function(req, res) {
 				dbClient.query(query, [req.params.building], function(err, result) {
 					if (err) throw err;
 
-					var data = [];
+					var data = {};
+					var intervals = [];
+
+					// Grab all the intervals in the result
+					for(var i = 0, len = result.rows.length; i < len; i++) {
+						var current = result.rows[i].interval.toISOString();
+						if(intervals.indexOf(current) === -1) {
+							intervals.push(current);
+						}
+					}
+
+					// Build a 0 result set for each interval
+					for(var j = 0, len_j = intervals.length; j < len_j; j++) {
+						data[intervals[j]] = {};
+						data[intervals[j]][req.params.building] = 0;
+					}
 
 					// Build the array to return
 					for(var i = 0, len = result.rows.length; i < len; i++) {
@@ -330,13 +368,18 @@ exports.percentzne = function(req, res) {
 							percent = (1 - (parseFloat(result.rows[i].kw) / zne_adjusted[req.params.building])) * 100;
 						}
 
-						data.push({
-							interval: result.rows[i].interval,
-							percent: percent,
-						});
+						data[result.rows[i].interval.toISOString()][req.params.building] = percent;
 					}
 
-					res.status(200).send(data); // send response
+					var newData = [];
+
+					// Make the interval a property of the object and return an array
+					for(var interval in data) {
+						data[interval]['interval'] = interval;
+						newData.push(data[interval]);
+					}
+
+					res.status(200).send(newData); // send response
 
 					done(); // close db connection
 				});

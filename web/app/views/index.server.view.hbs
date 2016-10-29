@@ -9,11 +9,8 @@
 
     <link rel="stylesheet" href="./lib/bootstrap/dist/css/bootstrap.css">
     <link rel="stylesheet" href="./dist/css/main.css">
-
   </head>
   <body ng-cloak class="full-height">
-
-    <!--<nav class="navbar navbar-default navbar-fixed-top" style="background: none; border: 0;" ng-include="'./modules/core/views/header.client.view.html'"></nav>-->
 
     <div ng-include="'./modules/core/views/menu.client.view.html'" ng-controller="Menu as menu"></div>
 
@@ -39,6 +36,8 @@
   <script type='text/javascript' src='./modules/dashboard/config/dashboard.client.routes.js'></script>
   <script type='text/javascript' src='./modules/dashboard/controllers/dashboard.client.controller.js'></script>
   <script type='text/javascript' src='./modules/dashboard/directives/historicalgraph.client.directive.js'></script>
+  <script type='text/javascript' src='./modules/dashboard/directives/leaderboardgraph.client.directive.js'></script>
+  <script type='text/javascript' src='./modules/dashboard/directives/percentznegraph.client.directive.js'></script>
   <script type='text/javascript' src='./modules/dashboard/services/hobo.client.service.js'></script>
   <script type='text/javascript' src='./modules/dashboard/services/d3.client.service.js'></script>
 

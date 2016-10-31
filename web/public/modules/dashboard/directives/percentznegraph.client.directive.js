@@ -14,6 +14,8 @@
 			link: link,
 			scope: {
 				data: '=',
+				all: '=',
+				timespan: '=',
 			}
 		};
 
@@ -24,7 +26,7 @@
 		function link(scope, element) {
 			d3Service.d3().then(function(d3) {
 
-				var margin = {top: 200, right: 50, bottom: 100, left: 100};
+				var margin = {top: 200, right: 85, bottom: 100, left: 100};
 
 				var svg = d3.select(element[0])
 							.append('svg')
@@ -38,47 +40,18 @@
 					return angular.element(window)[0].innerWidth;
 				}, function(newVal, oldVal) {
 					if(newVal !== oldVal) {
-						scope.render(scope.data);
+						scope.render(scope.data, scope.all, scope.timespan);
 					}
 				});
 				scope.$watch('data', function() {
-					scope.render(scope.data);
+					scope.render(scope.data, scope.all, scope.timespan);
+				}, true);
+				scope.$watch('all', function() {
+					scope.render(scope.data, scope.all, scope.timespan);
 				}, true);
 
 				//Render the chart
-				scope.render = function(data) {
-
-					// overwrite with dummy data so we can see multiple buildings
-					// data = [
-					// 	  {
-					// 	    "1590": 253.4523,
-					// 	    "215": 6,
-					// 	    "1650": 6,
-					// 	    "1715": 6,
-					// 	    "interval": "2016-10-17T07:00:00.000Z"
-					// 	  },
-					// 	  {
-					// 	    "1590": 164.52466666666666,
-					// 	    "215": .12,
-					// 	    "1650": 6.0,
-					// 	    "1715": 6.0,
-					// 	    "interval": "2016-10-10T07:00:00.000Z"
-					// 	  },
-					// 	  {
-					// 	    "1590": 190.43256666666667,
-					// 	    "215": -32,
-					// 	    "1650": 6.0,
-					// 	    "1715": 6.0,
-					// 	    "interval": "2016-10-03T07:00:00.000Z"
-					// 	  },
-					// 	  {
-					// 	    "1590": -50,
-					// 	    "215": 50,
-					// 	    "1650": -100,
-					// 	    "1715": 100,
-					// 	    "interval": "2016-09-26T07:00:00.000Z"
-					// 	  }
-					// 	]
+				scope.render = function(data, all, timespan) {
 
 					// Setup sizing
 					var height = svg.nodes()[0].getBoundingClientRect().height - margin.top - margin.bottom,
@@ -124,28 +97,63 @@
 					var y0 = d3.scaleBand()
 								.domain(intervals)
 								.rangeRound([0, height])
-								.paddingInner(0.6);
+								.paddingInner(0.4)
+								.paddingOuter(0.2);
 
 					// scale for buildings
 					var y1 = d3.scaleBand()
 								.domain(buildings)
 								.rangeRound([0, y0.bandwidth()])
-								.paddingInner(0.2);
+								.paddingInner(0.05);
 
 
 					// color scale for the buildings
 					// TODO: add patterns
-					var color = d3.scaleOrdinal()
-						.domain(buildings)
-						.range(["#c7b299", "#9e005d", "#2e3192", "#ffffff"]);
-
-					var yFormatter = d3.timeFormat("%b %e");
+					if(all) {
+						var color = d3.scaleOrdinal()
+							.domain(buildings)
+							.range(["#c7b299", "#9e005d", "#2e3192", "#ffffff"]);
+					}
 
 					var yAxis = d3.axisLeft(y0)
 								.tickSizeOuter(1)
 								.tickSizeInner(20)
 								.tickFormat(function(d) {
-									return yFormatter(d3.isoParse(d));
+									if(timespan === 'weekly') {
+										var start = d3.isoParse(d);
+										var end = new Date(start.valueOf());
+										end.setDate(end.getDate()+6);
+
+										// If they're the same month, omit the month on the end
+										if(start.getMonth() === end.getMonth()) {
+											var startFormatter = d3.timeFormat('%b %-e');
+											var endFormatter = d3.timeFormat('%-e');
+											return startFormatter(start)+"-"+endFormatter(end);
+										}
+										// If they're different months, print the month for both
+										else {
+											var formatter = d3.timeFormat('%b %-e');
+											return formatter(start)+"-"+formatter(end);
+										}
+									}
+									else {
+										var formatString = '';
+
+										switch(timespan) {
+											case 'hourly':
+												formatString = '%-I %p'
+												break;
+											case 'daily':
+												formatString = '%b %-e';
+												break;
+											case 'monthly':
+												formatString = '%b';
+												break;
+										}
+
+										var yFormatter = d3.timeFormat(formatString);
+										return yFormatter(d3.isoParse(d));
+									}
 								});
 
 					var xAxis = d3.axisTop(x)
@@ -183,44 +191,63 @@
 								// width of negative is the difference between zero and the scaled value
 								return d.percent >= 0 ? x(d.percent) - x(0) : x(0) - x(d.percent);
 							})
-							.style("fill", function(d) { return color(d.building); });
+							.style("fill", function(d) {
+								// if we show all buildings, use the color scale
+								if(all) {
+									return color(d.building);
+								}
+								// otherwise, just red and green
+								else if(d.percent >= 0) {
+									return '#71c241';
+								}
+								else {
+									return '#bf2626';
+								}
+							});
 
 					
-
+					// insert y-axis
 					var gy = cont.append("g")
 						.call(yAxis);
 
+					// y-axis line
 					gy.selectAll('path')
-						.attr('transform', 'translate('+width/2+', 0)');
+						.attr('transform', 'translate('+width/2+', 0)')
+						.attr('fill', 'white')
+						.attr('stroke', 'white')
+						.attr('stroke-width', '3');
 
+					// y-axis ticks
 					gy.selectAll('line')
-						.attr('transform', 'translate(40, 0)');
+						.attr('stroke', 'white')
+						.attr('stroke-width', '3');
 
+					// y-axis labels
 					gy.selectAll('text')
-						.attr('transform', 'rotate(90)');
+						.attr('transform', 'rotate(90) translate(25, 35)')
+						.attr('fill', 'white')
+						.attr('font-size', '15')
+						.attr('text-anchor', 'middle');
 
+					// insert x-axis
+					var gx = cont.append("g")
+						.call(xAxis);
 
-					cont.append("g")
-						.call(xAxis)
-					.append("text")
-						.attr('class', 'x-axis-label')
+					// add the label text
+					gx.append("text")
+						.attr('font-size', '25')
 						.attr("fill", "#FFF")
 						.attr('x', width/2)
 						.attr('y', -25)
 						.style("text-anchor", "middle")
 						.text("percent of zero-net goal");
 
-					// Setup scales
-
-					// group for each interval
-
-					// rect for each building for each interval
-
-					// axes
-
-
+					// x-axis line
+					gx.selectAll('path')
+						.attr('fill', 'white')
+						.attr('stroke', 'white')
+						.attr('stroke-width', '3');
 				};
-
 			});
 		}
 	}

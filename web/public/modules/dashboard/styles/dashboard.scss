@@ -218,35 +218,9 @@
 
 // PERCENT ZNE
 
-// TODO
-
 .percentzneGraph {
 	width: 100%;
 	height: 100%;
-
-	.x-axis-label {
-		font-size: 3em;
-	}
-
-	.domain {
-		stroke: white;
-		stroke-width: 3px;
-	}
-
-	.tick {
-		line {
-			stroke: white;
-			stroke-width: 3px;
-		}
-
-		text {
-			fill: #fff;
-			font-weight: 700;
-			font-size: 2em;
-			text-anchor: middle;
-			//transform: rotate(90deg);
-		}
-	}
 }
 
 .selector {

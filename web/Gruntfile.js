@@ -26,7 +26,7 @@ module.exports = function(grunt) {
             },
             html: {
                 files: [
-                    'app/views/*.hbs',
+                    'app/views/*.html',
                     'public/modules/**/*.html',
                 ],
                 tasks: []

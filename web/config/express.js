@@ -6,6 +6,7 @@ var http			= require('http'),
 	morgan 			= require('morgan'),
 	bodyParser 		= require('body-parser'),
 	cookieParser 	= require('cookie-parser'),
+	pug				= require('pug'),
 	config = require('./config');
 
 module.exports = function() {
@@ -29,11 +30,11 @@ module.exports = function() {
 	}));
 
 	app.use(bodyParser.json());
-	app.use(cookieParser()); // is this actually used/needed
+	app.use(cookieParser()); // is this actually used/needed?
 
 	// Templates
-	app.engine('server.view.hbs', require('hbs').__express);
-	app.set('view engine', 'server.view.hbs');
+	app.engine('server.view.html', pug.renderFile);
+	app.set('view engine', 'server.view.html');
 	app.set('views', './app/views');
 
 	// Routes

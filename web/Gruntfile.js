@@ -55,8 +55,60 @@ module.exports = function(grunt) {
         sass: {
             dist: {
                 files: {
-                    'public/dist/css/main.css': 'public/styles/main.scss'
+                    'public/dist/css/app.css': 'public/styles/app.scss'
                 }
+            }
+        },
+        cssmin: {
+            options: {
+                sourceMap: true
+            },
+            dist: {
+                files: {
+                    'public/dist/css/main.min.css': 'public/dist/css/main.css'
+                }
+            }
+        },
+        concat: {
+            options: {
+                sourceMap: true,
+            },
+            js: {
+                src: [
+                    'public/lib/jquery/dist/jquery.js',
+                    'public/lib/bootstrap/dist/js/bootstrap.js',
+                    'public/lib/angular/angular.js',
+                    'public/lib/angular-route/angular-route.js',
+                    'public/modules/core/*.js',
+                    'public/modules/core/**/*.js',
+                    'public/modules/about/*.js',
+                    'public/modules/about/**/*.js',
+                    'public/modules/dashboard/*.js',
+                    'public/modules/dashboard/**/*.js',
+                    'public/modules/splash/*.js',
+                    'public/modules/splash/**/*.js',
+                    'public/application.js',
+                ],
+                dest: 'public/dist/js/main.js',
+            },
+            css: {
+                src: [
+                    'public/lib/bootstrap/dist/css/bootstrap.css',
+                    'public/dist/css/app.css'
+                ],
+                dest: 'public/dist/css/main.css'
+            }
+        },
+        uglify: {
+            dist: {
+                options: {
+                    sourceMap: true,
+                    sourceMapIncludeSources: true,
+                    sourceMapIn: 'public/dist/js/main.js.map',
+                },
+                files: {
+                    'public/dist/js/main.min.js': ['public/dist/js/main.js'],
+                },
             }
         },
     });
@@ -64,9 +116,12 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-nodemon');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-sass');
+    grunt.loadNpmTasks('grunt-contrib-cssmin');
+    grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-concurrent');
 
     grunt.registerTask('default', ['sass', 'concurrent',]);
-    grunt.registerTask('dist', ['sass',]);
+    grunt.registerTask('dist', ['sass', 'concat:css', 'cssmin', 'concat:js', 'uglify']);
 
 };

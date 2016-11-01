@@ -1,0 +1,35 @@
+<div class="section-banner">
+	<ul class="timespan">
+		<li ng-repeat="timespan in vm.timespans" ng-click="vm.changePercentTimespan(timespan)" ng-class="{'active': timespan === vm.percentTimespan}">
+			{{timespan}}
+		</li>
+	</ul>
+	<h1 class="section-banner-title">energy usage</h1>
+</div>
+
+<percentzne-graph ng-if="vm.percentData" data="vm.percentData" all="vm.showAll" timespan="vm.percentTimespan"></percentzne-graph>
+
+<div class="selector">
+	<span>all buildings</span>
+	<img ng-if="vm.showAll" class="showall-toggle" src="./images/percentzne/toggle_buildings_all.svg" ng-click="vm.toggleAll();">
+	<img ng-if="!vm.showAll" class="showall-toggle" src="./images/percentzne/toggle_buildings_current.svg" ng-click="vm.toggleAll();">
+	<span>our building</span>
+</div>
+
+<div class="legend" ng-if="vm.showAll">
+	<div class="legend-item">
+		<div class="swatch swatch-a"></div> 215 Sage
+	</div>
+
+	<div class="legend-item">
+		<div class="swatch swatch-b"></div> 1590 Tilia
+	</div>
+
+	<div class="legend-item">
+		<div class="swatch swatch-c"></div> 1605 Tilia
+	</div>
+
+	<div class="legend-item">
+		<div class="swatch swatch-d"></div> 1715 Tilia
+	</div>
+</div>

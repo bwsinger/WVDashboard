@@ -1,0 +1,285 @@
+// LAYOUT
+
+.section-left {
+	padding: 0;
+}
+
+.section-left-top {
+	height:40%;
+	margin: 0;
+}
+
+.section-left-bottom {
+	height:60%;
+	background-color: #7fa097;
+}
+
+.section-right {
+	background-color: #46605a;
+	overflow: hidden;
+	padding: 0;
+}
+
+// HEADERS
+
+.section-banner {
+	width: 650px;
+	background-color: #29343f;
+	overflow: auto;
+	padding: 2px;
+	transform: rotate(-12deg);
+	position: absolute;
+	left: -25px;
+	top: -15px;
+	min-height: 80px;
+	z-index: 1;
+}
+
+.section-banner-title {
+	font-size: 2.3em;
+	font-family: cursive;
+	float: left;
+	margin-left: 10px;
+	margin-top: 20px;
+}
+
+.section-banner-title-solo {
+	margin-left: 45px;
+}
+
+.timespan {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	width: 82px;
+	margin-left: 40px;
+	float: left;
+
+	li {
+		text-align: center;
+		margin: 0;
+		padding: 0;
+		border-bottom: solid #aad6cd 1px;
+		color: #aad6cd;
+		cursor: pointer;
+		font-size: 0.8em;
+
+		&:last-child {
+			border-bottom: 0;
+		}
+
+		&.active {
+			font-size: 1.7em;
+			line-height: 1.2em;
+			font-weight: 700;
+			color: white;
+			cursor: default;
+		}
+	}
+}
+
+// MASCOT
+
+.mascot {
+	height: 80%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+// LEADERBOARD
+
+.leaderboard-container {
+	background-color: #a7bcb6;
+	overflow: hidden;
+	padding: 0;
+}
+
+.leaderboardGraph {
+	width: 100%;
+	height: 65%;
+	bottom: 0;
+	position: absolute;
+}
+
+// CURRENT POWER
+
+.current-power-container {
+	margin: 0;
+	position: relative;
+	overflow: hidden;
+}
+
+.current-power {
+	margin-left: 10%;
+	width: 80%;
+	margin-top: 65px;
+	padding-bottom: 12px;
+	border-bottom: 10px solid #a7bcb6;
+	overflow: auto;
+}
+
+.current-power-wrapper {
+	padding: 0;
+}
+
+.current-power-tile {
+	width: 95px;
+	text-align: center;
+	float: left;
+	margin-left: 65px;
+	position: relative;
+	padding-top: 15px;
+
+	&:first-child {
+		margin-left: 20px;
+	}
+}
+
+.current-power-img {
+	height: 85px;
+	width: 85px;
+	margin-bottom: 10px;
+}
+
+.current-power-toggle {
+	height: 40px;
+	width: 22px;
+	position: absolute;
+	left: -5px;
+	top: 35px;
+	cursor: pointer;
+}
+
+.current-power-sum {
+	border-left: 5px solid #ffffff;
+	width: 135px;
+	padding-left: 30px;
+}
+
+.current-value {
+	font-weight: 700;
+	font-size: 1.2em;
+	color: #73c04a;
+}
+
+.current-value-negative {
+	color: red;
+}
+
+.current-value-solar {
+	color: #fecb45;
+}
+
+// HISTORICAL POWER
+
+.historical-power-container {
+	margin: 0;
+	position: relative;
+	overflow: hidden;
+	height: 62%;
+}
+
+.historicalGraph {
+	width: 100%;
+	height: 350px;
+
+	.line-prod {
+		fill: none;
+		stroke: #ffcc33;
+		stroke-width: 3px;
+	}
+
+	.y-axis-label {
+		font-size: 2em;
+		font-weight: 700;
+	}
+
+	.domain {
+		stroke: white;
+		stroke-width: 3px;
+	}
+
+	.tick {
+		line {
+			stroke: white;
+			stroke-width: 3px;
+			transform: translate(0, -7.5px);
+		}
+
+		text {
+			fill: #fff;
+			font-weight: 700;
+			font-size: 2em;
+		}
+	}
+}
+
+// PERCENT ZNE
+
+.percentzneGraph {
+	width: 100%;
+	height: 100%;
+}
+
+.selector {
+	width: 100%;
+	position: absolute;
+	bottom: 0;
+	text-align: center;
+	margin-bottom: 40px;
+}
+
+.showall-toggle {
+	height: 22px;
+	width: 40px;
+	cursor: pointer;
+	margin: 0 20px;
+}
+
+.legend {
+	width: 100%;
+	position: absolute;
+	bottom: 0;
+	text-align: center;
+	margin-bottom: 12px;
+}
+
+.legend-item {
+	margin-left: 18px;
+	float: left;
+	font-weight: 300;
+	font-size: 1.1em;
+
+	&:first-child {
+		margin-left: 10px;
+	}
+
+}
+
+.swatch {
+	width: 1.2em;
+	height: 1.2em;
+	border: 1.5px solid #1a2c46;
+	display: inline-block;
+	position: relative;
+	top: 3px;
+	margin-right: 8px;
+}
+
+.swatch-a {
+	background-color: #c7b299;	
+}
+
+.swatch-b {
+	background-color: #9e005d;	
+}
+
+.swatch-c {
+	background-color: #2e3192;	
+}
+
+.swatch-d {
+	background-color: #ffffff;	
+}

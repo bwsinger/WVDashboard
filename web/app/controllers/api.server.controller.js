@@ -6,7 +6,7 @@ var pg = require('pg'),
 
 var connString = config.connString,
 	timespans = ['hourly', 'daily', 'weekly', 'monthly'],
-	zne_goals = { '1590': 80000 }; // TODO generate this list from db
+	zne_goals = { '1590': 30000 }; // TODO generate this list from db
 
 exports.leaderboard = function(req, res) {
 
@@ -16,7 +16,7 @@ exports.leaderboard = function(req, res) {
 		// gets the total kw since the start of the week (Monday) for each building
 		var query = `
 			SELECT "building",
-					ROUND(((SUM("kitchen") + SUM("plugs") + SUM("lights") + SUM("ev")) - SUM("solar")) / 1000, 2) as "kw"
+					ROUND( ( SUM("solar") - (SUM("kitchen") + SUM("plugs") + SUM("lights") + SUM("ev")) ) / 1000, 2) as "kw"
 			FROM "log"
 			WHERE "datetime" >= date_trunc('week', NOW())
 			GROUP BY "building"`;
@@ -56,6 +56,12 @@ exports.leaderboard = function(req, res) {
 				// calculate the position compared to the zne "line" for current day
 				// Inverted because values lower than ZNE are good and higher are bad
 				positions[building] = positions['ZNE'] / percent_used;
+
+				// TODO: fix negative net energy usage in this calculationg
+				// workaround is just to cap at 1
+				if(positions[building] > 1) {
+					positions[building] = 1;
+				}
 			}
 
 			res.status(200).send(positions); // send response
@@ -101,13 +107,24 @@ exports.current = function(req, res) {
 			dbClient.query(query, [req.params.building], function(err, result) {
 				if (err) throw err;
 
-				res.status(200).send({
-					kitchen: result.rows[0].kitchen !== null ? parseFloat(result.rows[0].kitchen) : 0,
-					plugs: result.rows[0].plugs !== null ? parseFloat(result.rows[0].plugs) : 0,
-					lights: result.rows[0].lights !== null ? parseFloat(result.rows[0].lights) : 0,
+				var data = {
+					kitchen: result.rows[0].kitchen !== null ? -parseFloat(result.rows[0].kitchen) : 0,
+					plugs: result.rows[0].plugs !== null ? -parseFloat(result.rows[0].plugs) : 0,
+					lights: result.rows[0].lights !== null ? -parseFloat(result.rows[0].lights) : 0,
 					solar: result.rows[0].solar !== null ? parseFloat(result.rows[0].solar) : 0,
-					ev: result.rows[0].ev !== null ? parseFloat(result.rows[0].ev) : 0,
-				}); // send response
+					ev: result.rows[0].ev !== null ? -parseFloat(result.rows[0].ev) : 0,
+				};
+
+				data.total = data.solar+data.kitchen+data.plugs+data.lights+data.ev;
+
+				data.total = Math.round(data.total);
+				data.kitchen = Math.round(data.kitchen);
+				data.plugs = Math.round(data.plugs);
+				data.lights = Math.round(data.lights);
+				data.solar = Math.round(data.solar);
+				data.ev = Math.round(data.ev);
+
+				res.status(200).send(data); // send response
 
 				done(); // close db connection
 			});
@@ -116,6 +133,23 @@ exports.current = function(req, res) {
 };
 
 exports.historical = function(req, res) {
+
+	var enabled = {
+		'lights': true,
+		'plugs': true,
+		'kitchen': true,
+		'ev': true,
+	};
+
+	if(req.query.disabled) {
+		var passed = req.query.disabled.split(',');
+
+		for(var use in enabled) {
+			if(passed.indexOf(use) !== -1) {
+				enabled[use] = false;
+			}
+		}
+	}
 
 	pg.connect(connString, function(err, dbClient, done) {
 		if(err) throw err;
@@ -159,11 +193,11 @@ exports.historical = function(req, res) {
 				case 'monthly':
 					//every 30 minutes for the last 13 months
 					start = '13 months';
-					minutes = 60;
+					minutes = 30;
 					break;
 			}
 
-			var query = _buildHistoricalQuery(start, minutes);
+			var query = _buildHistoricalQuery(start, minutes, enabled);
 
 			dbClient.query(query, [req.params.building], function(err, result) {
 				if (err) throw err;
@@ -259,29 +293,46 @@ exports.percentzne = function(req, res) {
 					if (err) throw err;
 
 					var data = {};
+					var intervals = [];
 
-					// Build the array to return
+					// Grab all the intervals in the result
 					for(var i = 0, len = result.rows.length; i < len; i++) {
-
-						if(result.rows[i].building !== null) {
-
-							if(!data.hasOwnProperty(result.rows[i].building)) {
-								data[result.rows[i].building] = [];
-							}
-
-							var percent = 0;
-							if(result.rows[i].kw !== null) {
-								percent = (1 - (parseFloat(result.rows[i].kw) / zne_adjusted[result.rows[i].building])) * 100;
-							}
-
-							data[result.rows[i].building].push({
-								interval: result.rows[i].interval,
-								percent: percent,
-							});
+						var current = result.rows[i].interval.toISOString();
+						if(intervals.indexOf(current) === -1) {
+							intervals.push(current);
 						}
 					}
 
-					res.status(200).send(data); // send response
+					// Build a 0 result set for each interval
+					for(var j = 0, len_j = intervals.length; j < len_j; j++) {
+						data[intervals[j]] = {};
+						for(var k = 0, len_k = buildings.length; k < len_k; k++) {
+							data[intervals[j]][buildings[k]] = 0;
+						}
+					}
+
+					// Change any values that exist in the result
+					for(var i = 0, len = result.rows.length; i < len; i++) {
+
+						// building null means an interval with no data from any building
+						// kw null means an interval with no data for that building
+						if(result.rows[i].building !== null && result.rows[i].kw !== null) {
+
+							// calculate the percent of the zne
+							var percent = percent = (1 - (parseFloat(result.rows[i].kw) / zne_adjusted[result.rows[i].building])) * 100;
+							data[result.rows[i].interval.toISOString()][result.rows[i].building] = percent;
+						}
+					}
+
+					var newData = [];
+
+					// Make the interval a property of the object and return an array
+					for(var interval in data) {
+						data[interval]['interval'] = interval;
+						newData.push(data[interval]);
+					}
+
+					res.status(200).send(newData); // send response
 
 					done(); // close db connection
 				});
@@ -292,7 +343,22 @@ exports.percentzne = function(req, res) {
 				dbClient.query(query, [req.params.building], function(err, result) {
 					if (err) throw err;
 
-					var data = [];
+					var data = {};
+					var intervals = [];
+
+					// Grab all the intervals in the result
+					for(var i = 0, len = result.rows.length; i < len; i++) {
+						var current = result.rows[i].interval.toISOString();
+						if(intervals.indexOf(current) === -1) {
+							intervals.push(current);
+						}
+					}
+
+					// Build a 0 result set for each interval
+					for(var j = 0, len_j = intervals.length; j < len_j; j++) {
+						data[intervals[j]] = {};
+						data[intervals[j]][req.params.building] = 0;
+					}
 
 					// Build the array to return
 					for(var i = 0, len = result.rows.length; i < len; i++) {
@@ -302,13 +368,18 @@ exports.percentzne = function(req, res) {
 							percent = (1 - (parseFloat(result.rows[i].kw) / zne_adjusted[req.params.building])) * 100;
 						}
 
-						data.push({
-							interval: result.rows[i].interval,
-							percent: percent,
-						});
+						data[result.rows[i].interval.toISOString()][req.params.building] = percent;
 					}
 
-					res.status(200).send(data); // send response
+					var newData = [];
+
+					// Make the interval a property of the object and return an array
+					for(var interval in data) {
+						data[interval]['interval'] = interval;
+						newData.push(data[interval]);
+					}
+
+					res.status(200).send(newData); // send response
 
 					done(); // close db connection
 				});
@@ -378,14 +449,23 @@ function _buildPercentQuery(start, unit) {
 		ORDER BY "series"."interval" DESC`;
 }
 
-function _buildHistoricalQuery(start, minutes) {
+function _buildHistoricalQuery(start, minutes, enabled) {
 
 	var interval = minutes+" minutes";
 	var seconds = minutes * 60;
 
+	var uses = []
+	for(var use in enabled) {
+		if(enabled[use]) {
+			uses.push('"values"."'+use+'"');
+		}
+	}
+
+	var demandString = uses.length ? uses.join(" + ") : 0;
+
 	return `
 		SELECT "series"."interval",
-			ROUND(("values"."kitchen" + "values"."plugs" + "values"."lights" + "values"."ev") / 1000, 2) as "demand",
+			ROUND((${demandString}) / 1000, 2) as "demand",
 			ROUND("values"."solar" / 1000, 2) as "production"
 		FROM (
 			SELECT to_timestamp(ceil(extract('epoch' from "datetime") / ${seconds}) * ${seconds}) AT TIME ZONE 'UTC' as "interval",

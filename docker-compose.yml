@@ -18,8 +18,8 @@ services:
       - db
   web:
     build: ./web
-    volumes:
-      - /web:/usr/app/src
+    environment:
+      - NODE_ENV=docker
     ports:
       - "3000:3000"
     links:

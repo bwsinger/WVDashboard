@@ -1,0 +1,14 @@
+version: '2'
+services:
+  db:
+    ports:
+      - "5432:5432"
+  web:
+    command: [grunt]
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+      - "35729:35729"
+    volumes:
+      - /web:/usr/app/src

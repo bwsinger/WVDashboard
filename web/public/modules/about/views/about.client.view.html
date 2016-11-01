@@ -1,0 +1,19 @@
+<div class="container-fluid full-height">
+	<!-- <div class="row" style="height: 30%;"><br></div> -->
+	<div class="row about-main">
+		<div class="col-xs-6 full-height about-content-container">
+
+			<div class="about-content">
+				<h1>{{vm.title}}</h1>
+				<div ng-include="vm.currentTemplate"></div>
+			</div>
+		</div>
+		<div class="col-xs-6 full-height">
+			<ul class="full-height about-list">
+				<li ng-repeat="(tile, title) in vm.tiles" ng-click="vm.changeTile(tile)" ng-if="vm.current != tile">
+					<h1>{{title}}</h1>
+				</li>
+			</ul>
+		</div>
+	</div>
+</div>

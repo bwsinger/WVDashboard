@@ -1,9 +1,12 @@
-FROM node:0.10
+FROM node:latest
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-RUN npm install -g bower
+RUN apt-get update && apt-get install ruby -y
+RUN gem install sass
+
+RUN npm install -g bower grunt-cli
 
 COPY .bowerrc /usr/src/app/
 COPY bower.json /usr/src/app/
@@ -13,5 +16,6 @@ COPY package.json /usr/src/app/
 RUN npm install
 
 COPY . /usr/src/app
+RUN grunt dist
 
 CMD [ "npm", "start" ]

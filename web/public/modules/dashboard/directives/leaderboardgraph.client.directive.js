@@ -71,7 +71,7 @@
 
 					var buildings = []
 
-					buildings.push({ x: data['ZNE']+0.2, y: '215', place: 1,});
+					// buildings.push({ x: data['ZNE']+0.2, y: '215', place: 1,});
 
 					for(var item in data) {
 						if(item != 'ZNE') {
@@ -84,8 +84,10 @@
 					}
 
 					// temp
-					buildings.push({ x: data['ZNE']+0.3, y: '1605', place: 1,});
-					buildings.push({ x: data['ZNE']+0.1, y: '1715', place: 1,});
+					// buildings.push({ x: data['ZNE']+0.3, y: '1605', place: 1,});
+					// buildings.push({ x: data['ZNE']+0.1, y: '1715', place: 1,});
+
+					//console.log(buildings);
 					
 
 					for(var i = 0, len = buildings.length; i < len; i++) {
@@ -95,8 +97,6 @@
 							}
 						}
 					}
-
-					console.log(buildings);
 
 					var y = d3.scaleBand()
 						.domain(buildings.map(function(d) {return d.y; }))

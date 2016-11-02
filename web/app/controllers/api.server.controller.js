@@ -6,7 +6,7 @@ var pg = require('pg'),
 
 var connString = config.connString,
 	timespans = ['hourly', 'daily', 'weekly', 'monthly'],
-	zne_goals = { '1590': 30000 }; // TODO generate this list from db
+	zne_goals = { '1590': 1 }; // TODO generate this list from db
 
 exports.leaderboard = function(req, res) {
 

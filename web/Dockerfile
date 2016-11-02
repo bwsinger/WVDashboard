@@ -6,7 +6,7 @@ RUN dpkg-reconfigure -f noninteractive tzdata
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 
-RUN apt-get update && apt-get install ruby -y
+RUN apt-get update && apt-get install openssl ruby -y
 RUN gem install sass
 
 RUN npm install -g bower grunt-cli

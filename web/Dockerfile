@@ -1,5 +1,8 @@
 FROM node:latest
 
+RUN echo 'America/Los_Angeles' > /etc/timezone
+RUN dpkg-reconfigure -f noninteractive tzdata
+
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 

@@ -7,11 +7,12 @@ html(lang="en" class="full-height")
 
 		title Eco Dashboard
 
-		if(process.env.NODE_ENV === 'development')
+		if(process.env.NODE_ENV === 'production')
+			link(rel="stylesheet" href="./dist/css/main.min.css")
+		else
 			link(rel="stylesheet" href="./lib/bootstrap/dist/css/bootstrap.css")
 			link(rel="stylesheet" href="./dist/css/main.css")
-		else
-			link(rel="stylesheet" href="./dist/css/main.min.css")
+			
 	body(ng-cloak class="full-height")
 
 		div(ng-include="'./modules/core/views/menu.client.view.html'" ng-controller="Menu as menu")
@@ -22,7 +23,9 @@ html(lang="en" class="full-height")
 
 		div(ng-view class="container-fluid full-height")
 
-		if(process.env.NODE_ENV === 'development')
+		if(process.env.NODE_ENV === 'production')
+			script(type='text/javascript' src='./dist/js/main.min.js')
+		else
 			script(type='text/javascript' src='./lib/jquery/dist/jquery.js')
 			script(type='text/javascript' src='./lib/bootstrap/dist/js/bootstrap.js')
 
@@ -49,5 +52,3 @@ html(lang="en" class="full-height")
 			script(type='text/javascript' src='./modules/splash/config/splash.client.routes.js')
 
 			script(type='text/javascript' src='./application.js')
-		else
-			script(type='text/javascript' src='./dist/js/main.min.js')

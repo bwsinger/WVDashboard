@@ -20,7 +20,7 @@ module.exports = function() {
 	// uncomment after placing your favicon in /public
 	//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 
-	if(process.env.NODE_ENV === 'development') {
+	if(process.env.NODE_ENV !== 'production') {
 		app.use(morgan('dev'));
 	}
 	// else use compression for production?
@@ -58,7 +58,7 @@ module.exports = function() {
 
 		res.render('error', {
 			message: err.message,
-			error: process.env.NODE_ENV === 'development'? err : {}
+			error: process.env.NODE_ENV === 'production'? {} : err,
 		});
 	});
 

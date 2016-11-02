@@ -6,9 +6,9 @@ services:
   web:
     command: [grunt]
     environment:
-      - NODE_ENV=development
+      - NODE_ENV=development_docker
     ports:
       - "3000:3000"
       - "35729:35729"
     volumes:
-      - /web:/usr/app/src
+      - ./web:/usr/src/app

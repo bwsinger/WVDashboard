@@ -10,4 +10,7 @@ services:
     ports:
       - "35729:35729"
     volumes:
-      - ./dev:/usr/src/app
+      - ./web:/usr/src/app
+      # don't overwrite dependencies
+      - /usr/src/app/node_modules 
+      - /usr/src/app/public/lib

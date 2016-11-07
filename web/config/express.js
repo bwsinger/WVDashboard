@@ -2,7 +2,6 @@
 
 var http			= require('http'),
 	express 		= require('express'),
-	favicon 		= require('serve-favicon'),
 	morgan 			= require('morgan'),
 	bodyParser 		= require('body-parser'),
 	cookieParser 	= require('cookie-parser'),
@@ -15,11 +14,6 @@ module.exports = function() {
 	var server = http.createServer(app);
 
 	// Middleware
-
-	// is this actually used/needed? the static route will handle the favicon
-	// uncomment after placing your favicon in /public
-	//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-
 	if(process.env.NODE_ENV !== 'production') {
 		app.use(morgan('dev'));
 	}

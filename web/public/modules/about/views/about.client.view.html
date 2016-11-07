@@ -1,11 +1,10 @@
 <div class="container-fluid full-height">
 	<!-- <div class="row" style="height: 30%;"><br></div> -->
 	<div class="row about-main">
-		<div class="col-xs-6 full-height about-content-container">
-
-			<div class="about-content">
-				<h1>{{vm.title}}</h1>
-				<div ng-include="vm.currentTemplate"></div>
+		<div class="col-xs-6 full-height">
+			<div class="full-height about-content-container">
+				<div class="about-title-container"><h1>{{vm.title}}</h1></div>
+				<div class="about-content" ng-include="vm.currentTemplate"></div>
 			</div>
 		</div>
 		<div class="col-xs-6 full-height">

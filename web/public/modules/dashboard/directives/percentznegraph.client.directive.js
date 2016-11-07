@@ -227,6 +227,8 @@
 						.attr('transform', 'rotate(90) translate(25, 35)')
 						.attr('fill', 'white')
 						.attr('font-size', '15')
+						.attr('font-family', 'webly')
+						.attr('font-weight', 'bold')
 						.attr('text-anchor', 'middle');
 
 					// insert x-axis
@@ -239,6 +241,8 @@
 						.attr("fill", "#FFF")
 						.attr('x', width/2)
 						.attr('y', -25)
+						.attr('font-family', 'webly')
+						.attr('font-weight', 'bold')
 						.style("text-anchor", "middle")
 						.text("percent of zero-net goal");
 

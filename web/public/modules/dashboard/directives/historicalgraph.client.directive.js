@@ -159,9 +159,12 @@
 						.attr("d", prodLine);
 
 					// Draw the axes
-					cont.append("g")
+					var gx = cont.append("g")
 						.attr("transform", "translate(0," + height + ")")
 						.call(xAxis);
+
+					gx.selectAll("text")
+						.attr('font-family', 'webly');
 
 					cont.append("g")
 						.call(yAxis)
@@ -171,6 +174,7 @@
 						.attr('x', -height/2)
 						.attr('y', -25)
 						.attr("transform", "rotate(-90)")
+						.attr('font-family', 'webly')
 						.style("text-anchor", "middle")
 						.text("kW");
 

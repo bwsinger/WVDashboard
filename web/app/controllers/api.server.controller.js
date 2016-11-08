@@ -16,7 +16,7 @@ exports.leaderboard = function(req, res) {
 		// gets the total kw since the start of the week (Monday) for each building
 		var query = `
 			SELECT "building",
-					ROUND( (SUM("kitchen") + SUM("plugs") + SUM("lights")) / 1000, 2) as "kw"
+					ROUND( (SUM("hvac") + SUM("kitchen") + SUM("plugs") + SUM("lights")) / 1000, 2) as "kw"
 			FROM "log"
 			WHERE "datetime" >= date_trunc('week', NOW())
 			GROUP BY "building"`;
@@ -86,11 +86,13 @@ exports.current = function(req, res) {
 				return;
 			}
 
-			var query = `SELECT ROUND(AVG("kitchen"), 2) as "kitchen",
+			var query = `SELECT ROUND(AVG("hvac"), 2) as "hvac",
+								ROUND(AVG("kitchen"), 2) as "kitchen",
 								ROUND(AVG("plugs"), 2) as "plugs",
 								ROUND(AVG("lights"), 2) as "lights",
 								ROUND(AVG("solar"), 2) as "solar",
-								ROUND(AVG("ev"), 2) as "ev"
+								ROUND(AVG("ev"), 2) as "ev",
+								MAX("datetime") as "latest"
 						FROM (
 							SELECT * FROM "log"
 							WHERE "building" = $1
@@ -102,16 +104,19 @@ exports.current = function(req, res) {
 				if (err) throw err;
 
 				var data = {
+					hvac: result.rows[0].hvac !== null ? -parseFloat(result.rows[0].hvac) : 0,
 					kitchen: result.rows[0].kitchen !== null ? -parseFloat(result.rows[0].kitchen) : 0,
 					plugs: result.rows[0].plugs !== null ? -parseFloat(result.rows[0].plugs) : 0,
 					lights: result.rows[0].lights !== null ? -parseFloat(result.rows[0].lights) : 0,
 					solar: result.rows[0].solar !== null ? parseFloat(result.rows[0].solar) : 0,
 					ev: result.rows[0].ev !== null ? -parseFloat(result.rows[0].ev) : 0,
+					latest: result.rows[0].latest,
 				};
 
-				data.total = data.solar+data.kitchen+data.plugs+data.lights+data.ev;
+				data.total = data.solar+data.hvac+data.kitchen+data.plugs+data.lights+data.ev;
 
 				data.total = Math.round(data.total);
+				data.hvac = Math.round(data.hvac);
 				data.kitchen = Math.round(data.kitchen);
 				data.plugs = Math.round(data.plugs);
 				data.lights = Math.round(data.lights);
@@ -129,6 +134,7 @@ exports.current = function(req, res) {
 exports.historical = function(req, res) {
 
 	var enabled = {
+		'hvac': true,
 		'lights': true,
 		'plugs': true,
 		'kitchen': true,
@@ -352,9 +358,10 @@ function _buildPercentQuery(start, unit) {
 	return `
 		SELECT "series"."interval",
 				"values"."building",
-			ROUND(("values"."kitchen" + "values"."plugs" + "values"."lights") / 1000, 2) as "kw"
+			ROUND(("values"."hvac" + "values"."kitchen" + "values"."plugs" + "values"."lights") / 1000, 2) as "kw"
 		FROM (
 			SELECT date_trunc('${unit}',  "datetime") as "interval",
+				SUM("hvac") as "hvac",
 				SUM("kitchen") as "kitchen",
 				SUM("plugs") as "plugs",
 				SUM("lights") as "lights",
@@ -394,6 +401,7 @@ function _buildHistoricalQuery(start, minutes, enabled) {
 			ROUND("values"."solar" / 1000, 2) as "production"
 		FROM (
 			SELECT to_timestamp(ceil(extract('epoch' from "datetime") / ${seconds}) * ${seconds}) AT TIME ZONE 'UTC' as "interval",
+				AVG("hvac") as "hvac",
 				AVG("kitchen") as "kitchen",
 				AVG("plugs") as "plugs",
 				AVG("lights") as "lights",

@@ -88,6 +88,8 @@
 						.x(function(d) { return x(d3.isoParse(d.interval)); })
 						.y(function(d) { return y(d.production); });
 
+					// TODO add timespan dependent ticks (see percent ZNE directive)
+
 					var yAxis = d3.axisLeft(y)
 								.ticks(0)
 								.tickSizeOuter(1);

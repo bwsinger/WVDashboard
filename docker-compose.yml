@@ -1,9 +1,5 @@
 version: '2'
 services:
-  bot:
-    build: ./bot
-    links:
-      - db
   db:
     environment:
       - POSTGRES_PASSWORD=postgres
@@ -11,9 +7,13 @@ services:
     build: ./db
     volumes:
       - ./db/schema:/docker-entrypoint-initdb.d/
-      - ./data:/var/lib/postgresql/data
-  tasks:
-    build: ./tasks
+      - ./db/data:/var/lib/postgresql/data
+  hobo:
+    build: ./hobo
+    links:
+      - db
+  twitter:
+    build: ./twitter
     links:
       - db
   web:

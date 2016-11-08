@@ -6,7 +6,7 @@ var pg = require('pg'),
 
 var connString = config.connString,
 	timespans = ['hourly', 'daily', 'weekly', 'monthly'],
-	zne_goals = { '1590': 1 }; // TODO generate this list from db
+	zne_goals = { '1590': 13000 }; // TODO generate this list from db
 
 exports.leaderboard = function(req, res) {
 
@@ -16,7 +16,7 @@ exports.leaderboard = function(req, res) {
 		// gets the total kw since the start of the week (Monday) for each building
 		var query = `
 			SELECT "building",
-					ROUND( ( SUM("solar") - (SUM("kitchen") + SUM("plugs") + SUM("lights") + SUM("ev")) ) / 1000, 2) as "kw"
+					ROUND( (SUM("kitchen") + SUM("plugs") + SUM("lights")) / 1000, 2) as "kw"
 			FROM "log"
 			WHERE "datetime" >= date_trunc('week', NOW())
 			GROUP BY "building"`;
@@ -29,7 +29,7 @@ exports.leaderboard = function(req, res) {
 
 			for(var i = 0, len = result.rows.length; i < len; i++) {
 				current_kw[result.rows[i].building] = parseFloat(result.rows[i].kw);
-			} 
+			}
 
 			var zne_ratio = .75;
 			var exaggeration_factor = 0;
@@ -56,12 +56,6 @@ exports.leaderboard = function(req, res) {
 				// calculate the position compared to the zne "line" for current day
 				// Inverted because values lower than ZNE are good and higher are bad
 				positions[building] = positions['ZNE'] / percent_used;
-
-				// TODO: fix negative net energy usage in this calculationg
-				// workaround is just to cap at 1
-				if(positions[building] > 1) {
-					positions[building] = 1;
-				}
 			}
 
 			res.status(200).send(positions); // send response
@@ -284,160 +278,91 @@ exports.percentzne = function(req, res) {
 				zne_adjusted[goal] = zne_goals[goal] * multiplier;
 			}
 
-			var query = '';
+			var query = _buildPercentQuery(start, unit);
 
 			if(req.params.building === 'ALL') {
-				query = _buildPercentQueryAll(start, unit);
-
-				dbClient.query(query, [], function(err, result) {
-					if (err) throw err;
-
-					var data = {};
-					var intervals = [];
-
-					// Grab all the intervals in the result
-					for(var i = 0, len = result.rows.length; i < len; i++) {
-						var current = result.rows[i].interval.toISOString();
-						if(intervals.indexOf(current) === -1) {
-							intervals.push(current);
-						}
-					}
-
-					// Build a 0 result set for each interval
-					for(var j = 0, len_j = intervals.length; j < len_j; j++) {
-						data[intervals[j]] = {};
-						for(var k = 0, len_k = buildings.length; k < len_k; k++) {
-							data[intervals[j]][buildings[k]] = 0;
-						}
-					}
-
-					// Change any values that exist in the result
-					for(var i = 0, len = result.rows.length; i < len; i++) {
-
-						// building null means an interval with no data from any building
-						// kw null means an interval with no data for that building
-						if(result.rows[i].building !== null && result.rows[i].kw !== null) {
-
-							// calculate the percent of the zne
-							var percent = percent = (1 - (parseFloat(result.rows[i].kw) / zne_adjusted[result.rows[i].building])) * 100;
-							data[result.rows[i].interval.toISOString()][result.rows[i].building] = percent;
-						}
-					}
-
-					var newData = [];
-
-					// Make the interval a property of the object and return an array
-					for(var interval in data) {
-						data[interval]['interval'] = interval;
-						newData.push(data[interval]);
-					}
-
-					res.status(200).send(newData); // send response
-
-					done(); // close db connection
-				});
+				var query_params = ['%'];
 			}
 			else {
-				query = _buildPercentQuery(start, unit);
+				var query_params = [req.params.building];
+			}
 
-				dbClient.query(query, [req.params.building], function(err, result) {
-					if (err) throw err;
+			dbClient.query(query, query_params, function(err, result) {
+				if (err) throw err;
 
-					var data = {};
-					var intervals = [];
+				var data = {};
+				var intervals = [];
+				var actual_buildings = [];
 
-					// Grab all the intervals in the result
-					for(var i = 0, len = result.rows.length; i < len; i++) {
-						var current = result.rows[i].interval.toISOString();
-						if(intervals.indexOf(current) === -1) {
-							intervals.push(current);
-						}
+				// Grab all the intervals and buildings in the result
+				for(var i = 0, len = result.rows.length; i < len; i++) {
+					var current = result.rows[i].interval.toISOString();
+					if(intervals.indexOf(current) === -1) {
+						intervals.push(current);
 					}
 
-					// Build a 0 result set for each interval
-					for(var j = 0, len_j = intervals.length; j < len_j; j++) {
-						data[intervals[j]] = {};
-						data[intervals[j]][req.params.building] = 0;
+					if(result.rows[i].building !== null && actual_buildings.indexOf(result.rows[i].building) === -1) {
+						actual_buildings.push(result.rows[i].building)
 					}
+				};
 
-					// Build the array to return
-					for(var i = 0, len = result.rows.length; i < len; i++) {
+				// Build a 0 result set for each interval and building
+				for(var j = 0, len_j = intervals.length; j < len_j; j++) {
+					data[intervals[j]] = {};
 
-						var percent = 0;
-						if(result.rows[i].kw !== null) {
-							percent = (1 - (parseFloat(result.rows[i].kw) / zne_adjusted[req.params.building])) * 100;
-						}
-
-						data[result.rows[i].interval.toISOString()][req.params.building] = percent;
+					for(var k = 0, len_k = actual_buildings.length; k < len_k; k++) {
+						data[intervals[j]][actual_buildings[k]] = 0;
 					}
+				}
 
-					var newData = [];
+				// Change any values that exist in the result
+				for(var i = 0, len = result.rows.length; i < len; i++) {
 
-					// Make the interval a property of the object and return an array
-					for(var interval in data) {
-						data[interval]['interval'] = interval;
-						newData.push(data[interval]);
+					// building null means an interval with no data from any building
+					// kw null means an interval with no data for that building
+					if(result.rows[i].building !== null && result.rows[i].kw !== null) {
+
+						// calculate the percent of the zne
+						var percent = (parseFloat(result.rows[i].kw) / zne_adjusted[result.rows[i].building]) * 100;
+						data[result.rows[i].interval.toISOString()][result.rows[i].building] = percent;
 					}
+				}
 
-					res.status(200).send(newData); // send response
+				var newData = [];
 
-					done(); // close db connection
-				});
-			}		
+				// Make the interval a property of the object and return an array
+				for(var interval in data) {
+					data[interval]['interval'] = interval;
+					newData.push(data[interval]);
+				}
+
+				res.status(200).send(newData); // send response
+
+				done(); // close db connection
+
+			});
 		});
 	});
 };
 
-
-function _buildPercentQueryAll(start, unit) {
+function _buildPercentQuery(start, unit) {
 	var start = `${start} ${unit}s`;
 	var interval = `1 ${unit}`;
 
 	return `
 		SELECT "series"."interval",
 				"values"."building",
-			ROUND((("values"."kitchen" + "values"."plugs" + "values"."lights" + "values"."ev") - "values"."solar") / 1000, 2) as "kw"
+			ROUND(("values"."kitchen" + "values"."plugs" + "values"."lights") / 1000, 2) as "kw"
 		FROM (
 			SELECT date_trunc('${unit}',  "datetime") as "interval",
 				SUM("kitchen") as "kitchen",
 				SUM("plugs") as "plugs",
 				SUM("lights") as "lights",
-				SUM("solar") as "solar",
-				SUM("ev") as "ev",
 				"building"
 			FROM "log"
 			WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'
+			AND "building" LIKE $1
 			GROUP BY "building", "interval"
-		) as "values"
-		RIGHT JOIN (
-			SELECT generate_series(
-			date_trunc('${unit}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'),
-			date_trunc('${unit}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${interval}'),
-			'${interval}') as "interval"
-		) as "series"
-		USING("interval")
-		ORDER BY "series"."interval" DESC`;
-}
-
-function _buildPercentQuery(start, unit) {
-
-	var start = `${start} ${unit}s`;
-	var interval = `1 ${unit}`;
-
-	return `
-		SELECT "series"."interval",
-			ROUND((("values"."kitchen" + "values"."plugs" + "values"."lights" + "values"."ev") - "values"."solar") / 1000, 2) as "kw"
-		FROM (
-			SELECT date_trunc('${unit}',  "datetime") as "interval",
-				SUM("kitchen") as "kitchen",
-				SUM("plugs") as "plugs",
-				SUM("lights") as "lights",
-				SUM("solar") as "solar",
-				SUM("ev") as "ev"
-			FROM "log"
-			WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'
-			AND "building" = $1
-			GROUP BY "interval"
 		) as "values"
 		RIGHT JOIN (
 			SELECT generate_series(

@@ -90,7 +90,7 @@
 
 					// scale for percents
 					var x = d3.scaleLinear()
-								.domain([-percentToUse, percentToUse])
+								.domain([200, 0])
 								.range([0, width]);
 
 					// scale for intervals
@@ -184,12 +184,12 @@
 							.attr("x", function(d) {
 								//positive starts at the center,
 								//negative starts at the scaled value
-								return d.percent >= 0 ? x(0) : x(d.percent);
+								return d.percent >= 100 ? x(d.percent) : x(100);
 							})
 							.attr("width", function(d) {
 								// width of positive is the difference between the scaled value and zero
 								// width of negative is the difference between zero and the scaled value
-								return d.percent >= 0 ? x(d.percent) - x(0) : x(0) - x(d.percent);
+								return d.percent >= 100 ? x(100) - x(d.percent) : x(d.percent) - x(100);
 							})
 							.style("fill", function(d) {
 								// if we show all buildings, use the color scale
@@ -197,7 +197,7 @@
 									return color(d.building);
 								}
 								// otherwise, just red and green
-								else if(d.percent >= 0) {
+								else if(d.percent < 100) {
 									return '#71c241';
 								}
 								else {
@@ -220,11 +220,12 @@
 					// y-axis ticks
 					gy.selectAll('line')
 						.attr('stroke', 'white')
-						.attr('stroke-width', '3');
+						.attr('stroke-width', '3')
+						.attr('transform', 'translate(-10, 0)');
 
 					// y-axis labels
 					gy.selectAll('text')
-						.attr('transform', 'rotate(90) translate(25, 35)')
+						.attr('transform', 'rotate(90) translate(25, 50)')
 						.attr('fill', 'white')
 						.attr('font-size', '15')
 						.attr('font-family', 'webly')

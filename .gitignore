@@ -1,4 +1,5 @@
-tasks/venv/
+hobo/venv/
+twitter/venv/
 db/data/
 web/node_modules/
 web/public/lib/

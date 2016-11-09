@@ -110,10 +110,60 @@
 					// color scale for the buildings
 					// TODO: add patterns
 					if(all) {
-						var color = d3.scaleOrdinal()
+						var fill = d3.scaleOrdinal()
 							.domain(buildings)
-							.range(["#c7b299", "#9e005d", "#2e3192", "#ffffff"]);
+							.range(["#circles-2" , "#diagonal-stripe-2", "#crosshatch", "#circles-9"]);
 					}
+
+					var defs = cont.append('defs');
+
+					defs.append('pattern')
+							.attr('id', 'circles-9')
+							.attr('patternUnits', 'userSpaceOnUse')
+							.attr('width', 10)
+							.attr('height', 10)
+						.append('image')
+							.attr('width', 10)
+							.attr('height', 10)
+							.attr('x', 0)
+							.attr('y', 0)
+							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPSd3aGl0ZScgLz4KICA8Y2lyY2xlIGN4PSc1JyBjeT0nNScgcj0nNScgZmlsbD0nYmxhY2snLz4KPC9zdmc+');
+
+					defs.append('pattern')
+							.attr('id', 'crosshatch')
+							.attr('patternUnits', 'userSpaceOnUse')
+							.attr('width', 8)
+							.attr('height', 8)
+						.append('image')
+							.attr('width', 8)
+							.attr('height', 8)
+							.attr('x', 0)
+							.attr('y', 0)
+							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnPgogIDxyZWN0IHdpZHRoPSc4JyBoZWlnaHQ9JzgnIGZpbGw9JyNmZmYnLz4KICA8cGF0aCBkPSdNMCAwTDggOFpNOCAwTDAgOFonIHN0cm9rZS13aWR0aD0nMC41JyBzdHJva2U9JyNhYWEnLz4KPC9zdmc+Cg==');
+
+					defs.append('pattern')
+							.attr('id', 'diagonal-stripe-2')
+							.attr('patternUnits', 'userSpaceOnUse')
+							.attr('width', 10)
+							.attr('height', 10)
+						.append('image')
+							.attr('width', 10)
+							.attr('height', 10)
+							.attr('x', 0)
+							.attr('y', 0)
+							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPSd3aGl0ZScvPgogIDxwYXRoIGQ9J00tMSwxIGwyLC0yCiAgICAgICAgICAgTTAsMTAgbDEwLC0xMAogICAgICAgICAgIE05LDExIGwyLC0yJyBzdHJva2U9J2JsYWNrJyBzdHJva2Utd2lkdGg9JzInLz4KPC9zdmc+');
+
+					defs.append('pattern')
+							.attr('id', 'circles-2')
+							.attr('patternUnits', 'userSpaceOnUse')
+							.attr('width', 10)
+							.attr('height', 10)
+						.append('image')
+							.attr('width', 10)
+							.attr('height', 10)
+							.attr('x', 0)
+							.attr('y', 0)
+							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPSd3aGl0ZScgLz4KICA8Y2lyY2xlIGN4PScxLjUnIGN5PScxLjUnIHI9JzEuNScgZmlsbD0nYmxhY2snLz4KPC9zdmc+Cg==');
 
 					var yAxis = d3.axisLeft(y0)
 								.tickSizeOuter(1)
@@ -194,7 +244,7 @@
 							.style("fill", function(d) {
 								// if we show all buildings, use the color scale
 								if(all) {
-									return color(d.building);
+									return 'url('+fill(d.building)+')';
 								}
 								// otherwise, just red and green
 								else if(d.percent < 100) {

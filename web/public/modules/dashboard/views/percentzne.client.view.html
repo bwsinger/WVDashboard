@@ -10,10 +10,10 @@
 <percentzne-graph ng-if="vm.percentData" data="vm.percentData" all="vm.showAll" timespan="vm.percentTimespan"></percentzne-graph>
 
 <div class="selector">
+	<span>end-uses</span>
+	<img ng-if="vm.showAll" class="showall-toggle" src="./images/percentzne/usage_all_toggle.svg" ng-click="vm.toggleAll();">
+	<img ng-if="!vm.showAll" class="showall-toggle" src="./images/percentzne/usage_me_toggle.svg" ng-click="vm.toggleAll();">
 	<span>all buildings</span>
-	<img ng-if="vm.showAll" class="showall-toggle" src="./images/percentzne/toggle_buildings_all.svg" ng-click="vm.toggleAll();">
-	<img ng-if="!vm.showAll" class="showall-toggle" src="./images/percentzne/toggle_buildings_current.svg" ng-click="vm.toggleAll();">
-	<span>our building</span>
 </div>
 
 <div class="legend" ng-if="vm.showAll">

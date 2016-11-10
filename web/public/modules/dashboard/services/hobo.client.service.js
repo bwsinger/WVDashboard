@@ -41,7 +41,7 @@
 				}
 			}
 
-			var url = './api/historical/'+timespan+'/'+building;
+			var url = './api/historical/'+building+'/'+timespan;
 
 			if(uses.length) {
 				url+= '?disabled='+uses.join(',');
@@ -53,7 +53,7 @@
 		}
 
 		function getPercentZNE(timespan, building) {
-			return $http.get('./api/percentzne/'+timespan+'/'+building).then(function(res) {
+			return $http.get('./api/percent/building/'+building+'/'+timespan).then(function(res) {
 				return res.data;
 			});
 		}

@@ -7,7 +7,7 @@ module.exports = function(app) {
 
 	app.route('/api/current/:building').get(api.current);
 
-	app.route('/api/historical/:timespan/:building').get(api.historical);
+	app.route('/api/historical/:building/:timespan').get(api.historical);
 
-	app.route('/api/percentzne/:timespan/:building').get(api.percentzne);
+	app.route('/api/percent/:type/:building/:timespan').get(api.percent);
 };

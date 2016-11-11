@@ -7,7 +7,7 @@ var pg = require('pg'),
 var connString = config.connString,
 	timespans = ['hourly', 'daily', 'weekly', 'monthly'],
 	zne_goals = {
-		'1590': {
+		'1590 Tilia': {
 			total: 10000,
 			hvac: 1,
 			kitchen: 850,

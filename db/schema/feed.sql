@@ -1,6 +1,6 @@
 CREATE TABLE "log" (
 	"id" SERIAL PRIMARY KEY,
-	"building" CHAR(4) NOT NULL,
+	"building" TEXT NOT NULL,
 	"datetime" TIMESTAMP NOT NULL,
 	"hvac" numeric(8,2) DEFAULT 0,
 	"kitchen" numeric(8,2) DEFAULT 0,

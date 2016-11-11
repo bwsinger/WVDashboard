@@ -28,8 +28,6 @@
 			vm.historicalTimespans = timespans.slice(0);
 			vm.percentTimespans = timespans.slice(0);
 			vm.percentState = percentStates[percentStates.length-1];
-			vm.showAll = true;
-			vm.street = vm.building === 215 ? 'Sage' : 'Tilia';
 
 			Hobo.getLeaderboard().then(function(data) {
 				vm.leaderboardData = data;

@@ -15,7 +15,7 @@
 		<img ng-if="vm.percentState === 'enduse'" class="showall-toggle" src="./images/percentzne/usage_enduse_toggle.svg" ng-click="vm.togglePercentState();">
 		<img ng-if="vm.percentState === 'current'" class="showall-toggle" src="./images/percentzne/usage_me_toggle.svg" ng-click="vm.togglePercentState();">
 		<img ng-if="vm.percentState === 'all'" class="showall-toggle" src="./images/percentzne/usage_all_toggle.svg" ng-click="vm.togglePercentState();">
-		<div ng-click="vm.togglePercentState('current')">{{vm.building}} {{vm.street}}</div>
+		<div ng-click="vm.togglePercentState('current')">{{vm.building}}</div>
 	</div>
 	<div class="selector-section selector-right" ng-click="vm.togglePercentState('all')">all<br>buildings</div>
 </div>

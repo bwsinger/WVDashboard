@@ -106,6 +106,7 @@
 					var xMax = d3.max(data, function(d) { return d3.isoParse(d.interval); })
 					var xMin = d3.min(data, function(d) { return d3.isoParse(d.interval); })
 
+					// Which color do we start with
 					if(data[data.length-1].demand > data[data.length-1].production) {
 						stops.push({ offset: '0%', color: badColor });
 					}
@@ -116,20 +117,40 @@
 
 					for(var i = data.length - 2; i > 0; i--) {
 
-						var percentage = ((x(d3.isoParse(data[i].interval))/x(xMax))*100)+'%';
+						// Check if we switched which curve is on top
+						if((isGood && data[i].demand > data[i].production) || (!isGood && data[i].demand < data[i].production)) {
+							var Py1 = data[i+1].production,
+								Py2 = data[i].production,
+								Dy1 = data[i+1].demand,
+								Dy2 = data[i].demand,
+								x1 = Date.parse(data[i+1].interval),
+								x2 = Date.parse(data[i].interval); //use ms for calculations
 
-						if(isGood && data[i].demand > data[i].production) {
-							stops.push({ offset: percentage, color: goodColor });
-							stops.push({ offset: percentage, color: badColor });
-							isGood = false;
-						}
-						else if(!isGood && data[i].demand <= data[i].production) {
-							stops.push({ offset: percentage, color: badColor });
-							stops.push({ offset: percentage, color: goodColor });
-							isGood = true;
+							// Calculate the equation for both lines given the points at i and i+1
+							var Pm = (Py2 - Py1) / (x2 - x1);
+							var Pb = Py2 - (Pm * x2);
+
+							var Dm = (Dy2 - Dy1) / (x2 - x1);
+							var Db = Dy2 - (Dm * x2);
+
+							// Calculate the time where the intersect and convert to percentage
+							var xIntersection = (Db - Pb) / (Pm - Dm);
+							var percentage = ((x(new Date(xIntersection))/width)*100)+'%';
+
+							if(isGood) {
+								stops.push({ offset: percentage, color: goodColor });
+								stops.push({ offset: percentage, color: badColor });
+								isGood = false;
+							}
+							else {
+								stops.push({ offset: percentage, color: badColor });
+								stops.push({ offset: percentage, color: goodColor });
+								isGood = true;
+							}
 						}
 					}
 
+					// Close the last color
 					if(isGood) {
 						stops.push({offset: '100%', color: goodColor});
 					}
@@ -137,27 +158,33 @@
 						stops.push({offset: '100%', color: badColor});
 					};
 
+					// Insert the gradient
 					cont.append('linearGradient')
 						.attr('id', 'demand-gradient')
 						.attr("gradientUnits", "userSpaceOnUse")
-						.attr('x2', x(xMax))
+						.attr('x', 0)
+						.attr('y', 0)
+						.attr('x2', width)
+						.attr('y2', 0)
 						.selectAll("stop")						
 							.data(stops)					
 							.enter().append("stop")			
 								.attr("offset", function(d) { return d.offset; })	
 								.attr("stop-color", function(d) { return d.color; });
 
-					// Draw the lines
+					// Draw the two lines
 					cont.append("path")
 						.datum(data)
 						.attr("stroke", "url(#demand-gradient)")
-						.attr("stroke-width", 3)
+						.attr("stroke-width", 2)
 						.attr("fill", "none")
 						.attr("d", demandLine);
 
 					cont.append("path")
 						.datum(data)
-						.attr("class", "line-prod")
+						.attr('stroke', '#ffcc33')
+						.attr("stroke-width", 2)
+						.attr("fill", "none")
 						.attr("d", prodLine);
 
 					// Draw the axes
@@ -165,20 +192,46 @@
 						.attr("transform", "translate(0," + height + ")")
 						.call(xAxis);
 
-					gx.selectAll("text")
-						.attr('font-family', 'webly');
+					// x-axis line
+					gx.selectAll('path')
+						.attr('fill', 'white')
+						.attr('stroke', 'white')
+						.attr('stroke-width', '3');
 
-					cont.append("g")
-						.call(yAxis)
-					.append("text")
-						.attr("class", 'y-axis-label')
+					// x-axis ticks
+					gx.selectAll('line')
+						.attr('stroke', 'white')
+						.attr('stroke-width', '3')
+						.attr('transform', 'translate(0, -7.5)');
+
+					// x-axis labels
+					gx.selectAll('text')
+						.attr('fill', 'white')
+						.attr('font-size', '2em')
+						.attr('font-family', 'webly')
+						.attr('font-weight', 'bold')
+						.attr('text-anchor', 'middle');
+
+					var gy = cont.append("g")
+						.call(yAxis);
+					
+					// Y-axis label
+					gy.append("text")
 						.attr("fill", "#FFF")
 						.attr('x', -height/2)
 						.attr('y', -25)
 						.attr("transform", "rotate(-90)")
 						.attr('font-family', 'webly')
 						.style("text-anchor", "middle")
+						.attr('font-size', '2em')
+						.attr('font-weight', 'bold')
 						.text("kW");
+
+					// y-axis line
+					gy.selectAll('path')
+						.attr('fill', 'white')
+						.attr('stroke', 'white')
+						.attr('stroke-width', '3');
 
 				};
 

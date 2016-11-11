@@ -176,36 +176,6 @@
 .historicalGraph {
 	width: 100%;
 	height: 350px;
-
-	.line-prod {
-		fill: none;
-		stroke: #ffcc33;
-		stroke-width: 3px;
-	}
-
-	.y-axis-label {
-		font-size: 2em;
-		font-weight: bold;
-	}
-
-	.domain {
-		stroke: white;
-		stroke-width: 3px;
-	}
-
-	.tick {
-		line {
-			stroke: white;
-			stroke-width: 3px;
-			transform: translate(0, -7.5px);
-		}
-
-		text {
-			fill: #fff;
-			font-weight: bold;
-			font-size: 2em;
-		}
-	}
 }
 
 // PERCENT ZNE
@@ -216,62 +186,31 @@
 }
 
 .selector {
-	width: 100%;
 	position: absolute;
-	bottom: 0;
-	text-align: center;
-	margin-bottom: 60px;
+	left: 0;
+	right: 0;
+	bottom: 50px;
+	text-align:center;
+}
+
+.selector-section {
+	display: inline-block;
+	vertical-align:top;
+	line-height: 0.9em;
+	cursor: pointer;
+}
+
+.selector-right {
+	text-align: left;
+}
+
+.selector-left {
+	text-align: right;
 }
 
 .showall-toggle {
 	height: 12px;
 	width: 184px;
 	cursor: pointer;
-	margin: 0 20px;
-}
-
-.legend {
-	width: 100%;
-	position: absolute;
-	bottom: 0;
-	text-align: center;
-	margin-bottom: 12px;
-}
-
-.legend-item {
-	margin-left: 18px;
-	float: left;
-	font-weight: 300;
-	font-size: 1.1em;
-
-	&:first-child {
-		margin-left: 10px;
-	}
-
-}
-
-.swatch {
-	width: 1.2em;
-	height: 1.2em;
-	border: 1.5px solid #1a2c46;
-	display: inline-block;
-	position: relative;
-	top: 3px;
-	margin-right: 8px;
-}
-
-.swatch-a {
-	background-color: #c7b299;	
-}
-
-.swatch-b {
-	background-color: #9e005d;	
-}
-
-.swatch-c {
-	background-color: #2e3192;	
-}
-
-.swatch-d {
-	background-color: #ffffff;	
+	margin: 5px 0 0 0;
 }

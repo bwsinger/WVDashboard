@@ -10,12 +10,13 @@
 	function DashboardController($routeParams, Hobo) {
 
 		var vm = this,
-			timespans = ['hourly', 'daily', 'weekly', 'monthly'];
+			timespans = ['hourly', 'daily', 'weekly', 'monthly'],
+			percentStates = ['enduse', 'current', 'all'];
 
 		vm.changePercentTimespan = changePercentTimespan;
 		vm.changeHistoricalTimespan = changeHistoricalTimespan;
 		vm.toggleUse = toggleUse;
-		vm.toggleAll = toggleAll;
+		vm.togglePercentState = togglePercentState;
 
 		activate();
 
@@ -26,7 +27,9 @@
 			vm.building = $routeParams.building;
 			vm.historicalTimespans = timespans.slice(0);
 			vm.percentTimespans = timespans.slice(0);
+			vm.percentState = percentStates[percentStates.length-1];
 			vm.showAll = true;
+			vm.street = vm.building === 215 ? 'Sage' : 'Tilia';
 
 			Hobo.getLeaderboard().then(function(data) {
 				vm.leaderboardData = data;
@@ -55,6 +58,8 @@
 			Hobo.getCurrent(vm.building).then(function(data) {
 				vm.currentData = data;
 				
+				//console.log("Current as of: "+new Date(data.latest));
+
 				vm.enabled = {}
 
 				for(var enduse in data) {
@@ -92,8 +97,17 @@
 			});
 		}
 
-		function toggleAll() {
-			vm.showAll = ! vm.showAll;
+		function togglePercentState(state) {
+			if(state) {
+				vm.percentState = state;
+			}
+			else if(percentStates.indexOf(vm.percentState) === 0) {
+				vm.percentState = percentStates[percentStates.length-1];
+			}
+			else {
+				vm.percentState = percentStates[percentStates.indexOf(vm.percentState)-1];
+			}
+
 			getPercentData();
 		}
 
@@ -127,11 +141,19 @@
 		}
 
 		function getPercentData() {
-			var building = vm.showAll ? 'ALL' : vm.building;
 
-			Hobo.getPercentZNE(vm.percentTimespan, building).then(function(data) {
-				vm.percentData = data;
-			});
+			if(vm.percentState === 'enduse') {
+				Hobo.getPercentEnduse(vm.percentTimespan, vm.building).then(function(data) {
+					vm.percentData = data;
+				});
+			}
+			else {
+				var building = vm.percentState === 'all' ? 'ALL' : vm.building;
+
+				Hobo.getPercentBuilding(vm.percentTimespan, building).then(function(data) {
+					vm.percentData = data;
+				});
+			}
 		}
 
 	}

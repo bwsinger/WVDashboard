@@ -245,12 +245,12 @@ exports.percent = function(req, res) {
 			// Validate parameters
 			if(timespans.indexOf(req.params.timespan) === -1 ||
 				(buildings.indexOf(req.params.building) === -1 && req.params.building !== 'ALL') ||
-					(req.params.type !== 'building' && req.params.type !== 'enduse') ) {
+					(req.params.type !== 'building' && req.params.type !== 'enduse') ||
+					(req.params.type === 'enduse' && req.params.building === 'ALL') ) {
 
-				res.status(400).send({
+				return res.status(400).send({
 					message: 'Invalid request'
 				});
-				return;
 			}
 
 			var start = 0;
@@ -361,10 +361,10 @@ exports.percent = function(req, res) {
 					for(var i = 0, len = result.rows.length; i < len; i++) {
 						data.push({
 							interval: result.rows[i].interval.toISOString(),
-							hvac: result.rows[i].hvac !== null ? (parseFloat(result.rows[i].hvac) / zne_adjusted[req.params.building].hvac) * 100 : 0,
-							kitchen: result.rows[i].kitchen !== null ? (parseFloat(result.rows[i].kitchen) / zne_adjusted[req.params.building].kitchen) * 100 : 0,
-							plugs: result.rows[i].plugs !== null ? (parseFloat(result.rows[i].plugs) / zne_adjusted[req.params.building].plugs) * 100 : 0,
-							lights: result.rows[i].lights !== null ? (parseFloat(result.rows[i].lights) / zne_adjusted[req.params.building].lights) * 100 : 0,
+							HVAC: result.rows[i].hvac !== null ? (parseFloat(result.rows[i].hvac) / zne_adjusted[req.params.building].hvac) * 100 : 0,
+							Lights: result.rows[i].lights !== null ? (parseFloat(result.rows[i].lights) / zne_adjusted[req.params.building].lights) * 100 : 0,
+							Plugs: result.rows[i].plugs !== null ? (parseFloat(result.rows[i].plugs) / zne_adjusted[req.params.building].plugs) * 100 : 0,
+							Kitchen: result.rows[i].kitchen !== null ? (parseFloat(result.rows[i].kitchen) / zne_adjusted[req.params.building].kitchen) * 100 : 0,
 						});
 					}
 

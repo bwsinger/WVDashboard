@@ -13,7 +13,8 @@
 			getLeaderboard: getLeaderboard,
 			getCurrent: getCurrent,
 			getHistorical: getHistorical,
-			getPercentZNE: getPercentZNE,
+			getPercentBuilding: getPercentBuilding,
+			getPercentEnduse: getPercentEnduse,
 		};
 
 		return factory;
@@ -52,8 +53,14 @@
 			});
 		}
 
-		function getPercentZNE(timespan, building) {
+		function getPercentBuilding(timespan, building) {
 			return $http.get('./api/percent/building/'+building+'/'+timespan).then(function(res) {
+				return res.data;
+			});
+		}
+
+		function getPercentEnduse(timespan, building) {
+			return $http.get('./api/percent/enduse/'+building+'/'+timespan).then(function(res) {
 				return res.data;
 			});
 		}

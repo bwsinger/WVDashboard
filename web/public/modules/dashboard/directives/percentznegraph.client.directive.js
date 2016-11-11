@@ -14,7 +14,7 @@
 			link: link,
 			scope: {
 				data: '=',
-				all: '=',
+				patterns: '=',
 				timespan: '=',
 			}
 		};
@@ -40,18 +40,18 @@
 					return angular.element(window)[0].innerWidth;
 				}, function(newVal, oldVal) {
 					if(newVal !== oldVal) {
-						scope.render(scope.data, scope.all, scope.timespan);
+						scope.render(scope.data, scope.patterns, scope.timespan);
 					}
 				});
 				scope.$watch('data', function() {
-					scope.render(scope.data, scope.all, scope.timespan);
+					scope.render(scope.data, scope.patterns, scope.timespan);
 				}, true);
-				scope.$watch('all', function() {
-					scope.render(scope.data, scope.all, scope.timespan);
+				scope.$watch('patterns', function() {
+					scope.render(scope.data, scope.patterns, scope.timespan);
 				}, true);
 
 				//Render the chart
-				scope.render = function(data, all, timespan) {
+				scope.render = function(data, patterns, timespan) {
 
 					// Setup sizing
 					var height = svg.nodes()[0].getBoundingClientRect().height - margin.top - margin.bottom,
@@ -109,7 +109,7 @@
 
 					// color scale for the buildings
 					// TODO: add patterns
-					if(all) {
+					if(patterns) {
 						var fill = d3.scaleOrdinal()
 							.domain(buildings)
 							.range(["#circles-2" , "#diagonal-stripe-2", "#crosshatch", "#circles-9"]);
@@ -243,7 +243,7 @@
 							})
 							.style("fill", function(d) {
 								// if we show all buildings, use the color scale
-								if(all) {
+								if(patterns) {
 									return 'url('+fill(d.building)+')';
 								}
 								// otherwise, just red and green
@@ -302,6 +302,52 @@
 						.attr('fill', 'white')
 						.attr('stroke', 'white')
 						.attr('stroke-width', '3');
+
+					if(fill) {
+					// legend
+
+						var legendMargin = {left: 20, bottom: 10, right: 20},
+							legendWidth = svg.nodes()[0].getBoundingClientRect().width - legendMargin.left - legendMargin.right;
+
+						var legend = svg.append('g')
+										.attr('class', 'legend')
+										.attr('transform', 'translate('+legendMargin.left+',-'+legendMargin.bottom+')');
+
+						var items = legend.selectAll('g.item')
+							.data(buildings)
+								.enter().append("g")
+								.attr('class', 'item')
+								.attr("x", function(d) {
+									return (legendWidth / 4) * buildings.indexOf(d);
+								})
+								.attr("y", svg.nodes()[0].getBoundingClientRect().height - legendMargin.bottom - 20)
+								.attr("height", 20)
+								.attr("width", legendWidth / 4);
+
+						items.append('rect')
+								.attr('height', 20)
+								.attr('width', 20)
+								.attr('x', function(d) {
+									return (legendWidth / 4) * buildings.indexOf(d);
+								})
+								.attr('y', svg.nodes()[0].getBoundingClientRect().height - legendMargin.bottom - 20)
+								.attr("fill", function(d) { return 'url('+fill(d)+')'; })
+								.attr('stroke', 'black')
+								.attr('stroke-width', 1);
+
+						items.append('text')
+							.attr('x', function(d) {
+								return ((legendWidth / 4) * buildings.indexOf(d)) + 35;
+							})
+							.attr('y', svg.nodes()[0].getBoundingClientRect().height - legendMargin.bottom - 20)
+							.text(function(d) { return d; })
+							.attr('dy', '1em')
+							.attr('fill', 'white')
+							.attr('font-family', 'webly')
+							.attr('font-size', '1em')
+							.attr('text-anchor', 'start');
+
+					}
 				};
 			});
 		}

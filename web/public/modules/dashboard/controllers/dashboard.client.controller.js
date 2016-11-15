@@ -46,7 +46,7 @@
 			Hobo.getCurrent(vm.building).then(function(data) {
 				vm.currentData = data;
 				
-				console.log("Current as of: "+new Date(data.latest));
+				//console.log("Current as of: "+new Date(data.latest));
 
 				vm.enabled = {}
 

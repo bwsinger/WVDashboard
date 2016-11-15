@@ -50,8 +50,6 @@
 				//Render the chart
 				scope.render = function(data, patterns, timespan) {
 
-					console.log(data);
-
 					// Setup sizing
 					var height = svg.nodes()[0].getBoundingClientRect().height - margin.top - margin.bottom,
 						width = svg.nodes()[0].getBoundingClientRect().width - margin.left - margin.right;

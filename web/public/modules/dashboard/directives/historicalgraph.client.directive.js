@@ -81,12 +81,14 @@
 					var demandLine = d3.line()
 						.curve(d3.curveBasis)
 						.x(function(d) { return x(d3.isoParse(d.interval)); })
-						.y(function(d) { return y(d.demand); });
+						.y(function(d) { return y(d.demand); })
+						.defined(function(d) { return d.demand !== null; });
 
 					var prodLine = d3.line()
 						.curve(d3.curveBasis)
 						.x(function(d) { return x(d3.isoParse(d.interval)); })
-						.y(function(d) { return y(d.production); });
+						.y(function(d) { return y(d.production); })
+						.defined(function(d) { return d.production !== null; });
 
 					// TODO add timespan dependent ticks (see percent ZNE directive)
 

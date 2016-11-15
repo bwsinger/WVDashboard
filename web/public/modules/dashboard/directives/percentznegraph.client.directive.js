@@ -46,12 +46,11 @@
 				scope.$watch('data', function() {
 					scope.render(scope.data, scope.patterns, scope.timespan);
 				}, true);
-				scope.$watch('patterns', function() {
-					scope.render(scope.data, scope.patterns, scope.timespan);
-				}, true);
 
 				//Render the chart
 				scope.render = function(data, patterns, timespan) {
+
+					console.log(data);
 
 					// Setup sizing
 					var height = svg.nodes()[0].getBoundingClientRect().height - margin.top - margin.bottom,
@@ -69,28 +68,35 @@
 					var cont = svg.append('g')
 						.attr('transform', 'translate('+margin.left+','+margin.top+')');
 
-					var buildings = d3.keys(data[0]).filter(function(key) { return key !== 'interval' });
+					var keys = d3.keys(data[0]).filter(function(key) { return key !== 'interval' });
 					var intervals = data.map(function(d) { return d.interval; });
 
 					var percentMax = d3.max(data.map(function(d) {
-						return d3.max(buildings.map(function(i) {
+						return d3.max(keys.map(function(i) {
 							return d[i];
 						}));
 					}));
 
 					var percentMin = d3.min(data.map(function(d) {
-						return d3.min(buildings.map(function(i) {
+						return d3.min(keys.map(function(i) {
 							return d[i];
 						}));
 					}));
 
 					// Use the largest absolute value for the min and max
-					// so that zero is in the center
-					var percentToUse = percentMax > -percentMin ? percentMax : -percentMin;
+					// so that 100 is in the center
+					if(percentMax - 100 > Math.abs(100-percentMin)) {
+						var leftBound = percentMax;
+						var rightBound = 100-(percentMax-100);
+					}
+					else {
+						var leftBound = Math.abs(100-percentMin)+100;
+						var rightBound = percentMin;
+					}
 
 					// scale for percents
 					var x = d3.scaleLinear()
-								.domain([200, 0])
+								.domain([leftBound, rightBound])
 								.range([0, width]);
 
 					// scale for intervals
@@ -102,16 +108,15 @@
 
 					// scale for buildings
 					var y1 = d3.scaleBand()
-								.domain(buildings)
+								.domain(keys)
 								.rangeRound([0, y0.bandwidth()])
 								.paddingInner(0.05);
 
 
-					// color scale for the buildings
-					// TODO: add patterns
+					// patterns for the buildings
 					if(patterns) {
 						var fill = d3.scaleOrdinal()
-							.domain(buildings)
+							.domain(keys)
 							.range(["#circles-2" , "#diagonal-stripe-2", "#crosshatch", "#circles-9"]);
 					}
 
@@ -221,30 +226,36 @@
 					// add a rect for each building
 					interval.selectAll("rect")
 							.data(function(d) {
-								return buildings.map(function(building) {
+								return keys.map(function(k) {
 									return {
-										building: building,
-										percent: d[building],
+										key: k,
+										percent: d[k],
 									};
 								});
 							})
 							.enter().append("rect")
-							.attr("y", function(d) { return y1(d.building); })
+							.attr("y", function(d) { return y1(d.key); })
 							.attr("height", y1.bandwidth())
 							.attr("x", function(d) {
 								//positive starts at the center,
 								//negative starts at the scaled value
-								return d.percent >= 100 ? x(d.percent) : x(100);
+								if(d.percent !== null) {
+									return d.percent >= 100 ? x(d.percent) : x(100);
+								}
+								return 0;
 							})
 							.attr("width", function(d) {
 								// width of positive is the difference between the scaled value and zero
 								// width of negative is the difference between zero and the scaled value
-								return d.percent >= 100 ? x(100) - x(d.percent) : x(d.percent) - x(100);
+								if(d.percent !== null) {
+									return d.percent >= 100 ? x(100) - x(d.percent) : x(d.percent) - x(100);
+								}
+								return 0;
 							})
 							.style("fill", function(d) {
 								// if we show all buildings, use the color scale
 								if(patterns) {
-									return 'url('+fill(d.building)+')';
+									return 'url('+fill(d.key)+')';
 								}
 								// otherwise, just red and green
 								else if(d.percent < 100) {
@@ -314,11 +325,11 @@
 										.attr('transform', 'translate('+legendMargin.left+',-'+legendMargin.bottom+')');
 
 						var items = legend.selectAll('g.item')
-							.data(buildings)
+							.data(keys)
 								.enter().append("g")
 								.attr('class', 'item')
 								.attr("x", function(d) {
-									return (legendWidth / 4) * buildings.indexOf(d);
+									return (legendWidth / 4) * keys.indexOf(d);
 								})
 								.attr("y", svg.nodes()[0].getBoundingClientRect().height - legendMargin.bottom - 20)
 								.attr("height", 20)
@@ -328,7 +339,7 @@
 								.attr('height', 20)
 								.attr('width', 20)
 								.attr('x', function(d) {
-									return (legendWidth / 4) * buildings.indexOf(d);
+									return (legendWidth / 4) * keys.indexOf(d);
 								})
 								.attr('y', svg.nodes()[0].getBoundingClientRect().height - legendMargin.bottom - 20)
 								.attr("fill", function(d) { return 'url('+fill(d)+')'; })
@@ -337,7 +348,7 @@
 
 						items.append('text')
 							.attr('x', function(d) {
-								return ((legendWidth / 4) * buildings.indexOf(d)) + 35;
+								return ((legendWidth / 4) * keys.indexOf(d)) + 35;
 							})
 							.attr('y', svg.nodes()[0].getBoundingClientRect().height - legendMargin.bottom - 20)
 							.text(function(d) { return d; })

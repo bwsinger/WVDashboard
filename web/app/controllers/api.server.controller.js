@@ -7,7 +7,28 @@ var pg = require('pg'),
 var connString = config.connString,
 	timespans = ['hourly', 'daily', 'weekly', 'monthly'],
 	zne_goals = {
+		'215 Sage': {
+			total: 10000,
+			hvac: 1,
+			kitchen: 850,
+			plugs: 4000,
+			lights: 5000,
+		},
 		'1590 Tilia': {
+			total: 10000,
+			hvac: 1,
+			kitchen: 850,
+			plugs: 4000,
+			lights: 5000,
+		},
+		'1605 Tilia': {
+			total: 10000,
+			hvac: 1,
+			kitchen: 850,
+			plugs: 4000,
+			lights: 5000,
+		},
+		'1715 Tilia': {
 			total: 10000,
 			hvac: 1,
 			kitchen: 850,
@@ -35,6 +56,10 @@ exports.leaderboard = function(req, res) {
 			// Build object with week-to-date kw values
 			var current_kw = {};
 
+			for(var building in zne_goals) {
+				current_kw[building] = null;
+			}
+
 			for(var i = 0, len = result.rows.length; i < len; i++) {
 				current_kw[result.rows[i].building] = parseFloat(result.rows[i].kw);
 			}
@@ -48,22 +73,42 @@ exports.leaderboard = function(req, res) {
 			var minutes_so_far = moment().diff(moment().startOf('isoWeek')) / (1000 * 60); // ms -> minutes
 			var minute_ratio = minutes_so_far / minutes_in_week;
 
-			var positions = {
-				'ZNE': zne_ratio * minute_ratio, // location of zne "line" for current day
-			};
+			var zne_pos = zne_ratio * minute_ratio;
+
+			var positions = [];
 
 			// Calculate the position of each building
 			for(var building in zne_goals) {
-				// how much of the zne goal has been used
-				// (compared to adjusted goal for the current day)
-				var percent_used = current_kw[building] / (zne_goals[building].total * minute_ratio);
 
-				//do exaggeration
-				percent_used = 1 + (1 + exaggeration_factor) * (percent_used - 1);
+				if(current_kw[building] !== null) {
+					// how much of the zne goal has been used
+					// (compared to adjusted goal for the current day)
+					var percent_used = current_kw[building] / (zne_goals[building].total * minute_ratio);
 
-				// calculate the position compared to the zne "line" for current day
-				// Inverted because values lower than ZNE are good and higher are bad
-				positions[building] = positions['ZNE'] / percent_used;
+					//do exaggeration
+					percent_used = 1 + (1 + exaggeration_factor) * (percent_used - 1);
+
+					// calculate the position compared to the zne "line" for current day
+					// Inverted because values lower than ZNE are good and higher are bad
+					positions.push({
+						building: building,
+						position: zne_pos / percent_used,
+					});
+				}
+				else {
+					positions.push({
+						building: building,
+						position: null,
+					});
+				}
+			}
+
+			var sorted = positions.slice().sort(function(a, b) { return a.position < b.position; });
+
+			for(var i = 0, len = positions.length; i < len; i++) {
+				positions[i].place = sorted.indexOf(positions[i])+1;
+
+				positions[i].good = positions[i].position >= zne_pos;
 			}
 
 			res.status(200).send(positions); // send response
@@ -83,8 +128,12 @@ exports.current = function(req, res) {
 
 			var buildings = [];
 
-			for(var i = 0, len = result.rows.length; i < len; i++) {
-				buildings.push(result.rows[i].building);
+			// for(var i = 0, len = result.rows.length; i < len; i++) {
+			// 	buildings.push(result.rows[i].building);
+			// }
+
+			for(var building in zne_goals) {
+				buildings.push(building);
 			}
 
 			if(buildings.indexOf(req.params.building) === -1) {
@@ -93,6 +142,12 @@ exports.current = function(req, res) {
 				});
 				return;
 			}
+
+			//Last 10 minutes doesn't work because of offset between when the hobo data is
+			//uploaded / updated and the time when the python script downloads it and inserts it
+			//into the database, so grab the last 10 instead
+
+			//AND "datetime" >= now() at time zone 'America/Los_Angeles' - interval '10 minutes'
 
 			var query = `SELECT ROUND(AVG("hvac"), 2) as "hvac",
 								ROUND(AVG("kitchen"), 2) as "kitchen",
@@ -112,16 +167,16 @@ exports.current = function(req, res) {
 				if (err) throw err;
 
 				var data = {
-					hvac: result.rows[0].hvac !== null ? -parseFloat(result.rows[0].hvac) : 0,
-					kitchen: result.rows[0].kitchen !== null ? -parseFloat(result.rows[0].kitchen) : 0,
-					plugs: result.rows[0].plugs !== null ? -parseFloat(result.rows[0].plugs) : 0,
-					lights: result.rows[0].lights !== null ? -parseFloat(result.rows[0].lights) : 0,
+					hvac: result.rows[0].hvac !== null ? parseFloat(result.rows[0].hvac) : 0,
+					kitchen: result.rows[0].kitchen !== null ? parseFloat(result.rows[0].kitchen) : 0,
+					plugs: result.rows[0].plugs !== null ? parseFloat(result.rows[0].plugs) : 0,
+					lights: result.rows[0].lights !== null ? parseFloat(result.rows[0].lights) : 0,
 					solar: result.rows[0].solar !== null ? parseFloat(result.rows[0].solar) : 0,
-					ev: result.rows[0].ev !== null ? -parseFloat(result.rows[0].ev) : 0,
+					ev: result.rows[0].ev !== null ? parseFloat(result.rows[0].ev) : 0,
 					latest: result.rows[0].latest,
 				};
 
-				data.total = data.solar+data.hvac+data.kitchen+data.plugs+data.lights+data.ev;
+				data.total = data.solar-(data.hvac+data.kitchen+data.plugs+data.lights+data.ev);
 
 				data.total = Math.round(data.total);
 				data.hvac = Math.round(data.hvac);
@@ -166,8 +221,12 @@ exports.historical = function(req, res) {
 
 			var buildings = [];
 
-			for(var i = 0, len = result.rows.length; i < len; i++) {
-				buildings.push(result.rows[i].building);
+			// for(var i = 0, len = result.rows.length; i < len; i++) {
+			// 	buildings.push(result.rows[i].building);
+			// }
+
+			for(var building in zne_goals) {
+				buildings.push(building);
 			}
 
 			// Validate parameters
@@ -215,8 +274,8 @@ exports.historical = function(req, res) {
 				// Build the array to return
 				for(var i = 0, len = result.rows.length; i < len; i++) {
 					data.push({
-						demand: parseFloat(result.rows[i].demand),
-						production: parseFloat(result.rows[i].production),
+						demand: result.rows[i].demand !== null ? parseFloat(result.rows[i].demand) : null,
+						production: result.rows[i].demand !== null ? parseFloat(result.rows[i].production) : null,
 						interval: result.rows[i].interval,
 					});
 				}
@@ -238,8 +297,12 @@ exports.percent = function(req, res) {
 
 			var buildings = [];
 
-			for(var i = 0, len = result.rows.length; i < len; i++) {
-				buildings.push(result.rows[i].building);
+			// for(var i = 0, len = result.rows.length; i < len; i++) {
+			// 	buildings.push(result.rows[i].building);
+			// }
+
+			for(var building in zne_goals) {
+				buildings.push(building);
 			}
 
 			// Validate parameters
@@ -308,17 +371,12 @@ exports.percent = function(req, res) {
 
 					var data = {};
 					var intervals = [];
-					var actual_buildings = [];
 
-					// Grab all the intervals and buildings in the result
+					// Grab all the intervals in the result
 					for(var i = 0, len = result.rows.length; i < len; i++) {
 						var current = result.rows[i].interval.toISOString();
 						if(intervals.indexOf(current) === -1) {
 							intervals.push(current);
-						}
-
-						if(result.rows[i].building !== null && actual_buildings.indexOf(result.rows[i].building) === -1) {
-							actual_buildings.push(result.rows[i].building)
 						}
 					};
 
@@ -326,8 +384,13 @@ exports.percent = function(req, res) {
 					for(var j = 0, len_j = intervals.length; j < len_j; j++) {
 						data[intervals[j]] = {};
 
-						for(var k = 0, len_k = actual_buildings.length; k < len_k; k++) {
-							data[intervals[j]][actual_buildings[k]] = 0;
+						if(req.params.building === 'ALL') {
+							for(var building in zne_goals) {
+								data[intervals[j]][building] = null;
+							}
+						}
+						else {
+							data[intervals[j]][req.params.building] = null;
 						}
 					}
 
@@ -361,10 +424,10 @@ exports.percent = function(req, res) {
 					for(var i = 0, len = result.rows.length; i < len; i++) {
 						data.push({
 							interval: result.rows[i].interval.toISOString(),
-							HVAC: result.rows[i].hvac !== null ? (parseFloat(result.rows[i].hvac) / zne_adjusted[req.params.building].hvac) * 100 : 0,
-							Lights: result.rows[i].lights !== null ? (parseFloat(result.rows[i].lights) / zne_adjusted[req.params.building].lights) * 100 : 0,
-							Plugs: result.rows[i].plugs !== null ? (parseFloat(result.rows[i].plugs) / zne_adjusted[req.params.building].plugs) * 100 : 0,
-							Kitchen: result.rows[i].kitchen !== null ? (parseFloat(result.rows[i].kitchen) / zne_adjusted[req.params.building].kitchen) * 100 : 0,
+							HVAC: result.rows[i].hvac !== null ? (parseFloat(result.rows[i].hvac) / zne_adjusted[req.params.building].hvac) * 100 : null,
+							Lights: result.rows[i].lights !== null ? (parseFloat(result.rows[i].lights) / zne_adjusted[req.params.building].lights) * 100 : null,
+							Plugs: result.rows[i].plugs !== null ? (parseFloat(result.rows[i].plugs) / zne_adjusted[req.params.building].plugs) * 100 : null,
+							Kitchen: result.rows[i].kitchen !== null ? (parseFloat(result.rows[i].kitchen) / zne_adjusted[req.params.building].kitchen) * 100 : null,
 						});
 					}
 
@@ -448,35 +511,28 @@ function _buildHistoricalQuery(start, minutes, enabled) {
 	var uses = []
 	for(var use in enabled) {
 		if(enabled[use]) {
-			uses.push('"values"."'+use+'"');
+			uses.push('AVG("'+use+'")');
 		}
 	}
 
 	var demandString = uses.length ? uses.join(" + ") : 0;
 
 	return `
-		SELECT "series"."interval",
-			ROUND((${demandString}) / 1000, 2) as "demand",
-			ROUND("values"."solar" / 1000, 2) as "production"
+		SELECT "series"."interval", "values"."demand", "values"."production"
 		FROM (
 			SELECT to_timestamp(ceil(extract('epoch' from "datetime") / ${seconds}) * ${seconds}) AT TIME ZONE 'UTC' as "interval",
-				AVG("hvac") as "hvac",
-				AVG("kitchen") as "kitchen",
-				AVG("plugs") as "plugs",
-				AVG("lights") as "lights",
-				AVG("solar") as "solar",
-				AVG("ev") as "ev"
+				ROUND((${demandString}) / 1000, 2) as "demand",
+				ROUND(AVG("solar") / 1000, 2) as "production"
 			FROM "log"
-			WHERE "datetime" > NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}' + INTERVAL '${interval}'
+			WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'
 			AND "building" = $1
 			GROUP BY "interval"
 		) as "values"
 		RIGHT JOIN (
 			SELECT generate_series(
-				to_timestamp(ceil(extract('epoch' from max("datetime") - INTERVAL '${start}') / ${seconds}) * ${seconds}) AT TIME ZONE 'UTC' + INTERVAL '${interval}',
-				to_timestamp(ceil(extract('epoch' from max("datetime")) / ${seconds}) * ${seconds}) AT TIME ZONE 'UTC',
+				to_timestamp(ceil(extract('epoch' from now() - INTERVAL '${start}') / ${seconds}) * ${seconds}) AT TIME ZONE 'America/Los_Angeles',
+				to_timestamp(ceil(extract('epoch' from now()) / ${seconds}) * ${seconds}) AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${interval}',
 				'${interval}') as "interval"
-			FROM "log"
 		) as "series"
 		USING("interval")
 		ORDER BY "series"."interval" DESC`;

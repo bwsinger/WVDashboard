@@ -24,6 +24,8 @@
 
 		function activate() {
 
+			// TODO validate building paramater
+
 			vm.building = $routeParams.building;
 			vm.historicalTimespans = timespans.slice(0);
 			vm.percentTimespans = timespans.slice(0);
@@ -32,31 +34,19 @@
 			Hobo.getLeaderboard().then(function(data) {
 				vm.leaderboardData = data;
 
-				if(data.hasOwnProperty(vm.building)) {
-
-					if(data[vm.building] < data['ZNE']) {
-						vm.state = 'negative';
+				for(var i = 0, len = data.length; i < len; i++) {
+					if(data[i].building === vm.building) {
+						vm.place = data[i].place;
+						vm.state = data[i].good ? 'positive' : 'negative';
+						break;
 					}
-					else {
-						vm.state = 'positive';
-					}
-
-					var place = 1;
-
-					for(var building in data) {
-						if(building != 'ZNE' && building != vm.building && data[building] > data[vm.building]) {
-							place++;
-						}
-					}
-
-					vm.place = place;
 				}
 			});
 
 			Hobo.getCurrent(vm.building).then(function(data) {
 				vm.currentData = data;
 				
-				//console.log("Current as of: "+new Date(data.latest));
+				console.log("Current as of: "+new Date(data.latest));
 
 				vm.enabled = {}
 

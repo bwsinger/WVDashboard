@@ -69,70 +69,42 @@
 						.domain([0, 1])
 					    .rangeRound([0, width]);
 
-					var buildings = []
-
-					// buildings.push({ x: data['ZNE']+0.2, y: '215', place: 1,});
-
-					for(var item in data) {
-						if(item != 'ZNE') {
-							buildings.push({
-								x: data[item],
-								y: item,
-								place: 1,
-							});
-						}
-					}
-
-					// temp
-					// buildings.push({ x: data['ZNE']+0.3, y: '1605', place: 1,});
-					// buildings.push({ x: data['ZNE']+0.1, y: '1715', place: 1,});
-
-					//console.log(buildings);
-					
-
-					for(var i = 0, len = buildings.length; i < len; i++) {
-						for(var j = 0; j < len; j++) {
-							if(j!==i && buildings[i].x < buildings[j].x) {
-								buildings[i].place++;
-							}
-						}
-					}
 
 					var y = d3.scaleBand()
-						.domain(buildings.map(function(d) {return d.y; }))
+						.domain(data.map(function(d) {return d.building; }))
 						.rangeRound([0, height])
 						.paddingInner(0.03);
 
 					cont.selectAll('rect.background')
-						.data(buildings).enter()
+						.data(data).enter()
 						.append('rect')
 							.attr('class', 'background')
 							.attr('fill', '#d3d4b1')
 							.attr('x', 0)
-							.attr('y', function(d) { return y(d.y); })
+							.attr('y', function(d) { return y(d.building); })
 							.attr('width', function(d) { return x(1); })
 							.attr("height", y.bandwidth());
 
 					cont.selectAll('rect.bar')
-						.data(buildings).enter()
+						.data(data).enter()
 						.append('rect')
 							.attr('class', 'bar')
 							.attr('fill', function(d) {
-								return d.x >= data['ZNE'] ? '#71c241' : '#bf2626';
+								return d.good ? '#71c241' : '#bf2626';
 							})
 							.attr('x', 0)
-							.attr('y', function(d) { return y(d.y); })
-							.attr('width', function(d) { return x(d.x); })
+							.attr('y', function(d) { return y(d.building); })
+							.attr('width', function(d) { return x(d.position); })
 							.attr("height", y.bandwidth())
 
 					cont.selectAll('image.horse')
-						.data(buildings).enter()
+						.data(data).enter()
 						.append('image')
 							.attr('class', 'horse')
-							.attr('x', function(d) { return x(d.x) - 80 > 0 ? x(d.x) - 70 : 0; })
-							.attr('y', function(d) { return y(d.y) - 10; })
+							.attr('x', function(d) { return x(d.position) - 80 > 0 ? x(d.position) - 70 : 0; })
+							.attr('y', function(d) { return y(d.building) - 10; })
 							.attr('href', function(d) {
-								return 'images/leaderboard/'+d.y+'-'+d.place+'.svg';
+								return 'images/leaderboard/'+d.building+'-'+d.place+'.svg';
 							})
 							.attr('height', function(d) {
 								return y.bandwidth() * 1.2;
@@ -142,11 +114,11 @@
 							});
 
 					cont.selectAll('image.gate')
-						.data(buildings).enter()
+						.data(data).enter()
 						.append('image')
 							.attr('class', 'gate')
 							.attr('x', -40)
-							.attr('y', function(d) { return y(d.y); })
+							.attr('y', function(d) { return y(d.building); })
 							.attr('height', 100)
 							.attr('width', 40)
 							.attr("href","images/leaderboard/leaderboard_gate.svg");

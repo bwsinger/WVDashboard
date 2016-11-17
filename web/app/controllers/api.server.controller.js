@@ -4,51 +4,137 @@ var pg = require('pg'),
 	moment = require('moment'),
 	config = require('../../config/config');
 
-var connString = config.connString,
-	timespans = ['hourly', 'daily', 'weekly', 'monthly'],
-	zne_goals = {
-		'215 Sage': {
-			total: 10000,
-			hvac: 1,
-			kitchen: 850,
-			plugs: 4000,
-			lights: 5000,
-		},
-		'1590 Tilia': {
-			total: 10000,
-			hvac: 1,
-			kitchen: 850,
-			plugs: 4000,
-			lights: 5000,
-		},
-		'1605 Tilia': {
-			total: 10000,
-			hvac: 1,
-			kitchen: 850,
-			plugs: 4000,
-			lights: 5000,
-		},
-		'1715 Tilia': {
-			total: 10000,
-			hvac: 1,
-			kitchen: 850,
-			plugs: 4000,
-			lights: 5000,
-		}
-	}; // TODO generate this list from db
+exports.validateTimespan = function(req, res, next, value) {
+	var timespans = timespans = ['hourly', 'daily', 'weekly', 'monthly'];
+
+	if(timespans.indexOf(value) === -1) {
+		res.status(400).send({
+			message: 'Invalid timespan'
+		});
+	}
+	else {
+		next();
+	}
+}
+
+exports.validateBuilding = function(req, res, next, value) {
+	pg.connect(config.connString, function(err, dbClient, done) {
+		if(err) throw err;
+
+		dbClient.query('SELECT "id" FROM "buildings"', [], function(err, result) {
+			if(err) throw err;
+
+			var buildings = [];
+
+			for(var i = 0, len = result.rows.length; i < len; i++) {
+				buildings.push(result.rows[i].id);
+			}
+
+			done();
+
+			if(buildings.indexOf(parseInt(value)) === -1) {
+				res.status(400).send({
+					message: 'Invalid building'
+				});
+			}
+			else {
+				next();
+			}
+		});
+	});
+}
+
+exports.goals = function(req, res, next) {
+
+	var query = `
+		SELECT "buildings"."id",
+				"buildings"."total",
+				"buildings"."hvac", 
+				"buildings"."lights",
+				"buildings"."plugs",
+				"buildings"."kitchen"
+		FROM "buildings"
+		ORDER BY "buildings"."street", "buildings"."number"`;
+
+	pg.connect(config.connString, function(err, dbClient, done) {
+		if(err) throw err;
+
+		dbClient.query(query, [], function(err, result) {
+			if (err) throw err;
+
+			done();
+
+			var goals = {};
+
+			for(var i = 0, len = result.rows.length; i < len; i++) {
+				goals[result.rows[i].id] = {
+					total: parseInt(result.rows[i].total),
+					hvac: parseInt(result.rows[i].hvac),
+					kitchen: parseInt(result.rows[i].kitchen),
+					plugs: parseInt(result.rows[i].plugs),
+					lights: parseInt(result.rows[i].lights),
+				};
+			}
+
+			req.goals = goals;
+
+			next();
+		});
+	});
+}
+
+exports.buildings = function(req, res) {
+
+	var query = `
+		SELECT "buildings"."id",
+				"buildings"."name",
+				"buildings"."number", 
+				"buildings"."street"
+		FROM "buildings"
+		ORDER BY "buildings"."street", "buildings"."number"`;
+
+	pg.connect(config.connString, function(err, dbClient, done) {
+		if(err) throw err;
+
+		dbClient.query(query, [], function(err, result) {
+			if (err) throw err;
+
+			res.status(200).send(result.rows)
+
+			done();
+		});
+	});
+}
 
 exports.leaderboard = function(req, res) {
 
-	pg.connect(connString, function(err, dbClient, done) {
-		if(err) throw err;
+	// gets the total kw since the start of the week (Monday) for each building
+	var query = `
+		SELECT
+			"data"."building",
+			ROUND( (SUM("data"."hvac") + SUM("data"."kitchen") + SUM("data"."plugs") + SUM("data"."lights")) / 1000, 2) as "kw"
+		FROM (
+			SELECT
+				"buildings"."id" as "building",
+				"hobodata"."datetime",
+				"hobodata"."hvac",
+				"hobodata"."kitchen",
+				"hobodata"."plugs",
+				"hobodata"."lights",
+				"hobodata"."solar",
+				"hobodata"."ev"
+			FROM "hobodata"
+			JOIN "loggers"
+			ON "hobodata"."logger" = "loggers"."id"
+			JOIN "buildings"
+			ON "loggers"."building" = "buildings"."id"
+			WHERE "datetime" >= date_trunc('week', NOW() AT TIME ZONE 'America/Los_Angeles')
+			ORDER BY "buildings"."street", "buildings"."number"
+		) as "data"
+		GROUP BY "data"."building"`;
 
-		// gets the total kw since the start of the week (Monday) for each building
-		var query = `
-			SELECT "building",
-					ROUND( (SUM("hvac") + SUM("kitchen") + SUM("plugs") + SUM("lights")) / 1000, 2) as "kw"
-			FROM "log"
-			WHERE "datetime" >= date_trunc('week', NOW())
-			GROUP BY "building"`;
+	pg.connect(config.connString, function(err, dbClient, done) {
+		if(err) throw err;
 
 		dbClient.query(query, [], function(err, result) {
 			if (err) throw err;
@@ -56,7 +142,7 @@ exports.leaderboard = function(req, res) {
 			// Build object with week-to-date kw values
 			var current_kw = {};
 
-			for(var building in zne_goals) {
+			for(var building in req.goals) {
 				current_kw[building] = null;
 			}
 
@@ -78,12 +164,12 @@ exports.leaderboard = function(req, res) {
 			var positions = [];
 
 			// Calculate the position of each building
-			for(var building in zne_goals) {
+			for(var building in req.goals) {
 
 				if(current_kw[building] !== null) {
 					// how much of the zne goal has been used
 					// (compared to adjusted goal for the current day)
-					var percent_used = current_kw[building] / (zne_goals[building].total * minute_ratio);
+					var percent_used = current_kw[building] / (req.goals[building].total * minute_ratio);
 
 					//do exaggeration
 					percent_used = 1 + (1 + exaggeration_factor) * (percent_used - 1);
@@ -121,75 +207,77 @@ exports.leaderboard = function(req, res) {
 exports.current = function(req, res) {
 	// return average of last 10 minutes of data in the database for the passed building in Watts
 
-	pg.connect(connString, function(err, dbClient, done) {
+	//Last 10 minutes doesn't work because of offset between when the hobo data is
+	//uploaded / updated and the time when the python script downloads it and inserts it
+	//into the database, so grab the last 10 instead
+
+	//AND "datetime" >= now() at time zone 'America/Los_Angeles' - interval '10 minutes'
+
+	var query = `
+		SELECT 
+			ROUND(AVG("hvac"), 2) as "hvac",
+			ROUND(AVG("kitchen"), 2) as "kitchen",
+			ROUND(AVG("plugs"), 2) as "plugs",
+			ROUND(AVG("lights"), 2) as "lights",
+			ROUND(AVG("solar"), 2) as "solar",
+			ROUND(AVG("ev"), 2) as "ev",
+			MAX("datetime") as "latest"
+		FROM (
+			SELECT 
+				"data"."datetime",
+				SUM("data"."hvac") as "hvac",
+				SUM("data"."kitchen") as "kitchen",
+				SUM("data"."plugs") as "plugs",
+				SUM("data"."lights") as "lights",
+				SUM("data"."solar") as "solar",
+				SUM("data"."ev") as "ev"
+			FROM(
+				SELECT
+					"hobodata"."datetime",
+					"hobodata"."hvac",
+					"hobodata"."kitchen",
+					"hobodata"."plugs",
+					"hobodata"."lights",
+					"hobodata"."solar",
+					"hobodata"."ev"
+				FROM "hobodata"
+				JOIN "loggers" ON "hobodata"."logger" = "loggers"."id"
+				WHERE "loggers"."building" = $1
+			) as "data"
+			GROUP BY "data"."datetime"
+			ORDER BY "data"."datetime" DESC
+			LIMIT 10
+		) as "lastTen"`;
+
+	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) throw err;
 
-		dbClient.query('SELECT DISTINCT "building" FROM "log"', [], function(err, result) {
+		dbClient.query(query, [req.params.building], function(err, result) {
+			if (err) throw err;
 
-			var buildings = [];
+			var data = {
+				hvac: result.rows[0].hvac !== null ? parseFloat(result.rows[0].hvac) : 0,
+				kitchen: result.rows[0].kitchen !== null ? parseFloat(result.rows[0].kitchen) : 0,
+				plugs: result.rows[0].plugs !== null ? parseFloat(result.rows[0].plugs) : 0,
+				lights: result.rows[0].lights !== null ? parseFloat(result.rows[0].lights) : 0,
+				solar: result.rows[0].solar !== null ? parseFloat(result.rows[0].solar) : 0,
+				ev: result.rows[0].ev !== null ? parseFloat(result.rows[0].ev) : 0,
+				latest: result.rows[0].latest,
+			};
 
-			// for(var i = 0, len = result.rows.length; i < len; i++) {
-			// 	buildings.push(result.rows[i].building);
-			// }
+			data.total = data.solar-(data.hvac+data.kitchen+data.plugs+data.lights+data.ev);
 
-			for(var building in zne_goals) {
-				buildings.push(building);
-			}
+			data.total = Math.round(data.total);
+			data.hvac = Math.round(data.hvac);
+			data.kitchen = Math.round(data.kitchen);
+			data.plugs = Math.round(data.plugs);
+			data.lights = Math.round(data.lights);
+			data.solar = Math.round(data.solar);
+			data.ev = Math.round(data.ev);
 
-			if(buildings.indexOf(req.params.building) === -1) {
-				res.status(400).send({
-					message: 'Invalid request'
-				});
-				return;
-			}
+			res.status(200).send(data); // send response
 
-			//Last 10 minutes doesn't work because of offset between when the hobo data is
-			//uploaded / updated and the time when the python script downloads it and inserts it
-			//into the database, so grab the last 10 instead
-
-			//AND "datetime" >= now() at time zone 'America/Los_Angeles' - interval '10 minutes'
-
-			var query = `SELECT ROUND(AVG("hvac"), 2) as "hvac",
-								ROUND(AVG("kitchen"), 2) as "kitchen",
-								ROUND(AVG("plugs"), 2) as "plugs",
-								ROUND(AVG("lights"), 2) as "lights",
-								ROUND(AVG("solar"), 2) as "solar",
-								ROUND(AVG("ev"), 2) as "ev",
-								MAX("datetime") as "latest"
-						FROM (
-							SELECT * FROM "log"
-							WHERE "building" = $1
-							ORDER BY "datetime" DESC
-							LIMIT 10
-						) as "lastTen"`;
-
-			dbClient.query(query, [req.params.building], function(err, result) {
-				if (err) throw err;
-
-				var data = {
-					hvac: result.rows[0].hvac !== null ? parseFloat(result.rows[0].hvac) : 0,
-					kitchen: result.rows[0].kitchen !== null ? parseFloat(result.rows[0].kitchen) : 0,
-					plugs: result.rows[0].plugs !== null ? parseFloat(result.rows[0].plugs) : 0,
-					lights: result.rows[0].lights !== null ? parseFloat(result.rows[0].lights) : 0,
-					solar: result.rows[0].solar !== null ? parseFloat(result.rows[0].solar) : 0,
-					ev: result.rows[0].ev !== null ? parseFloat(result.rows[0].ev) : 0,
-					latest: result.rows[0].latest,
-				};
-
-				data.total = data.solar-(data.hvac+data.kitchen+data.plugs+data.lights+data.ev);
-
-				data.total = Math.round(data.total);
-				data.hvac = Math.round(data.hvac);
-				data.kitchen = Math.round(data.kitchen);
-				data.plugs = Math.round(data.plugs);
-				data.lights = Math.round(data.lights);
-				data.solar = Math.round(data.solar);
-				data.ev = Math.round(data.ev);
-
-				res.status(200).send(data); // send response
-
-				done(); // close db connection
-			});
+			done(); // close db connection
 		});
 	});
 };
@@ -214,256 +302,305 @@ exports.historical = function(req, res) {
 		}
 	}
 
-	pg.connect(connString, function(err, dbClient, done) {
+	var start = '';
+	var minutes = 0;
+
+	// Set the appropriate options to build the query
+	switch(req.params.timespan) {
+		case 'hourly':
+			//every 10 minutes for the last 25 hours
+			start = '25 hours';
+			minutes = 10;
+			break;
+		case 'daily':
+			//every 10 minutes for the last 8 days
+			start = '8 days';
+			minutes = 10;
+			break;
+		case 'weekly':
+			//every 30 minutes for the last 5 weeks
+			start = '5 weeks';
+			minutes = 30;
+			break;
+		case 'monthly':
+			//every 30 minutes for the last 13 months
+			start = '13 months';
+			minutes = 30;
+			break;
+	}
+
+	var query = _buildHistoricalQuery(start, minutes, enabled);
+
+	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) throw err;
 
-		dbClient.query('SELECT DISTINCT "building" FROM "log"', [], function(err, result) {
+		dbClient.query(query, [req.params.building], function(err, result) {
+			if (err) throw err;
 
-			var buildings = [];
+			var data = [];
 
-			// for(var i = 0, len = result.rows.length; i < len; i++) {
-			// 	buildings.push(result.rows[i].building);
-			// }
-
-			for(var building in zne_goals) {
-				buildings.push(building);
-			}
-
-			// Validate parameters
-			if(timespans.indexOf(req.params.timespan) === -1 || buildings.indexOf(req.params.building) === -1) {
-				res.status(400).send({
-					message: 'Invalid request'
+			// Build the array to return
+			for(var i = 0, len = result.rows.length; i < len; i++) {
+				data.push({
+					demand: result.rows[i].demand !== null ? parseFloat(result.rows[i].demand) : null,
+					production: result.rows[i].demand !== null ? parseFloat(result.rows[i].production) : null,
+					interval: result.rows[i].interval,
 				});
-				return;
 			}
 
-			var start = '';
-			var minutes = 0;
+			res.status(200).send(data); // send response
 
-			// Set the appropriate options to build the query
-			switch(req.params.timespan) {
-				case 'hourly':
-					//every 10 minutes for the last 25 hours
-					start = '25 hours';
-					minutes = 10;
-					break;
-				case 'daily':
-					//every 10 minutes for the last 8 days
-					start = '8 days';
-					minutes = 10;
-					break;
-				case 'weekly':
-					//every 30 minutes for the last 5 weeks
-					start = '5 weeks';
-					minutes = 30;
-					break;
-				case 'monthly':
-					//every 30 minutes for the last 13 months
-					start = '13 months';
-					minutes = 30;
-					break;
-			}
-
-			var query = _buildHistoricalQuery(start, minutes, enabled);
-
-			dbClient.query(query, [req.params.building], function(err, result) {
-				if (err) throw err;
-
-				var data = [];
-
-				// Build the array to return
-				for(var i = 0, len = result.rows.length; i < len; i++) {
-					data.push({
-						demand: result.rows[i].demand !== null ? parseFloat(result.rows[i].demand) : null,
-						production: result.rows[i].demand !== null ? parseFloat(result.rows[i].production) : null,
-						interval: result.rows[i].interval,
-					});
-				}
-
-				res.status(200).send(data); // send response
-
-				done(); // close db connection
-			});
+			done(); // close db connection
 		});
 	});
 };
 
-exports.percent = function(req, res) {
+exports.percentAll = function(req, res) {
 
-	pg.connect(connString, function(err, dbClient, done) {
+	var goals = _getPercentGoals(req.params.timespan, req.goals),
+		query = _buildPercentBuildingQuery(req.params.timespan, false);
+
+	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) throw err;
 
-		dbClient.query('SELECT DISTINCT "building" FROM "log"', [], function(err, result) {
+		dbClient.query(query, [], function(err, result) {
+			if (err) throw err;
 
-			var buildings = [];
+			var intervals = _getPercentIntervals(result),
+				data = {};
 
-			// for(var i = 0, len = result.rows.length; i < len; i++) {
-			// 	buildings.push(result.rows[i].building);
-			// }
+			// Build a 0 result set for each interval and building
+			for(var j = 0, len_j = intervals.length; j < len_j; j++) {
+				data[intervals[j]] = {};
 
-			for(var building in zne_goals) {
-				buildings.push(building);
+				for(var building in req.goals) {
+					data[intervals[j]][building] = null;
+				}
 			}
 
-			// Validate parameters
-			if(timespans.indexOf(req.params.timespan) === -1 ||
-				(buildings.indexOf(req.params.building) === -1 && req.params.building !== 'ALL') ||
-					(req.params.type !== 'building' && req.params.type !== 'enduse') ||
-					(req.params.type === 'enduse' && req.params.building === 'ALL') ) {
+			_doPercentAdjustment(data, result, goals);
 
-				return res.status(400).send({
-					message: 'Invalid request'
+			res.status(200).send(_transformPercentObject(data)); // send response
+
+			done(); // close db connection
+		});
+	});
+}
+
+exports.percentBuilding = function(req, res) {
+
+	var goals = _getPercentGoals(req.params.timespan, req.goals),
+		query = _buildPercentBuildingQuery(req.params.timespan, true);
+
+	pg.connect(config.connString, function(err, dbClient, done) {
+		if(err) throw err;
+
+		dbClient.query(query, [req.params.building], function(err, result) {
+			if (err) throw err;
+
+			var intervals = _getPercentIntervals(result),
+				data = {};
+
+			// Build a 0 result set for each interval
+			for(var j = 0, len_j = intervals.length; j < len_j; j++) {
+				data[intervals[j]] = {};
+				data[intervals[j]][req.params.building] = null;
+			}
+
+			_doPercentAdjustment(data, result, goals);
+
+			res.status(200).send(_transformPercentObject(data)); // send response
+
+			done(); // close db connection
+		});
+	});
+}
+
+exports.percentEnduse = function(req, res) {
+
+	var goals = _getPercentGoals(req.params.timespan, req.goals),
+		query = _buildPercentUseQuery(req.params.timespan);
+
+	pg.connect(config.connString, function(err, dbClient, done) {
+		if(err) throw err;
+
+		dbClient.query(query, [req.params.building], function(err, result) {
+			if (err) throw err;
+
+			var data = [];
+
+			for(var i = 0, len = result.rows.length; i < len; i++) {
+				data.push({
+					interval: result.rows[i].interval.toISOString(),
+					HVAC: result.rows[i].hvac !== null ? (parseFloat(result.rows[i].hvac) / goals[req.params.building].hvac) * 100 : null,
+					Lights: result.rows[i].lights !== null ? (parseFloat(result.rows[i].lights) / goals[req.params.building].lights) * 100 : null,
+					Plugs: result.rows[i].plugs !== null ? (parseFloat(result.rows[i].plugs) / goals[req.params.building].plugs) * 100 : null,
+					Kitchen: result.rows[i].kitchen !== null ? (parseFloat(result.rows[i].kitchen) / goals[req.params.building].kitchen) * 100 : null,
 				});
 			}
 
-			var start = 0;
-			var unit = '';
-			var multiplier = 1;
+			res.status(200).send(data);
 
-			// Set the appropriate options to build the query
-			// Get the multiplier to adjust ZNE goals according to timespan
-			switch(req.params.timespan) {
-				case 'hourly':
-					// every hour for the last 8 hours
-					start = 8;
-					unit = 'hour';
-					multiplier = 1 / (24 * 7) // weekly to hourly
-					break;
-				case 'daily':
-					// every day for the last 7 days
-					start = 7;
-					unit = 'day';
-					multiplier = 1 / 7 // weekly to daily
-					break;
-				case 'weekly':
-					// every week for the last 4 weeks
-					start = 4;
-					unit = 'week';
-					multiplier = 1 // weekly
-					break;
-				case 'monthly':
-					// every month for the last 6 months
-					start = 6;
-					unit = 'month';
-					multiplier = 4 // weekly to monthly
-					break;
-			}
-
-			// Adjust the ZNE goals from weekly to the time span in question
-			var zne_adjusted = {};
-
-			for(var building in zne_goals) {
-
-				zne_adjusted[building] = {};
-
-				for(var goal in zne_goals[building]) {
-					zne_adjusted[building][goal] = zne_goals[building][goal] * multiplier;
-				}
-			}
-
-			var query = req.params.type === 'building' ? _buildPercentBuildingQuery(start, unit) : _buildPercentUseQuery(start, unit);
-			var query_params = req.params.building === 'ALL' ? ['%'] : [req.params.building]
-
-			dbClient.query(query, query_params, function(err, result) {
-				if (err) throw err;
-
-				if(req.params.type === 'building') {
-
-					var data = {};
-					var intervals = [];
-
-					// Grab all the intervals in the result
-					for(var i = 0, len = result.rows.length; i < len; i++) {
-						var current = result.rows[i].interval.toISOString();
-						if(intervals.indexOf(current) === -1) {
-							intervals.push(current);
-						}
-					};
-
-					// Build a 0 result set for each interval and building
-					for(var j = 0, len_j = intervals.length; j < len_j; j++) {
-						data[intervals[j]] = {};
-
-						if(req.params.building === 'ALL') {
-							for(var building in zne_goals) {
-								data[intervals[j]][building] = null;
-							}
-						}
-						else {
-							data[intervals[j]][req.params.building] = null;
-						}
-					}
-
-					// Change any values that exist in the result
-					for(var i = 0, len = result.rows.length; i < len; i++) {
-
-						// building null means an interval with no data from any building
-						// kw null means an interval with no data for that building
-						if(result.rows[i].building !== null && result.rows[i].kw !== null) {
-
-							// calculate the percent of the zne
-							var percent = (parseFloat(result.rows[i].kw) / zne_adjusted[result.rows[i].building].total) * 100;
-							data[result.rows[i].interval.toISOString()][result.rows[i].building] = percent;
-						}
-					}
-
-					var newData = [];
-
-					// Make the interval a property of the object and return an array
-					for(var interval in data) {
-						data[interval]['interval'] = interval;
-						newData.push(data[interval]);
-					}
-
-					res.status(200).send(newData); // send response
-				}
-				else {
-
-					var data = [];
-
-					for(var i = 0, len = result.rows.length; i < len; i++) {
-						data.push({
-							interval: result.rows[i].interval.toISOString(),
-							HVAC: result.rows[i].hvac !== null ? (parseFloat(result.rows[i].hvac) / zne_adjusted[req.params.building].hvac) * 100 : null,
-							Lights: result.rows[i].lights !== null ? (parseFloat(result.rows[i].lights) / zne_adjusted[req.params.building].lights) * 100 : null,
-							Plugs: result.rows[i].plugs !== null ? (parseFloat(result.rows[i].plugs) / zne_adjusted[req.params.building].plugs) * 100 : null,
-							Kitchen: result.rows[i].kitchen !== null ? (parseFloat(result.rows[i].kitchen) / zne_adjusted[req.params.building].kitchen) * 100 : null,
-						});
-					}
-
-					res.status(200).send(data);
-				}
-
-				done(); // close db connection
-
-			});
+			done(); // close db connection
 		});
 	});
-};
+}
 
-function _buildPercentBuildingQuery(start, unit) {
-	var start = `${start} ${unit}s`;
-	var interval = `1 ${unit}`;
+// HELPERS
+
+// Make the interval a property of the object and return an array
+function _transformPercentObject(data) {
+	var newData = [];
+
+	for(var interval in data) {
+		data[interval]['interval'] = interval;
+		newData.push(data[interval]);
+	}
+
+	return newData;
+}
+
+// Adjust the kw values to be a percent of the zne goal
+function _doPercentAdjustment(data, result, goals) {
+
+	// Change any values that exist in the result
+	for(var i = 0, len = result.rows.length; i < len; i++) {
+
+		// building null means an interval with no data from any building
+		// kw null means an interval with no data for that building
+		if(result.rows[i].building !== null && result.rows[i].kw !== null) {
+
+			// calculate the percent of the zne
+			var percent = (parseFloat(result.rows[i].kw) / goals[result.rows[i].building].total) * 100;
+			data[result.rows[i].interval.toISOString()][result.rows[i].building] = percent;
+		}
+	}
+}
+
+// Get all the unique intervals from the result (whether there is any building data for it or not)
+function _getPercentIntervals(result) {
+	var intervals = [];
+
+	// Grab all the intervals in the result
+	for(var i = 0, len = result.rows.length; i < len; i++) {
+		var current = result.rows[i].interval.toISOString();
+		if(intervals.indexOf(current) === -1) {
+			intervals.push(current);
+		}
+	};
+
+	return intervals;
+}
+
+// How far back should the query look
+function _getPercentStart(timespan) {
+	switch(timespan) {
+		case 'hourly':
+			// every hour for the last 8 hours
+			return 8;
+		case 'daily':
+			// every day for the last 7 days
+			return 7;
+		case 'weekly':
+			// every week for the last 4 weeks
+			return 4;
+		case 'monthly':
+			// every month for the last 6 months
+			return 6;
+	}
+}
+
+// Which unit of time?
+function _getPercentUnit(timespan) {
+	switch(timespan) {
+		case 'hourly':
+			// every hour for the last 8 hours
+			return 'hour';
+		case 'daily':
+			// every day for the last 7 days
+			return 'day';
+		case 'weekly':
+			// every week for the last 4 weeks
+			return 'week';
+		case 'monthly':
+			// every month for the last 6 months
+			return 'month';
+	}
+}
+
+// Adjust the zne goals for the timespan requested
+function _getPercentGoals(timespan, goals) {
+	var multiplier = 1,
+		adjusted = {};
+
+	switch(timespan) {
+		case 'hourly':
+			multiplier = 1 / (24 * 7) // weekly to hourly
+			break;
+		case 'daily':
+			multiplier = 1 / 7 // weekly to daily
+			break;
+		case 'weekly':
+			multiplier = 1 // weekly
+			break;
+		case 'monthly':
+			multiplier = 4 // weekly to monthly
+			break;
+	}
+
+	for(var building in goals) {
+		adjusted[building] = {};
+
+		for(var goal in goals[building]) {
+			adjusted[building][goal] = goals[building][goal] * multiplier;
+		}
+	}
+
+	return adjusted;
+}
+
+function _buildPercentBuildingQuery(timespan, filter) {
+	var unit = _getPercentUnit(timespan),
+		start = _getPercentStart(timespan),
+		startText = `${start} ${unit}s`,
+		interval = `1 ${unit}`,
+		condition = '';
+
+	if(filter) {
+		condition = 'AND "loggers"."building" = $1';
+	}
 
 	return `
 		SELECT "series"."interval",
 				"values"."building",
 			ROUND(("values"."hvac" + "values"."kitchen" + "values"."plugs" + "values"."lights") / 1000, 2) as "kw"
 		FROM (
-			SELECT date_trunc('${unit}',  "datetime") as "interval",
-				SUM("hvac") as "hvac",
-				SUM("kitchen") as "kitchen",
-				SUM("plugs") as "plugs",
-				SUM("lights") as "lights",
-				"building"
-			FROM "log"
-			WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'
-			AND "building" LIKE $1
-			GROUP BY "building", "interval"
+			SELECT 
+				"data"."building",
+				"data"."interval",
+				SUM("data"."hvac") as "hvac",
+				SUM("data"."kitchen") as "kitchen",
+				SUM("data"."plugs") as "plugs",
+				SUM("data"."lights") as "lights"
+			FROM (
+				SELECT
+					"buildings"."id" as "building",
+					date_trunc('${unit}',  "hobodata"."datetime") as "interval",
+					"hobodata"."hvac",
+					"hobodata"."kitchen",
+					"hobodata"."plugs",
+					"hobodata"."lights"
+				FROM "hobodata"
+				JOIN "loggers" ON "hobodata"."logger" = "loggers"."id"
+				JOIN "buildings" ON "loggers"."building" = "buildings"."id"
+				WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${startText}'
+				${condition}
+			) as "data"
+			GROUP BY "data"."building", "data"."interval"
 		) as "values"
 		RIGHT JOIN (
 			SELECT generate_series(
-			date_trunc('${unit}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'),
+			date_trunc('${unit}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${startText}'),
 			date_trunc('${unit}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${interval}'),
 			'${interval}') as "interval"
 		) as "series"
@@ -471,9 +608,11 @@ function _buildPercentBuildingQuery(start, unit) {
 		ORDER BY "series"."interval" DESC`;
 }
 
-function _buildPercentUseQuery(start, unit) {
-	var start = `${start} ${unit}s`;
-	var interval = `1 ${unit}`;
+function _buildPercentUseQuery(timespan) {
+	var unit = _getPercentUnit(timespan),
+		start = _getPercentStart(timespan),
+		startText = `${start} ${unit}s`,
+		interval = `1 ${unit}`;
 
 	return `
 		SELECT "series"."interval",
@@ -482,20 +621,32 @@ function _buildPercentUseQuery(start, unit) {
 				ROUND(("values"."plugs") / 1000, 2) as "plugs",
 				ROUND(("values"."lights") / 1000, 2) as "lights"
 		FROM (
-			SELECT date_trunc('${unit}',  "datetime") as "interval",
-				SUM("hvac") as "hvac",
-				SUM("kitchen") as "kitchen",
-				SUM("plugs") as "plugs",
-				SUM("lights") as "lights",
-				"building"
-			FROM "log"
-			WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'
-			AND "building" = $1
-			GROUP BY "building", "interval"
+			SELECT 
+				"data"."building",
+				"data"."interval",
+				SUM("data"."hvac") as "hvac",
+				SUM("data"."kitchen") as "kitchen",
+				SUM("data"."plugs") as "plugs",
+				SUM("data"."lights") as "lights"
+			FROM (
+				SELECT
+					"buildings"."id" as "building",
+					date_trunc('${unit}',  "hobodata"."datetime") as "interval",
+					"hobodata"."hvac",
+					"hobodata"."kitchen",
+					"hobodata"."plugs",
+					"hobodata"."lights"
+				FROM "hobodata"
+				JOIN "loggers" ON "hobodata"."logger" = "loggers"."id"
+				JOIN "buildings" ON "loggers"."building" = "buildings"."id"
+				WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${startText}'
+				AND "loggers"."building" = $1
+			) as "data"
+			GROUP BY "data"."building", "data"."interval"
 		) as "values"
 		RIGHT JOIN (
 			SELECT generate_series(
-			date_trunc('${unit}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'),
+			date_trunc('${unit}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${startText}'),
 			date_trunc('${unit}', NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${interval}'),
 			'${interval}') as "interval"
 		) as "series"
@@ -523,9 +674,31 @@ function _buildHistoricalQuery(start, minutes, enabled) {
 			SELECT to_timestamp(ceil(extract('epoch' from "datetime") / ${seconds}) * ${seconds}) AT TIME ZONE 'UTC' as "interval",
 				ROUND((${demandString}) / 1000, 2) as "demand",
 				ROUND(AVG("solar") / 1000, 2) as "production"
-			FROM "log"
-			WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'
-			AND "building" = $1
+			FROM (
+				SELECT 
+					"data"."datetime",
+					SUM("data"."hvac") as "hvac",
+					SUM("data"."kitchen") as "kitchen",
+					SUM("data"."plugs") as "plugs",
+					SUM("data"."lights") as "lights",
+					SUM("data"."solar") as "solar",
+					SUM("data"."ev") as "ev"
+				FROM(
+					SELECT
+						"hobodata"."datetime",
+						"hobodata"."hvac",
+						"hobodata"."kitchen",
+						"hobodata"."plugs",
+						"hobodata"."lights",
+						"hobodata"."solar",
+						"hobodata"."ev"
+					FROM "hobodata"
+					JOIN "loggers" ON "hobodata"."logger" = "loggers"."id"
+					WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'
+					AND "loggers"."building" = $1
+				) as "data"
+				GROUP BY "data"."datetime"
+			) as "totals"
 			GROUP BY "interval"
 		) as "values"
 		RIGHT JOIN (

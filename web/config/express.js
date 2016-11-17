@@ -3,6 +3,7 @@
 var http			= require('http'),
 	express 		= require('express'),
 	morgan 			= require('morgan'),
+	compress 		= require('compression'),
 	bodyParser 		= require('body-parser'),
 	cookieParser 	= require('cookie-parser'),
 	pug				= require('pug'),
@@ -17,7 +18,9 @@ module.exports = function() {
 	if(process.env.NODE_ENV !== 'production') {
 		app.use(morgan('dev'));
 	}
-	// else use compression for production?
+	else {
+		app.use(compress());
+	}
 
 	app.use(bodyParser.urlencoded({
 		extended: false
@@ -38,7 +41,7 @@ module.exports = function() {
 	// Static
 	app.use(express.static('./public'));
 
-	// Added from original, but these need some work
+	// TODO Added from original, but these need some work
 	// Handle 404
 	app.use(function(req, res, next) {
 	  var err = new Error('Not Found');

@@ -5,9 +5,9 @@
 		.module('dashboard')
 		.controller('Dashboard', DashboardController);
 
-	DashboardController.$inject = ['$routeParams', 'Hobo'];
+	DashboardController.$inject = ['$routeParams', '$location', '$rootScope', 'Hobo', 'Settings'];
 
-	function DashboardController($routeParams, Hobo) {
+	function DashboardController($routeParams, $location, $rootScope, Hobo, Settings) {
 
 		var vm = this,
 			timespans = ['hourly', 'daily', 'weekly', 'monthly'],
@@ -18,15 +18,25 @@
 		vm.toggleUse = toggleUse;
 		vm.togglePercentState = togglePercentState;
 
-		activate();
+		$rootScope.init.then(activate);
 
 		//////////////////////////
 
 		function activate() {
 
-			// TODO validate building paramater
+			var buildings = Settings.getBuildings(),
+				buildingId = parseInt($routeParams.building),
+				ids = buildings.map(function(b) { return b.id; });
 
-			vm.building = $routeParams.building;
+			if(ids.indexOf(buildingId) === -1) {
+				$location.path('/');
+				return;
+			}
+
+			vm.building = buildings[ids.indexOf(buildingId)].name;
+			vm.buildings = buildings;
+			vm.buildingId = buildingId;
+
 			vm.historicalTimespans = timespans.slice(0);
 			vm.percentTimespans = timespans.slice(0);
 			vm.percentState = percentStates[percentStates.length-1];
@@ -35,7 +45,7 @@
 				vm.leaderboardData = data;
 
 				for(var i = 0, len = data.length; i < len; i++) {
-					if(data[i].building === vm.building) {
+					if(parseInt(data[i].building) === vm.buildingId) {
 						vm.place = data[i].place;
 						vm.state = data[i].good ? 'positive' : 'negative';
 						break;
@@ -43,7 +53,7 @@
 				}
 			});
 
-			Hobo.getCurrent(vm.building).then(function(data) {
+			Hobo.getCurrent(vm.buildingId).then(function(data) {
 				vm.currentData = data;
 				
 				//console.log("Current as of: "+new Date(data.latest));
@@ -80,7 +90,7 @@
 		}
 
 		function getHistoricalData() {
-			Hobo.getHistorical(vm.historicalTimespan, vm.building, vm.enabled).then(function(data) {
+			Hobo.getHistorical(vm.historicalTimespan, vm.buildingId, vm.enabled).then(function(data) {
 				vm.historicalData = data;
 			});
 		}
@@ -131,14 +141,17 @@
 		function getPercentData() {
 
 			if(vm.percentState === 'enduse') {
-				Hobo.getPercentEnduse(vm.percentTimespan, vm.building).then(function(data) {
+				Hobo.getPercentEnduse(vm.percentTimespan, vm.buildingId).then(function(data) {
+					vm.percentData = data;
+				});
+			}
+			else if(vm.percentState === 'all') {
+				Hobo.getPercentAll(vm.percentTimespan).then(function(data) {
 					vm.percentData = data;
 				});
 			}
 			else {
-				var building = vm.percentState === 'all' ? 'ALL' : vm.building;
-
-				Hobo.getPercentBuilding(vm.percentTimespan, building).then(function(data) {
+				Hobo.getPercentBuilding(vm.percentTimespan, vm.buildingId).then(function(data) {
 					vm.percentData = data;
 				});
 			}

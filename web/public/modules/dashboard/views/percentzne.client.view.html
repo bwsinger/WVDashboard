@@ -7,7 +7,7 @@
 	<h1 class="section-banner-title">energy usage</h1>
 </div>
 
-<percentzne-graph ng-if="vm.percentData" data="vm.percentData" patterns="vm.percentState !== 'current'" timespan="vm.percentTimespan"></percentzne-graph>
+<percentzne-graph ng-if="vm.percentData" data="vm.percentData" state="vm.percentState" timespan="vm.percentTimespan" buildings="vm.buildings"></percentzne-graph>
 
 <div class="selector">
 	<div class="selector-section selector-left" ng-click="vm.togglePercentState('enduse')">{{vm.building}}<br>end-uses</div>

@@ -8,7 +8,7 @@
 			<!-- Horse section -->
 			<div class="col-xs-4 full-height">
 				<img class="mascot" src="./images/mascots/profile_light.svg" alt="Background glow for mascot image">
-				<img class="mascot" src="./images/mascots/{{vm.building}}-{{vm.place}}-{{vm.state}}.svg" alt="Horse for {{vm.building}}">
+				<img ng-if="vm.leaderboardData" class="mascot" ng-src="./images/mascots/{{vm.building}}-{{vm.place}}-{{vm.state}}.svg" alt="Horse for {{vm.building}}">
 			</div>
 
 			<!-- Leaderboard section -->

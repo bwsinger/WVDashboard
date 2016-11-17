@@ -22,4 +22,19 @@
 		angular.bootstrap(document, ['wvdashboard']);
 	});
 
+	angular.module('wvdashboard').run(initialize);
+
+	initialize.$inject = ['$q', '$rootScope', 'Hobo', 'Settings'];
+
+	function initialize($q, $rootScope, Hobo, Settings) {
+
+		var deferred = $q.defer();
+		$rootScope.init = deferred.promise;
+
+		Hobo.getBuildings().then(function(data) {
+			Settings.setBuildings(data);
+			deferred.resolve();
+		});
+	}
+
 })();

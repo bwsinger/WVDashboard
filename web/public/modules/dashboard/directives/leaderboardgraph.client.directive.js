@@ -14,6 +14,7 @@
 			link: link,
 			scope: {
 				data: '=',
+				buildings: '=',
 			}
 		};
 
@@ -38,15 +39,15 @@
 					return angular.element(window)[0].innerWidth;
 				}, function(newVal, oldVal) {
 					if(newVal !== oldVal) {
-						scope.render(scope.data);
+						scope.render(scope.data, scope.buildings);
 					}
 				});
 				scope.$watch('data', function() {
-					scope.render(scope.data);
+					scope.render(scope.data, scope.buildings);
 				}, true);
 
 				//Render the chart
-				scope.render = function(data) {
+				scope.render = function(data, buildings) {
 
 					// Setup sizing
 					var height = svg.nodes()[0].getBoundingClientRect().height - margin.top - margin.bottom,
@@ -62,7 +63,12 @@
 
 					// Wrapper to ensure margins
 					var cont = svg.append('g')
-						.attr('transform', 'translate('+margin.left+','+margin.top+') skewX(-30)');
+						//.attr('transform', 'translate('+margin.left+','+margin.top+') skewX(-30)');
+						.attr('transform', 'translate('+margin.left+','+margin.top+')');
+
+					var names =  d3.scaleOrdinal()
+						.domain(buildings.map(function(d) {return d.id; }))
+						.range(buildings.map(function(d) {return d.name; }));
 
 					// Setup scales
 					var x = d3.scaleLinear()
@@ -101,16 +107,16 @@
 						.data(data).enter()
 						.append('image')
 							.attr('class', 'horse')
-							.attr('x', function(d) { return x(d.position) - 80 > 0 ? x(d.position) - 70 : 0; })
-							.attr('y', function(d) { return y(d.building) - 10; })
+							.attr('x', function(d) { return x(d.position); })
+							.attr('y', function(d) { return y(d.building); })
 							.attr('href', function(d) {
-								return 'images/leaderboard/'+d.building+'-'+d.place+'.svg';
+								return 'images/leaderboard/'+names(d.building)+'-'+d.place+'.svg';
 							})
 							.attr('height', function(d) {
-								return y.bandwidth() * 1.2;
+								return y.bandwidth();
 							})
 							.attr('width', function(d) {
-								return (y.bandwidth() * 1.2) * 1.5;
+								return y.bandwidth() * 1.5;
 							});
 
 					cont.selectAll('image.gate')
@@ -119,7 +125,7 @@
 							.attr('class', 'gate')
 							.attr('x', -40)
 							.attr('y', function(d) { return y(d.building); })
-							.attr('height', 100)
+							.attr('height', y.bandwidth())
 							.attr('width', 40)
 							.attr("href","images/leaderboard/leaderboard_gate.svg");
 

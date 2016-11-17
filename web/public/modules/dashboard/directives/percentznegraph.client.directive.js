@@ -14,8 +14,9 @@
 			link: link,
 			scope: {
 				data: '=',
-				patterns: '=',
+				state: '=',
 				timespan: '=',
+				buildings: '=',
 			}
 		};
 
@@ -40,15 +41,15 @@
 					return angular.element(window)[0].innerWidth;
 				}, function(newVal, oldVal) {
 					if(newVal !== oldVal) {
-						scope.render(scope.data, scope.patterns, scope.timespan);
+						scope.render(scope.data, scope.state, scope.timespan, scope.buildings);
 					}
 				});
 				scope.$watch('data', function() {
-					scope.render(scope.data, scope.patterns, scope.timespan);
+					scope.render(scope.data, scope.state, scope.timespan, scope.buildings);
 				}, true);
 
 				//Render the chart
-				scope.render = function(data, patterns, timespan) {
+				scope.render = function(data, state, timespan, buildings) {
 
 					// Setup sizing
 					var height = svg.nodes()[0].getBoundingClientRect().height - margin.top - margin.bottom,
@@ -68,6 +69,10 @@
 
 					var keys = d3.keys(data[0]).filter(function(key) { return key !== 'interval' });
 					var intervals = data.map(function(d) { return d.interval; });
+
+					var names =  d3.scaleOrdinal()
+						.domain(buildings.map(function(d) {return d.id; }))
+						.range(buildings.map(function(d) {return d.name; }));
 
 					var percentMax = d3.max(data.map(function(d) {
 						return d3.max(keys.map(function(i) {
@@ -112,7 +117,7 @@
 
 
 					// patterns for the buildings
-					if(patterns) {
+					if(state !== 'current') {
 						var fill = d3.scaleOrdinal()
 							.domain(keys)
 							.range(["#circles-2" , "#diagonal-stripe-2", "#crosshatch", "#circles-9"]);
@@ -252,7 +257,7 @@
 							})
 							.style("fill", function(d) {
 								// if we show all buildings, use the color scale
-								if(patterns) {
+								if(state !== 'current') {
 									return 'url('+fill(d.key)+')';
 								}
 								// otherwise, just red and green
@@ -349,7 +354,12 @@
 								return ((legendWidth / 4) * keys.indexOf(d)) + 35;
 							})
 							.attr('y', svg.nodes()[0].getBoundingClientRect().height - legendMargin.bottom - 20)
-							.text(function(d) { return d; })
+							.text(function(d) { 
+								if(state === 'enduse') {
+									return d; 
+								}
+								return names(d);
+							})
 							.attr('dy', '1em')
 							.attr('fill', 'white')
 							.attr('font-family', 'webly')

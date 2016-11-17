@@ -5,9 +5,9 @@
 		.module('core')
 		.controller('Menu', MenuController);
 
-	MenuController.$inject = ['$rootScope', '$location'];
+	MenuController.$inject = ['$rootScope', '$location', 'Settings'];
 
-	function MenuController($rootScope, $location) {
+	function MenuController($rootScope, $location, Settings) {
 
 		var vm = this;
 
@@ -15,20 +15,27 @@
 
 		$rootScope.$on('$locationChangeSuccess', updateMenu);
 
-		activate();
+		$rootScope.init.then(activate);
 
 		////////////////////////////
 
 		function activate() {
-			vm.items = [
-				{ 'text': 'HOME', 'link': '/',},
-				{ 'text': 'DASHBOARDS', 'link': '',},
-				{ 'text': '+215 SAGE', 'link': '/dashboard/215 Sage',},
-				{ 'text': '+1590 TILIA', 'link': '/dashboard/1590 Tilia',},
-				{ 'text': '+1605 TILIA', 'link': '/dashboard/1605 Tilia',},
-				{ 'text': '+1715 TILIA', 'link': '/dashboard/1715 Tilia',},
-				{ 'text': 'ABOUT', 'link': '/about',},
-			];
+
+			vm.items = [];
+
+			vm.items.push({ 'text': 'HOME', 'link': '/'});
+			vm.items.push({ 'text': 'DASHBOARDS', 'link': ''});
+
+			var buildings = Settings.getBuildings();
+
+			for(var i = 0, len = buildings.length; i < len; i++) {
+				vm.items.push({
+					'text': '+ '+buildings[i].name,
+					'link': '/dashboard/'+buildings[i].id,
+				});
+			}
+
+			vm.items.push({ 'text': 'ABOUT', 'link': '/about'});
 
 			vm.visible = false;
 			vm.location = $location.path();

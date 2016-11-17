@@ -10,9 +10,11 @@
 	function Hobo($http) {
 
 		var factory = {
+			getBuildings: getBuildings,
 			getLeaderboard: getLeaderboard,
 			getCurrent: getCurrent,
 			getHistorical: getHistorical,
+			getPercentAll: getPercentAll,
 			getPercentBuilding: getPercentBuilding,
 			getPercentEnduse: getPercentEnduse,
 		};
@@ -20,6 +22,12 @@
 		return factory;
 
 		////////////
+
+		function getBuildings() {
+			return $http.get('./api/buildings').then(function(res) {
+				return res.data;
+			});
+		}
 
 		function getLeaderboard() {
 			return $http.get('./api/leaderboard').then(function(res) {
@@ -52,6 +60,13 @@
 				return res.data;
 			});
 		}
+
+		function getPercentAll(timespan) {
+			return $http.get('./api/percent/all/'+timespan).then(function(res) {
+				return res.data;
+			});
+		}
+
 
 		function getPercentBuilding(timespan, building) {
 			return $http.get('./api/percent/building/'+building+'/'+timespan).then(function(res) {

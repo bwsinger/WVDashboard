@@ -1,8 +1,9 @@
 import psycopg2
+import psycopg2.extras
 import requests
 import logging
 import csv
-import yaml
+import json
 import os
 from datetime import datetime
 from dateutil import parser
@@ -21,90 +22,86 @@ def fetch():
 
     # connect to db
     try:
-        conn = psycopg2.connect("dbname='feed' user='postgres' host='db' password='postgres'")
-        cur = conn.cursor()
+        conn = psycopg2.connect("dbname='wvdashboard' user='postgres' host='db' password='postgres'")
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         logging.debug("Successfully connected to the database")
     except:
         logging.error("Cannot connect to the database")
         return
 
-    # grab building data
-    if os.path.isfile('buildings.yaml'):
-        buildings = yaml.load(open('buildings.yaml'))
-    else:
-        logging.error("Missing building configuration file")
-        return
+    # grab logger data
+    cur.execute(""" SELECT * FROM "loggers" """)
+    loggers = cur.fetchall()
 
-    for b in buildings:
-        logging.debug("Starting building {}".format(b))
+    for logger in loggers:
+        logging.debug("Starting hobo logger with serial {}".format(logger['serial']))
 
-        # get the last timestamp from db for this building
+        # get the last timestamp from db for this logger
         cur.execute("""
             SELECT "datetime"
-            FROM "log"
-            WHERE "building" = %s
+            FROM "hobodata"
+            WHERE "logger" = %s
             ORDER BY "datetime" DESC
             LIMIT 1
-        """, (b, ))
+        """, (logger['id'], ))
         result = cur.fetchone()
         lasttimestamp = None
         if result is not None:
             lasttimestamp = result[0]
 
         logging.debug("Looking for data after {}".format(lasttimestamp))
+            
 
-        for s in buildings[b]['serials']:
-            logging.debug("Starting hobo logger with serial {}".format(s))
+        # grab the latest file
+        req = requests.get("http://webservice.hobolink.com/rest/public/devices/{}/data_files/latest/txt".format(logger['serial']))
 
-            # grab the latest file
-            req = requests.get("http://webservice.hobolink.com/rest/public/devices/{}/data_files/latest/txt".format(s))
+        # split csv portion from the junk at the top
+        # trim excess whitespace
+        # split into lines and feed to the reader
+        reader = csv.reader(req.text.split("------------")[1].strip().split('\n'))
 
-            # split csv portion from the junk at the top
-            # trim excess whitespace
-            # split into lines and feed to the reader
-            reader = csv.reader(req.content.split("------------")[1].strip().split('\n'))
+        next(reader) #headers
 
-            next(reader) #headers
+        skipped = 0
+        rowstoinsert = []
 
-            skipped = 0
-            rowstoinsert = []
+        for row in reader:
 
-            for row in reader:
+            currtimestamp = parser.parse(row[1])
 
-                currtimestamp = parser.parse(row[1])
+            # is the row newer?
+            if lasttimestamp is None or currtimestamp > lasttimestamp:
 
-                # is the row newer?
-                if lasttimestamp is None or currtimestamp > lasttimestamp:
+                logging.debug("Found row with more recent timestamp: {}".format(currtimestamp))
 
-                    logging.debug("Found row with more recent timestamp: {}".format(currtimestamp))
+                # aggregate stats from relevant columns
+                hvac = parse_row(row, json.loads(logger['hvac']))
+                lights = parse_row(row, json.loads(logger['lights']))
+                plugs = parse_row(row, json.loads(logger['plugs']))
+                kitchen = parse_row(row, json.loads(logger['kitchen']))
+                solar = parse_row(row, json.loads(logger['solar']))
+                ev = parse_row(row, json.loads(logger['ev']))
 
-                    # aggregate stats from relevant columns
-                    kitchen = parse_row(row, buildings[b]['serials'][s]['kitchen'])
-                    plugs = parse_row(row, buildings[b]['serials'][s]['plugs'])
-                    lights = parse_row(row, buildings[b]['serials'][s]['lights'])
-                    solar = parse_row(row, buildings[b]['serials'][s]['solar'])
-                    ev = parse_row(row, buildings[b]['serials'][s]['ev'])
-
-                    rowstoinsert.append((b, currtimestamp, kitchen, plugs, lights, solar, ev))
-                    
-                else:
-                    logging.debug("Skipped old row with timestamp: {}".format(currtimestamp))
-                    skipped+= 1
+                rowstoinsert.append((logger['id'], currtimestamp, hvac, kitchen, plugs, lights, solar, ev))
+                
+            else:
+                logging.debug("Skipped old row with timestamp: {}".format(currtimestamp))
+                skipped+= 1
 
 
-            # insert if needed
-            if len(rowstoinsert):
-                cur.executemany("""
-                        INSERT INTO "log"
-                        ("building", "datetime", "kitchen", "plugs", "lights", "solar", "ev")
-                        VALUES(%s, %s, %s, %s, %s, %s, %s)
-                    """, rowstoinsert)
-                conn.commit()
+        # insert if needed
+        if len(rowstoinsert):
+            cur.executemany("""
+                    INSERT INTO "hobodata"
+                    ("logger", "datetime", "hvac", "kitchen", "plugs", "lights", "solar", "ev")
+                    VALUES(%s, %s, %s, %s, %s, %s, %s, %s)
+                """, rowstoinsert)
+            conn.commit()
 
-                logging.info("Inserted {} new rows".format(len(rowstoinsert)))
+            logging.info("Inserted {} new rows".format(len(rowstoinsert)))
 
-            if skipped > 0:
-                logging.info("Skipped {} old rows".format(skipped))
+        if skipped > 0:
+            logging.info("Skipped {} old rows".format(skipped))
 
     logging.info("Finished run")
 

@@ -3,7 +3,7 @@ services:
   db:
     environment:
       - POSTGRES_PASSWORD=postgres
-      - POSTGRES_DB=feed
+      - POSTGRES_DB=wvdashboard
     build: ./db
     volumes:
       - ./db/schema:/docker-entrypoint-initdb.d/

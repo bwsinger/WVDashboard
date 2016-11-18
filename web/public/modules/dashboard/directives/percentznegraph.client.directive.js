@@ -126,7 +126,7 @@
 					var defs = cont.append('defs');
 
 					defs.append('pattern')
-							.attr('id', 'circles-9')
+							.attr('id', 'circles-9-green')
 							.attr('patternUnits', 'userSpaceOnUse')
 							.attr('width', 10)
 							.attr('height', 10)
@@ -135,10 +135,10 @@
 							.attr('height', 10)
 							.attr('x', 0)
 							.attr('y', 0)
-							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPSd3aGl0ZScgLz4KICA8Y2lyY2xlIGN4PSc1JyBjeT0nNScgcj0nNScgZmlsbD0nYmxhY2snLz4KPC9zdmc+');
+							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPScjNzFjMjQxJyAvPgogIDxjaXJjbGUgY3g9JzUnIGN5PSc1JyByPSc1JyBmaWxsPSdibGFjaycvPgo8L3N2Zz4=');
 
 					defs.append('pattern')
-							.attr('id', 'crosshatch')
+							.attr('id', 'crosshatch-green')
 							.attr('patternUnits', 'userSpaceOnUse')
 							.attr('width', 8)
 							.attr('height', 8)
@@ -147,10 +147,10 @@
 							.attr('height', 8)
 							.attr('x', 0)
 							.attr('y', 0)
-							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnPgogIDxyZWN0IHdpZHRoPSc4JyBoZWlnaHQ9JzgnIGZpbGw9JyNmZmYnLz4KICA8cGF0aCBkPSdNMCAwTDggOFpNOCAwTDAgOFonIHN0cm9rZS13aWR0aD0nMC41JyBzdHJva2U9JyNhYWEnLz4KPC9zdmc+Cg==');
+							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnPgogIDxyZWN0IHdpZHRoPSc4JyBoZWlnaHQ9JzgnIGZpbGw9JyM3MWMyNDEnLz4KICA8cGF0aCBkPSdNMCAwTDggOFpNOCAwTDAgOFonIHN0cm9rZS13aWR0aD0nMC41JyBzdHJva2U9J2JsYWNrJy8+Cjwvc3ZnPgo=');
 
 					defs.append('pattern')
-							.attr('id', 'diagonal-stripe-2')
+							.attr('id', 'diagonal-stripe-2-green')
 							.attr('patternUnits', 'userSpaceOnUse')
 							.attr('width', 10)
 							.attr('height', 10)
@@ -159,10 +159,10 @@
 							.attr('height', 10)
 							.attr('x', 0)
 							.attr('y', 0)
-							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPSd3aGl0ZScvPgogIDxwYXRoIGQ9J00tMSwxIGwyLC0yCiAgICAgICAgICAgTTAsMTAgbDEwLC0xMAogICAgICAgICAgIE05LDExIGwyLC0yJyBzdHJva2U9J2JsYWNrJyBzdHJva2Utd2lkdGg9JzInLz4KPC9zdmc+');
+							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPScjNzFjMjQxJy8+CiAgPHBhdGggZD0nTS0xLDEgbDIsLTIKICAgICAgICAgICBNMCwxMCBsMTAsLTEwCiAgICAgICAgICAgTTksMTEgbDIsLTInIHN0cm9rZT0nYmxhY2snIHN0cm9rZS13aWR0aD0nMicvPgo8L3N2Zz4=');
 
 					defs.append('pattern')
-							.attr('id', 'circles-2')
+							.attr('id', 'circles-2-green')
 							.attr('patternUnits', 'userSpaceOnUse')
 							.attr('width', 10)
 							.attr('height', 10)
@@ -171,7 +171,55 @@
 							.attr('height', 10)
 							.attr('x', 0)
 							.attr('y', 0)
-							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPSd3aGl0ZScgLz4KICA8Y2lyY2xlIGN4PScxLjUnIGN5PScxLjUnIHI9JzEuNScgZmlsbD0nYmxhY2snLz4KPC9zdmc+Cg==');
+							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPScjNzFjMjQxJyAvPgogIDxjaXJjbGUgY3g9JzEuNScgY3k9JzEuNScgcj0nMS41JyBmaWxsPSdibGFjaycvPgo8L3N2Zz4K');
+
+					defs.append('pattern')
+							.attr('id', 'circles-9-red')
+							.attr('patternUnits', 'userSpaceOnUse')
+							.attr('width', 10)
+							.attr('height', 10)
+						.append('image')
+							.attr('width', 10)
+							.attr('height', 10)
+							.attr('x', 0)
+							.attr('y', 0)
+							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPScjYmYyNjI2JyAvPgogIDxjaXJjbGUgY3g9JzUnIGN5PSc1JyByPSc1JyBmaWxsPSdibGFjaycvPgo8L3N2Zz4=');
+
+					defs.append('pattern')
+							.attr('id', 'crosshatch-red')
+							.attr('patternUnits', 'userSpaceOnUse')
+							.attr('width', 8)
+							.attr('height', 8)
+						.append('image')
+							.attr('width', 8)
+							.attr('height', 8)
+							.attr('x', 0)
+							.attr('y', 0)
+							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc4JyBoZWlnaHQ9JzgnPgogIDxyZWN0IHdpZHRoPSc4JyBoZWlnaHQ9JzgnIGZpbGw9JyNiZjI2MjYnLz4KICA8cGF0aCBkPSdNMCAwTDggOFpNOCAwTDAgOFonIHN0cm9rZS13aWR0aD0nMC41JyBzdHJva2U9J2JsYWNrJy8+Cjwvc3ZnPgo=');
+
+					defs.append('pattern')
+							.attr('id', 'diagonal-stripe-2-red')
+							.attr('patternUnits', 'userSpaceOnUse')
+							.attr('width', 10)
+							.attr('height', 10)
+						.append('image')
+							.attr('width', 10)
+							.attr('height', 10)
+							.attr('x', 0)
+							.attr('y', 0)
+							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPScjYmYyNjI2Jy8+CiAgPHBhdGggZD0nTS0xLDEgbDIsLTIKICAgICAgICAgICBNMCwxMCBsMTAsLTEwCiAgICAgICAgICAgTTksMTEgbDIsLTInIHN0cm9rZT0nYmxhY2snIHN0cm9rZS13aWR0aD0nMicvPgo8L3N2Zz4=');
+
+					defs.append('pattern')
+							.attr('id', 'circles-2-red')
+							.attr('patternUnits', 'userSpaceOnUse')
+							.attr('width', 10)
+							.attr('height', 10)
+						.append('image')
+							.attr('width', 10)
+							.attr('height', 10)
+							.attr('x', 0)
+							.attr('y', 0)
+							.attr('xlink:href', 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScxMCcgaGVpZ2h0PScxMCc+CiAgPHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzEwJyBmaWxsPScjYmYyNjI2JyAvPgogIDxjaXJjbGUgY3g9JzEuNScgY3k9JzEuNScgcj0nMS41JyBmaWxsPSdibGFjaycvPgo8L3N2Zz4K');
 
 					var yAxis = d3.axisLeft(y0)
 								.tickSizeOuter(1)
@@ -258,7 +306,10 @@
 							.style("fill", function(d) {
 								// if we show all buildings, use the color scale
 								if(state !== 'current') {
-									return 'url('+fill(d.key)+')';
+									if(d.percent < 100) {
+										return 'url('+fill(d.key)+'-green)';
+									}
+									return 'url('+fill(d.key)+'-red)';
 								}
 								// otherwise, just red and green
 								else if(d.percent < 100) {
@@ -345,7 +396,7 @@
 									return (legendWidth / 4) * keys.indexOf(d);
 								})
 								.attr('y', svg.nodes()[0].getBoundingClientRect().height - legendMargin.bottom - 20)
-								.attr("fill", function(d) { return 'url('+fill(d)+')'; })
+								.attr("fill", function(d) { return 'url('+fill(d)+'-green)'; })
 								.attr('stroke', 'black')
 								.attr('stroke-width', 1);
 

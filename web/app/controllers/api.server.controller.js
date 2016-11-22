@@ -108,7 +108,20 @@ exports.buildings = function(req, res) {
 
 exports.leaderboard = function(req, res) {
 
-	// gets the total kw since the start of the week (Monday) for each building
+	var current_day = moment().day();
+
+	//Adjust to make saturday 0
+	if(current_day == 6) {
+		current_day == 0;
+	}
+	else {
+		current_day++;
+	}
+
+	var saturday = moment().subtract(current_day, 'days').startOf('day'); // saturday at midnight
+	var fridayAtNoon = saturday.clone().add(6, 'days').hour(12).minute(0).seconds(0); // friday at noon
+
+	// gets the total kw for the week from midnight friday/saturday to following friday noon (almost 6 days)
 	var query = `
 		SELECT
 			"data"."building",
@@ -128,15 +141,15 @@ exports.leaderboard = function(req, res) {
 			ON "hobodata"."logger" = "loggers"."id"
 			JOIN "buildings"
 			ON "loggers"."building" = "buildings"."id"
-			WHERE "datetime" >= date_trunc('week', NOW() AT TIME ZONE 'America/Los_Angeles')
-			ORDER BY "buildings"."street", "buildings"."number"
+			WHERE "datetime" BETWEEN $1 AND $2
+			ORDER BY "buildings"."street", "buildings"."number", "hobodata"."datetime"
 		) as "data"
 		GROUP BY "data"."building"`;
 
 	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) throw err;
 
-		dbClient.query(query, [], function(err, result) {
+		dbClient.query(query, [saturday, fridayAtNoon], function(err, result) {
 			if (err) throw err;
 
 			// Build object with week-to-date kw values
@@ -155,8 +168,14 @@ exports.leaderboard = function(req, res) {
 
 			// Caculate the ratio of the current time to the entire week to scale
 			// the weekly zne to the current day
-			var minutes_in_week = 60*24*7; // minutes * hours * days
-			var minutes_so_far = moment().diff(moment().startOf('isoWeek')) / (1000 * 60); // ms -> minutes
+			var minutes_so_far = moment().diff(saturday, 'minutes'); // minutes since saturday midnight
+			var minutes_in_week = fridayAtNoon.diff(saturday, 'minutes'); // minutes from saturday to friday noon
+
+			// Don't change the results after friday noon
+			if(minutes_so_far > minutes_in_week) {
+				minutes_so_far = minutes_in_week;
+			}
+
 			var minute_ratio = minutes_so_far / minutes_in_week;
 
 			var zne_pos = zne_ratio * minute_ratio;

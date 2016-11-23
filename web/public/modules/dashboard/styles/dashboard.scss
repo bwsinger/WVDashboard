@@ -125,10 +125,12 @@
 }
 
 .current-power-tile {
-	width: 95px;
+	//width: 95px;
+	width: 9%;
 	text-align: center;
 	float: left;
-	margin-left: 65px;
+	//margin-left: 65px;
+	margin-left: 4%;
 	position: relative;
 	padding-top: 15px;
 
@@ -138,23 +140,40 @@
 }
 
 .current-power-img {
-	height: 85px;
-	width: 85px;
+	//height: 85px;
+	//width: 85px;
+	height: 85%;
+	width: 85%;
 	margin-bottom: 10px;
 }
 
 .current-power-toggle {
-	height: 40px;
-	width: 22px;
+	//height: 40px;
+	//width: 22px;
+	height: 40%;
+	width: 22%;
 	position: absolute;
-	left: -5px;
-	top: 35px;
+	//left: -5px;
+	left: -5%;
+	//top: 35px;
+	top: 25%;
 	cursor: pointer;
+}
+
+.current-power-divider {
+	margin-left: 4%;
+	float: left;
+	position: relative;
+}
+
+.current-power-divider > rect {
+	fill: #ffffff;
 }
 
 .current-power-sum {
 	border-left: 5px solid #ffffff;
-	width: 135px;
+	//width: 135px;
+	width: 13.5%;
 	padding-left: 30px;
 }
 

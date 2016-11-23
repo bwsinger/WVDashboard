@@ -7,7 +7,7 @@ services:
     build: ./db
     volumes:
       - ./db/schema:/docker-entrypoint-initdb.d/
-      - ./db/data:/var/lib/postgresql/data
+      #- ./db/data:/var/lib/postgresql/data
   hobo:
     build: ./hobo
     links:

@@ -2,7 +2,7 @@
 <div class="section-banner">
 	<h1 class="section-banner-title section-banner-title-solo">current power demand</h1>
 </div>
-<div class="col-xs-12 full-height current-power-wrapper">
+<div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 full-height current-power-wrapper">
 	<div class="current-power">
 		<div class="current-power-tile">
 			<img class="current-power-img" src="./images/current/enduse_solar.svg">
@@ -48,7 +48,11 @@
 			<div class="current-value">-{{vm.currentData.ev}} W</div>
 		</div>
 
-		<div class="current-power-tile current-power-sum">
+		<svg class="current-power-divider" width = "0.7%" height = "100%">
+  			<rect width = "100%" height = "80%">
+		</svg>
+
+		<div class="current-power-tile"> <!-- "current-power-sum" used to be included -->
 			<img class="current-power-img" ng-if="vm.currentData.total >= 0" src="./images/current/enduse_sum_green.svg">
 			<img class="current-power-img" ng-if="vm.currentData.total < 0" src="./images/current/enduse_sum_red.svg">
 			<div class="current-value">{{vm.currentData.total}} W</div>

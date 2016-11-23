@@ -66,6 +66,19 @@
 						//.attr('transform', 'translate('+margin.left+','+margin.top+') skewX(-30)');
 						.attr('transform', 'translate('+margin.left+','+margin.top+')');
 
+					// separate out the data for buildings from the zne location
+					var buildingData = [],
+						zneData = [];
+
+					for(var i = 0, len = data.length; i < len; i++) {
+						if(data[i].building === 'ZNE') {
+							zneData.push(data[i]);
+						}
+						else {
+							buildingData.push(data[i]);
+						}
+					}
+
 					var names =  d3.scaleOrdinal()
 						.domain(buildings.map(function(d) {return d.id; }))
 						.range(buildings.map(function(d) {return d.name; }));
@@ -77,12 +90,12 @@
 
 
 					var y = d3.scaleBand()
-						.domain(data.map(function(d) {return d.building; }))
+						.domain(buildingData.map(function(d) {return d.building; }))
 						.rangeRound([0, height])
 						.paddingInner(0.03);
 
 					cont.selectAll('rect.background')
-						.data(data).enter()
+						.data(buildingData).enter()
 						.append('rect')
 							.attr('class', 'background')
 							.attr('fill', '#d3d4b1')
@@ -92,7 +105,7 @@
 							.attr("height", y.bandwidth());
 
 					cont.selectAll('rect.bar')
-						.data(data).enter()
+						.data(buildingData).enter()
 						.append('rect')
 							.attr('class', 'bar')
 							.attr('fill', function(d) {
@@ -108,7 +121,7 @@
 						horseWidth = horseHeight * 1.722222222;
 
 					cont.selectAll('image.horse')
-						.data(data).enter()
+						.data(buildingData).enter()
 						.append('image')
 							.attr('class', 'horse')
 							.attr('x', function(d) { return x(d.position); })
@@ -124,7 +137,7 @@
 						gateWidth = gateHeight * 1.320754717;
 
 					cont.selectAll('image.gate')
-						.data(data).enter()
+						.data(buildingData).enter()
 						.append('image')
 							.attr('class', 'gate')
 							.attr('x', -gateWidth)
@@ -136,7 +149,7 @@
 
 					cont.append('image')
 							.attr('class', 'finish')
-							.attr('x', x(0.75)) // TODO make this the zne goal location as passed in the object
+							.attr('x', x(zneData[0].position))
 							.attr('y', 0)
 							.attr('height', height)
 							.attr('width', 30)

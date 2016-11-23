@@ -216,6 +216,11 @@ exports.leaderboard = function(req, res) {
 				positions[i].good = positions[i].position >= zne_pos;
 			}
 
+			positions.push({
+				building: 'ZNE',
+				position: zne_ratio,
+			});
+
 			res.status(200).send(positions); // send response
 
 			done(); // close db connection

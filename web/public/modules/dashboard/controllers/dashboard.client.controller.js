@@ -45,7 +45,7 @@
 				vm.leaderboardData = data;
 
 				for(var i = 0, len = data.length; i < len; i++) {
-					if(parseInt(data[i].building) === vm.buildingId) {
+					if(data[i].building !== 'ZNE' && parseInt(data[i].building) === vm.buildingId) {
 						vm.place = data[i].place;
 						vm.state = data[i].good ? 'positive' : 'negative';
 						break;

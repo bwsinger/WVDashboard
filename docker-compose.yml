@@ -8,14 +8,17 @@ services:
     volumes:
       - ./db/schema:/docker-entrypoint-initdb.d/
       - ./db/data:/var/lib/postgresql/data
+    restart: always
   hobo:
     build: ./hobo
     links:
       - db
+    restart: always
   twitter:
     build: ./twitter
     links:
       - db
+    restart: always
   web:
     build: ./web
     environment:
@@ -24,3 +27,4 @@ services:
       - "3000:3000"
     links:
      - db
+    restart: always

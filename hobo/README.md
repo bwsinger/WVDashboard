@@ -1,0 +1,1 @@
+Copy the hobolink-example.yml to hobolink.yml and fill in the correct credentials

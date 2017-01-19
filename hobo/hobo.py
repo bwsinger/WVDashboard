@@ -5,6 +5,7 @@ import logging
 import csv
 import json
 import os
+import yaml
 from datetime import datetime
 from dateutil import parser
 from apscheduler.schedulers.blocking import BlockingScheduler
@@ -51,9 +52,16 @@ def fetch():
 
         logging.debug("Looking for data after {}".format(lasttimestamp))
             
+        # load credentials
+        if os.path.isfile('hobolink.yml'):
+            hobolink = yaml.load(open('hobolink.yml'))
+        else:
+            logging.info("Missing hobolink credentials, see README")
+            return
 
-        # grab the latest file
-        req = requests.get("http://webservice.hobolink.com/rest/public/devices/{}/data_files/latest/txt".format(logger['serial']))
+        # grab the latest file  
+        url = "http://webservice.hobolink.com/rest/private/devices/{}/data_files/latest/txt".format(logger['serial'])
+        req = requests.get(url, auth=(hobolink['username'], hobolink['password']))
 
         # split csv portion from the junk at the top
         # trim excess whitespace

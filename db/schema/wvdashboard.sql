@@ -26,12 +26,12 @@ CREATE TABLE "hobodata" (
 	"id" SERIAL PRIMARY KEY,
 	"logger" INTEGER REFERENCES "loggers" ("id"),
 	"datetime" TIMESTAMP NOT NULL,
-	"hvac" numeric(8,2) DEFAULT 0,
-	"kitchen" numeric(8,2) DEFAULT 0,
-	"plugs" numeric(8,2) DEFAULT 0,
-	"lights" numeric(8,2) DEFAULT 0,
-	"solar" numeric(8,2) DEFAULT 0,
-	"ev" numeric(8,2) DEFAULT 0
+	"hvac" numeric(8,2),
+	"kitchen" numeric(8,2),
+	"plugs" numeric(8,2),
+	"lights" numeric(8,2),
+	"solar" numeric(8,2),
+	"ev" numeric(8,2)
 );
 
 INSERT INTO "buildings"
@@ -45,5 +45,6 @@ VALUES
 INSERT INTO "loggers"
 ("id", "serial", "building", "hvac", "kitchen", "plugs", "lights", "solar", "ev")
 VALUES
-(1, 10459715, 2, '[]', '[6, 7, 8, 11, 12, 13]', '[3, 4, 5, 14, 15]', '[9, 10]', '[2, 16]', '[]');
-(2, 10459717, 2, '[5, 6, 7, 8]', '[]', '[2, 3, 4, 9, 10, 11]', '[]', '[12]', '[13, 14, 15, 16]');
+(1, 10459715, 2, '[]', '[6, 7, 8, 11, 12, 13]', '[3, 4, 5, 14, 15]', '[9, 10]', '[2, 16]', '[]'),
+(2, 10459717, 2, '[5, 6, 7, 8]', '[]', '[2, 3, 4, 9, 10, 11]', '[]', '[12]', '[13, 14, 15, 16]'),
+(3, 10459719, 1, '[9, 13, 14, 15]', '[3, 4, 5]', '[10, 11, 12]', '[6, 7, 8]', '[2]', '[]');

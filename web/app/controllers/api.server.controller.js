@@ -247,36 +247,43 @@ exports.current = function(req, res) {
 			ROUND(AVG("ev"), 2) as "ev",
 			MAX("datetime") as "latest"
 		FROM (
-			SELECT 
-				"data"."datetime",
-				SUM("data"."hvac") as "hvac",
-				SUM("data"."kitchen") as "kitchen",
-				SUM("data"."plugs") as "plugs",
-				SUM("data"."lights") as "lights",
-				SUM("data"."solar") as "solar",
-				SUM("data"."ev") as "ev"
-			FROM(
-				SELECT
-					"hobodata"."datetime",
-					"hobodata"."hvac",
-					"hobodata"."kitchen",
-					"hobodata"."plugs",
-					"hobodata"."lights",
-					"hobodata"."solar",
-					"hobodata"."ev"
-				FROM "hobodata"
-				JOIN "loggers" ON "hobodata"."logger" = "loggers"."id"
-				WHERE "loggers"."building" = $1
-			) as "data"
-			GROUP BY "data"."datetime"
-			ORDER BY "data"."datetime" DESC
+			SELECT *
+			FROM (
+				SELECT 
+					"data"."datetime",
+					SUM("data"."hvac") as "hvac",
+					SUM("data"."kitchen") as "kitchen",
+					SUM("data"."plugs") as "plugs",
+					SUM("data"."lights") as "lights",
+					SUM("data"."solar") as "solar",
+					SUM("data"."ev") as "ev",
+					count("data"."datetime") as "loggers"
+				FROM (
+					SELECT
+						"hobodata"."datetime",
+						"hobodata"."hvac",
+						"hobodata"."kitchen",
+						"hobodata"."plugs",
+						"hobodata"."lights",
+						"hobodata"."solar",
+						"hobodata"."ev"
+					FROM "hobodata"
+					JOIN "loggers" ON "hobodata"."logger" = "loggers"."id"
+					WHERE "loggers"."building" = $1
+				) as "data"
+				GROUP BY "data"."datetime"
+			) as "grouped"
+			WHERE "grouped"."loggers" = $2
+			ORDER BY "grouped"."datetime" DESC
 			LIMIT 10
 		) as "lastTen"`;
 
 	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) throw err;
 
-		dbClient.query(query, [req.params.building], function(err, result) {
+		// TODO: the 2 here is the number of loggers for the building, this is 2 for all 
+		// buildings right now, but should pull from a query
+		dbClient.query(query, [req.params.building, 2], function(err, result) {
 			if (err) throw err;
 
 			var data = {

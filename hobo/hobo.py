@@ -15,7 +15,9 @@ def parse_row(row, columns):
     if len(columns):
         for column in columns:
             total += float(row[column])
-    return total
+        return total
+    else:
+        return None
 
 def fetch():
 
@@ -56,7 +58,7 @@ def fetch():
         if os.path.isfile('hobolink.yml'):
             hobolink = yaml.load(open('hobolink.yml'))
         else:
-            logging.info("Missing hobolink credentials, see README")
+            logging.error("Missing hobolink credentials, see README")
             return
 
         # grab the latest file  
@@ -118,6 +120,7 @@ if __name__ == "__main__":
     
     # log info to console
     logging.basicConfig(level=logging.INFO)
+    # logging.basicConfig(level=logging.DEBUG)
 
     # log debug to file   
     # logfile = logging.FileHandler('output.log')
@@ -129,6 +132,7 @@ if __name__ == "__main__":
 
     # runs every ten minutes
     sched.add_job(fetch, 'cron', minute='1,11,21,31,41,51')
+    # sched.add_job(fetch, 'cron', minute='*/5')
 
     sched.start()
     logging.info("Starting scheduler")

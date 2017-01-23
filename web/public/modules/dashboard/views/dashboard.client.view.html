@@ -1,18 +1,18 @@
 <div class="row full-height">
 
 	<!-- Left column -->
-	<div class="col-xs-9 full-height section-left">
+	<div class="col-xs-9 col-sm-9 col-md-9 col-lg-9 full-height section-left">
 
 		<!-- Top section -->
 		<div class="row section-left-top">
 			<!-- Horse section -->
-			<div class="col-xs-4 full-height">
+			<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 full-height">
 				<img class="mascot" src="./images/mascots/profile_light.svg" alt="Background glow for mascot image">
 				<img ng-if="vm.leaderboardData" class="mascot" ng-src="./images/mascots/{{vm.building}}-{{vm.place}}-{{vm.state}}.svg" alt="Horse for {{vm.building}}">
 			</div>
 
 			<!-- Leaderboard section -->
-			<div class="col-xs-8 full-height leaderboard-container" ng-include="'./modules/dashboard/views/leaderboard.client.view.html'"></div>
+			<div class="col-xs-8 col-sm-8 col-md-8 col-lg-8 full-height leaderboard-container" ng-include="'./modules/dashboard/views/leaderboard.client.view.html'"></div>
 		</div>
 
 		<!-- Bottom section -->
@@ -26,5 +26,5 @@
 	</div>
 
 	<!-- Right column -->
-	<div class="col-xs-3 full-height section-right" ng-include="'./modules/dashboard/views/percentzne.client.view.html'"></div>
+	<div class="col-xs-3 col-sm-3 col-md-3 col-lg-3 full-height section-right" ng-include="'./modules/dashboard/views/percentzne.client.view.html'"></div>
 </div>

@@ -6,8 +6,7 @@ var http			= require('http'),
 	compress 		= require('compression'),
 	bodyParser 		= require('body-parser'),
 	cookieParser 	= require('cookie-parser'),
-	pug				= require('pug'),
-	config = require('./config');
+	pug				= require('pug');
 
 module.exports = function() {
 	var app = express();
@@ -50,7 +49,7 @@ module.exports = function() {
 	});
 
 	// Error handler
-	app.use(function(err, req, res, next) {
+	app.use(function(err, req, res) {
 		res.status(err.status || 500);
 
 		res.render('error', {

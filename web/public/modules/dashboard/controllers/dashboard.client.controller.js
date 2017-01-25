@@ -58,10 +58,10 @@
 				
 				//console.log("Current as of: "+new Date(data.latest));
 
-				vm.enabled = {}
+				vm.enabled = {};
 
 				for(var enduse in data) {
-					if(enduse != 'total' && enduse != 'solar') {
+					if(enduse !== 'total' && enduse !== 'solar') {
 						vm.enabled[enduse] = true;
 					}
 				}
@@ -114,13 +114,13 @@
 			var idx = timespans.indexOf(timespan);
 
 			if(idx > 2) {
-				for(var i = 0, len = idx - 2; i < len; i++) {
+				for(var i = 0, leni = idx - 2; i < leni; i++) {
 					timespans.push(timespans.shift());
 					
 				}
 			}
 			else {
-				for(var i = 0, len = 2 - idx; i < len; i++) {
+				for(var j = 0, lenj = 2 - idx; j < lenj; j++) {
 					timespans.unshift(timespans.pop());
 				}
 			}

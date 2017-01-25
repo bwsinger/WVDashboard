@@ -105,8 +105,6 @@
 					var badColor = '#bf2626';
 					var goodColor = '#71c241';
 					var isGood = false;
-					var xMax = d3.max(data, function(d) { return d3.isoParse(d.interval); })
-					var xMin = d3.min(data, function(d) { return d3.isoParse(d.interval); })
 
 					// Which color do we start with
 					if(data[data.length-1].demand > data[data.length-1].production) {
@@ -158,40 +156,40 @@
 					}
 					else {
 						stops.push({offset: '100%', color: badColor});
-					};
+					}
 
 					// Insert the gradient
 					cont.append('linearGradient')
 						.attr('id', 'demand-gradient')
-						.attr("gradientUnits", "userSpaceOnUse")
+						.attr('gradientUnits', 'userSpaceOnUse')
 						.attr('x', 0)
 						.attr('y', 0)
 						.attr('x2', width)
 						.attr('y2', 0)
-						.selectAll("stop")						
+						.selectAll('stop')						
 							.data(stops)					
-							.enter().append("stop")			
-								.attr("offset", function(d) { return d.offset; })	
-								.attr("stop-color", function(d) { return d.color; });
+							.enter().append('stop')			
+								.attr('offset', function(d) { return d.offset; })	
+								.attr('stop-color', function(d) { return d.color; });
 
 					// Draw the two lines
-					cont.append("path")
+					cont.append('path')
 						.datum(data)
-						.attr("stroke", "url(#demand-gradient)")
-						.attr("stroke-width", 2)
-						.attr("fill", "none")
-						.attr("d", demandLine);
+						.attr('stroke', 'url(#demand-gradient)')
+						.attr('stroke-width', 2)
+						.attr('fill', 'none')
+						.attr('d', demandLine);
 
-					cont.append("path")
+					cont.append('path')
 						.datum(data)
 						.attr('stroke', '#ffcc33')
-						.attr("stroke-width", 2)
-						.attr("fill", "none")
-						.attr("d", prodLine);
+						.attr('stroke-width', 2)
+						.attr('fill', 'none')
+						.attr('d', prodLine);
 
 					// Draw the axes
-					var gx = cont.append("g")
-						.attr("transform", "translate(0," + height + ")")
+					var gx = cont.append('g')
+						.attr('transform', 'translate(0,' + height + ')')
 						.call(xAxis);
 
 					// x-axis line
@@ -214,20 +212,20 @@
 						.attr('font-weight', 'bold')
 						.attr('text-anchor', 'middle');
 
-					var gy = cont.append("g")
+					var gy = cont.append('g')
 						.call(yAxis);
 					
 					// Y-axis label
-					gy.append("text")
-						.attr("fill", "#FFF")
+					gy.append('text')
+						.attr('fill', '#FFF')
 						.attr('x', -height/2)
 						.attr('y', -25)
-						.attr("transform", "rotate(-90)")
+						.attr('transform', 'rotate(-90)')
 						.attr('font-family', 'webly')
-						.style("text-anchor", "middle")
+						.style('text-anchor', 'middle')
 						.attr('font-size', '2em')
 						.attr('font-weight', 'bold')
-						.text("kW");
+						.text('kW');
 
 					// y-axis line
 					gy.selectAll('path')

@@ -1,7 +1,6 @@
 'use strict';
 
-var pg = require('pg'),
-	config = require('../../config/config'),
+var config = require('../../config/config'),
 	apicache = require('apicache').options({debug: config.apicachedebug }).middleware;
 
 module.exports = function(app) {

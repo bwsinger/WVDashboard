@@ -1,6 +1,5 @@
 (function () {
-
-	'use string';
+	'use strict';
 
 	angular
 		.module('core')
@@ -28,6 +27,5 @@
 			return buildings;
 		}
 	}
-
 
 })();

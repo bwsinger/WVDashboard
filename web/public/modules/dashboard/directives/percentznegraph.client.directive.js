@@ -67,7 +67,7 @@
 					var cont = svg.append('g')
 						.attr('transform', 'translate('+margin.left+','+margin.top+')');
 
-					var keys = d3.keys(data[0]).filter(function(key) { return key !== 'interval' });
+					var keys = d3.keys(data[0]).filter(function(key) { return key !== 'interval'; });
 					var intervals = data.map(function(d) { return d.interval; });
 
 					var names =  d3.scaleOrdinal()
@@ -88,13 +88,14 @@
 
 					// Use the largest absolute value for the min and max
 					// so that 100 is in the center
+					var leftBound, rightBound;
 					if(percentMax - 100 > Math.abs(100-percentMin)) {
-						var leftBound = percentMax;
-						var rightBound = 100-(percentMax-100);
+						leftBound = percentMax;
+						rightBound = 100-(percentMax-100);
 					}
 					else {
-						var leftBound = Math.abs(100-percentMin)+100;
-						var rightBound = percentMin;
+						leftBound = Math.abs(100-percentMin)+100;
+						rightBound = percentMin;
 					}
 
 					// scale for percents
@@ -117,10 +118,11 @@
 
 
 					// patterns for the buildings
+					var fill;
 					if(state !== 'current') {
-						var fill = d3.scaleOrdinal()
+						fill = d3.scaleOrdinal()
 							.domain(keys)
-							.range(["#circles-2" , "#diagonal-stripe-2", "#crosshatch", "#circles-9"]);
+							.range(['#circles-2' , '#diagonal-stripe-2', '#crosshatch', '#circles-9']);
 					}
 
 					var defs = cont.append('defs');
@@ -283,12 +285,12 @@
 										if(start.getMonth() === end.getMonth()) {
 											var startFormatter = d3.timeFormat('%b %-e');
 											var endFormatter = d3.timeFormat('%-e');
-											return startFormatter(start)+"-"+endFormatter(end);
+											return startFormatter(start)+'-'+endFormatter(end);
 										}
 										// If they're different months, print the month for both
 										else {
 											var formatter = d3.timeFormat('%b %-e');
-											return formatter(start)+"-"+formatter(end);
+											return formatter(start)+'-'+formatter(end);
 										}
 									}
 									else {
@@ -296,7 +298,7 @@
 
 										switch(timespan) {
 											case 'hourly':
-												formatString = '%-I %p'
+												formatString = '%-I %p';
 												break;
 											case 'daily':
 												formatString = '%b %-e';
@@ -317,14 +319,14 @@
 								.tickSizeOuter(1);
 
 					// add a group for each time interval
-					var interval = cont.selectAll(".interval")
+					var interval = cont.selectAll('.interval')
 										.data(data).enter()
-										.append("g")
-											.attr("class", "interval")
-											.attr("transform", function(d) { return "translate(0, " + y0(d.interval) + ")"; });
+										.append('g')
+											.attr('class', 'interval')
+											.attr('transform', function(d) { return 'translate(0, ' + y0(d.interval) + ')'; });
 
 					// add a rect for each building
-					interval.selectAll("rect")
+					interval.selectAll('rect')
 							.data(function(d) {
 								return keys.map(function(k) {
 									return {
@@ -333,10 +335,10 @@
 									};
 								});
 							})
-							.enter().append("rect")
-							.attr("y", function(d) { return y1(d.key); })
-							.attr("height", y1.bandwidth())
-							.attr("x", function(d) {
+							.enter().append('rect')
+							.attr('y', function(d) { return y1(d.key); })
+							.attr('height', y1.bandwidth())
+							.attr('x', function(d) {
 								//positive starts at the center,
 								//negative starts at the scaled value
 								if(d.percent !== null) {
@@ -344,7 +346,7 @@
 								}
 								return 0;
 							})
-							.attr("width", function(d) {
+							.attr('width', function(d) {
 								// width of positive is the difference between the scaled value and zero
 								// width of negative is the difference between zero and the scaled value
 								if(d.percent !== null) {
@@ -352,7 +354,7 @@
 								}
 								return 0;
 							})
-							.style("fill", function(d) {
+							.style('fill', function(d) {
 								// if we show all buildings, use the color scale
 								if(state !== 'current') {
 									if(d.percent < 100) {
@@ -371,7 +373,7 @@
 
 					
 					// insert y-axis
-					var gy = cont.append("g")
+					var gy = cont.append('g')
 						.call(yAxis);
 
 					// y-axis line
@@ -397,19 +399,19 @@
 						.attr('text-anchor', 'middle');
 
 					// insert x-axis
-					var gx = cont.append("g")
+					var gx = cont.append('g')
 						.call(xAxis);
 
 					// add the label text
-					gx.append("text")
+					gx.append('text')
 						.attr('font-size', '25')
-						.attr("fill", "#FFF")
+						.attr('fill', '#FFF')
 						.attr('x', width/2)
 						.attr('y', -25)
 						.attr('font-family', 'webly')
 						.attr('font-weight', 'bold')
-						.style("text-anchor", "middle")
-						.text("percent of zero-net goal");
+						.style('text-anchor', 'middle')
+						.text('percent of zero-net goal');
 
 					// x-axis line
 					gx.selectAll('path')
@@ -429,14 +431,14 @@
 
 						var items = legend.selectAll('g.item')
 							.data(keys)
-								.enter().append("g")
+								.enter().append('g')
 								.attr('class', 'item')
-								.attr("x", function(d) {
+								.attr('x', function(d) {
 									return (legendWidth / 4) * keys.indexOf(d);
 								})
-								.attr("y", svg.nodes()[0].getBoundingClientRect().height - legendMargin.bottom - 20)
-								.attr("height", 20)
-								.attr("width", legendWidth / 4);
+								.attr('y', svg.nodes()[0].getBoundingClientRect().height - legendMargin.bottom - 20)
+								.attr('height', 20)
+								.attr('width', legendWidth / 4);
 
 						items.append('rect')
 								.attr('height', 20)
@@ -445,7 +447,7 @@
 									return (legendWidth / 4) * keys.indexOf(d);
 								})
 								.attr('y', svg.nodes()[0].getBoundingClientRect().height - legendMargin.bottom - 20)
-								.attr("fill", function(d) { return 'url('+fill(d)+'-legend)'; })
+								.attr('fill', function(d) { return 'url('+fill(d)+'-legend)'; })
 								.attr('stroke', 'black')
 								.attr('stroke-width', 1);
 

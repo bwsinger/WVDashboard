@@ -39,6 +39,7 @@ module.exports = function(grunt) {
                     'public/application.js',
                     'public/modules/**/*.js',
                 ],
+                tasks: ['jshint']
             },
             grunt: {
                 files: ['Gruntfile.js']
@@ -112,19 +113,17 @@ module.exports = function(grunt) {
             }
         },
         jshint: {
-            server: {
-                src: [
-                    'Gruntfile.js',
-                    'server.js',
-                    'config/**/*.js',
-                    'app/**/*.js',
-                    'public/application.js',
-                    'public/modules/**/*.js',
-                ],
-                options: {
-                    jshintrc: true,
-                    reporter: require('jshint-stylish')
-                }
+            src: [
+                'Gruntfile.js',
+                'server.js',
+                'config/**/*.js',
+                'app/**/*.js',
+                'public/application.js',
+                'public/modules/**/*.js',
+            ],
+            options: {
+                jshintrc: true,
+                reporter: require('jshint-stylish')
             }
         }
     });

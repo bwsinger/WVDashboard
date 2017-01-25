@@ -5,7 +5,7 @@ var pg = require('pg'),
 	config = require('../../config/config'),
 	request = require('request');
 
-exports.weather = function(req, res, next) {
+exports.weather = function(req, res) {
 
 	var key = 'b7f090a458a3a954',
 		url = `https://api.wunderground.com/api/${key}/conditions/q/CA/Davis.json`;
@@ -25,10 +25,10 @@ exports.weather = function(req, res, next) {
 			icon: data.current_observation.icon,
 		});
 	});
-}
+};
 
 exports.validateTimespan = function(req, res, next, value) {
-	var timespans = timespans = ['hourly', 'daily', 'weekly', 'monthly'];
+	var timespans = ['hourly', 'daily', 'weekly', 'monthly'];
 
 	if(timespans.indexOf(value) === -1) {
 		res.status(400).send({
@@ -38,14 +38,18 @@ exports.validateTimespan = function(req, res, next, value) {
 	else {
 		next();
 	}
-}
+};
 
 exports.validateBuilding = function(req, res, next, value) {
 	pg.connect(config.connString, function(err, dbClient, done) {
-		if(err) throw err;
+		if(err) {
+			throw err;
+		}
 
 		dbClient.query('SELECT "id" FROM "buildings"', [], function(err, result) {
-			if(err) throw err;
+			if(err) {
+				throw err;
+			}
 
 			var buildings = [];
 
@@ -65,7 +69,7 @@ exports.validateBuilding = function(req, res, next, value) {
 			}
 		});
 	});
-}
+};
 
 exports.goals = function(req, res, next) {
 
@@ -80,10 +84,14 @@ exports.goals = function(req, res, next) {
 		ORDER BY "buildings"."street", "buildings"."number"`;
 
 	pg.connect(config.connString, function(err, dbClient, done) {
-		if(err) throw err;
+		if(err) {
+			throw err;
+		}
 
 		dbClient.query(query, [], function(err, result) {
-			if (err) throw err;
+			if(err) {
+				throw err;
+			}
 
 			done();
 
@@ -104,7 +112,7 @@ exports.goals = function(req, res, next) {
 			next();
 		});
 	});
-}
+};
 
 exports.buildings = function(req, res) {
 
@@ -117,25 +125,29 @@ exports.buildings = function(req, res) {
 		ORDER BY "buildings"."street", "buildings"."number"`;
 
 	pg.connect(config.connString, function(err, dbClient, done) {
-		if(err) throw err;
+		if(err) {
+			throw err;
+		}
 
 		dbClient.query(query, [], function(err, result) {
-			if (err) throw err;
+			if(err) {
+				throw err;
+			}
 
-			res.status(200).send(result.rows)
+			res.status(200).send(result.rows);
 
 			done();
 		});
 	});
-}
+};
 
 exports.leaderboard = function(req, res) {
 
 	var current_day = moment().day();
 
 	//Adjust to make saturday 0
-	if(current_day == 6) {
-		current_day == 0;
+	if(current_day === 6) {
+		current_day = 0;
 	}
 	else {
 		current_day++;
@@ -170,23 +182,27 @@ exports.leaderboard = function(req, res) {
 		GROUP BY "data"."building"`;
 
 	pg.connect(config.connString, function(err, dbClient, done) {
-		if(err) throw err;
+		if(err) {
+			throw err;
+		}
 
 		dbClient.query(query, [saturday, fridayAtNoon], function(err, result) {
-			if (err) throw err;
+			if(err) {
+				throw err;
+			}
 
 			// Build object with week-to-date kw values
 			var current_kw = {};
 
-			for(var building in req.goals) {
-				current_kw[building] = null;
+			for(var b in req.goals) {
+				current_kw[b] = null;
 			}
 
 			for(var i = 0, len = result.rows.length; i < len; i++) {
 				current_kw[result.rows[i].building] = parseFloat(result.rows[i].kw);
 			}
 
-			var zne_ratio = .75;
+			var zne_ratio = 0.75;
 			var exaggeration_factor = 0;
 
 			// Caculate the ratio of the current time to the entire week to scale
@@ -233,10 +249,10 @@ exports.leaderboard = function(req, res) {
 
 			var sorted = positions.slice().sort(function(a, b) { return a.position < b.position; });
 
-			for(var i = 0, len = positions.length; i < len; i++) {
-				positions[i].place = sorted.indexOf(positions[i])+1;
+			for(var j = 0, lenj = positions.length; j < lenj; j++) {
+				positions[j].place = sorted.indexOf(positions[j])+1;
 
-				positions[i].good = positions[i].position >= zne_pos;
+				positions[j].good = positions[j].position >= zne_pos;
 			}
 
 			positions.push({
@@ -301,10 +317,14 @@ exports.current = function(req, res) {
 		) as "lastTen"`;
 
 	pg.connect(config.connString, function(err, dbClient, done) {
-		if(err) throw err;
+		if(err) {
+			throw err;
+		}
 
 		dbClient.query(query, [req.params.building], function(err, result) {
-			if (err) throw err;
+			if(err) {
+				throw err;
+			}
 
 			var data = {
 				hvac: result.rows[0].hvac !== null ? parseFloat(result.rows[0].hvac) : 0,
@@ -383,10 +403,14 @@ exports.historical = function(req, res) {
 	var query = _buildHistoricalQuery(start, minutes, enabled);
 
 	pg.connect(config.connString, function(err, dbClient, done) {
-		if(err) throw err;
+		if(err) {
+			throw err;
+		}
 
 		dbClient.query(query, [req.params.building], function(err, result) {
-			if (err) throw err;
+			if(err) {
+				throw err;
+			}
 
 			var data = [];
 
@@ -412,10 +436,14 @@ exports.percentAll = function(req, res) {
 		query = _buildPercentBuildingQuery(req.params.timespan, false);
 
 	pg.connect(config.connString, function(err, dbClient, done) {
-		if(err) throw err;
+		if(err) {
+			throw err;
+		}
 
 		dbClient.query(query, [], function(err, result) {
-			if (err) throw err;
+			if(err) {
+				throw err;
+			}
 
 			var intervals = _getPercentIntervals(result),
 				data = {};
@@ -436,7 +464,7 @@ exports.percentAll = function(req, res) {
 			done(); // close db connection
 		});
 	});
-}
+};
 
 exports.percentBuilding = function(req, res) {
 
@@ -444,10 +472,14 @@ exports.percentBuilding = function(req, res) {
 		query = _buildPercentBuildingQuery(req.params.timespan, true);
 
 	pg.connect(config.connString, function(err, dbClient, done) {
-		if(err) throw err;
+		if(err) {
+			throw err;
+		}
 
 		dbClient.query(query, [req.params.building], function(err, result) {
-			if (err) throw err;
+			if(err) {
+				throw err;
+			}
 
 			var intervals = _getPercentIntervals(result),
 				data = {};
@@ -465,7 +497,7 @@ exports.percentBuilding = function(req, res) {
 			done(); // close db connection
 		});
 	});
-}
+};
 
 exports.percentEnduse = function(req, res) {
 
@@ -473,10 +505,14 @@ exports.percentEnduse = function(req, res) {
 		query = _buildPercentUseQuery(req.params.timespan);
 
 	pg.connect(config.connString, function(err, dbClient, done) {
-		if(err) throw err;
+		if(err) {
+			throw err;
+		}
 
 		dbClient.query(query, [req.params.building], function(err, result) {
-			if (err) throw err;
+			if(err) {
+				throw err;
+			}
 
 			var data = [];
 
@@ -495,7 +531,7 @@ exports.percentEnduse = function(req, res) {
 			done(); // close db connection
 		});
 	});
-}
+};
 
 // HELPERS
 
@@ -504,7 +540,7 @@ function _transformPercentObject(data) {
 	var newData = [];
 
 	for(var interval in data) {
-		data[interval]['interval'] = interval;
+		data[interval].interval = interval;
 		newData.push(data[interval]);
 	}
 
@@ -538,7 +574,7 @@ function _getPercentIntervals(result) {
 		if(intervals.indexOf(current) === -1) {
 			intervals.push(current);
 		}
-	};
+	}
 
 	return intervals;
 }
@@ -586,16 +622,16 @@ function _getPercentGoals(timespan, goals) {
 
 	switch(timespan) {
 		case 'hourly':
-			multiplier = 1 / (24 * 7) // weekly to hourly
+			multiplier = 1 / (24 * 7); // weekly to hourly
 			break;
 		case 'daily':
-			multiplier = 1 / 7 // weekly to daily
+			multiplier = 1 / 7; // weekly to daily
 			break;
 		case 'weekly':
-			multiplier = 1 // weekly
+			multiplier = 1; // weekly
 			break;
 		case 'monthly':
-			multiplier = 4 // weekly to monthly
+			multiplier = 4; // weekly to monthly
 			break;
 	}
 
@@ -707,17 +743,17 @@ function _buildPercentUseQuery(timespan) {
 
 function _buildHistoricalQuery(start, minutes, enabled) {
 
-	var interval = minutes+" minutes";
+	var interval = minutes+' minutes';
 	var seconds = minutes * 60;
 
-	var uses = []
+	var uses = [];
 	for(var use in enabled) {
 		if(enabled[use]) {
 			uses.push('AVG("'+use+'")');
 		}
 	}
 
-	var demandString = uses.length ? uses.join(" + ") : 0;
+	var demandString = uses.length ? uses.join(' + ') : 0;
 
 	return `
 		SELECT "series"."interval", "values"."demand", "values"."production"

@@ -101,8 +101,8 @@
 							.attr('fill', '#d3d4b1')
 							.attr('x', 0)
 							.attr('y', function(d) { return y(d.building); })
-							.attr('width', function(d) { return x(1); })
-							.attr("height", y.bandwidth());
+							.attr('width', function() { return x(1); })
+							.attr('height', y.bandwidth());
 
 					cont.selectAll('rect.bar')
 						.data(buildingData).enter()
@@ -114,7 +114,7 @@
 							.attr('x', 0)
 							.attr('y', function(d) { return y(d.building); })
 							.attr('width', function(d) { return x(d.position); })
-							.attr("height", y.bandwidth())
+							.attr('height', y.bandwidth());
 
 					var horseExtra = 25,
 						horseHeight = y.bandwidth() + horseExtra,
@@ -130,7 +130,7 @@
 								return 'images/leaderboard/'+names(d.building)+'-'+d.place+'.svg';
 							})
 							.attr('height', horseHeight)
-							.attr('width', horseWidth)
+							.attr('width', horseWidth);
 							//.attr('transform', 'skewX(30)');;
 
 					var gateHeight = y.bandwidth(),
@@ -144,7 +144,7 @@
 							.attr('y', function(d) { return y(d.building); })
 							.attr('height', gateHeight)
 							.attr('width', gateWidth)
-							.attr("href","images/leaderboard/leaderboard_gate.svg")
+							.attr('href', 'images/leaderboard/leaderboard_gate.svg');
 							//.attr('transform', 'skewY(55)');
 
 					cont.append('image')
@@ -153,7 +153,7 @@
 							.attr('y', 0)
 							.attr('height', height)
 							.attr('width', 30)
-							.attr("href","images/leaderboard/leaderboard_finish_line.svg");
+							.attr('href', 'images/leaderboard/leaderboard_finish_line.svg');
 
 				};
 			});

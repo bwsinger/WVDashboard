@@ -4,6 +4,7 @@
   "description": "West Village Energy Dashboard",
   "main": "server.js",
   "dependencies": {
+    "apicache": "^0.8.3",
     "body-parser": "^1.15.2",
     "compression": "^1.6.2",
     "cookie-parser": "^1.4.3",
@@ -22,7 +23,8 @@
     "moment": "^2.15.1",
     "morgan": "^1.7.0",
     "pg": "^6.1.0",
-    "pug": "^2.0.0-beta6"
+    "pug": "^2.0.0-beta6",
+    "request": "^2.79.0"
   },
   "devDependencies": {},
   "scripts": {

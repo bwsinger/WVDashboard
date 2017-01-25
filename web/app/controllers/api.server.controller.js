@@ -2,7 +2,30 @@
 
 var pg = require('pg'),
 	moment = require('moment'),
-	config = require('../../config/config');
+	config = require('../../config/config'),
+	request = require('request');
+
+exports.weather = function(req, res, next) {
+
+	var key = 'b7f090a458a3a954',
+		url = `https://api.wunderground.com/api/${key}/conditions/q/CA/Davis.json`;
+
+	request(url, function(err, response, body) {
+		if(err) {
+			return res.status(500).send({ message: err.message });
+		}
+
+		if(response.statusCode !== 200) {
+			return res.status(500).send({ message: 'Bad response from weather API' });
+		}
+		var data = JSON.parse(body.trim());
+
+		res.status(200).send({
+			temperature: data.current_observation.temp_f,
+			icon: data.current_observation.icon,
+		});
+	});
+}
 
 exports.validateTimespan = function(req, res, next, value) {
 	var timespans = timespans = ['hourly', 'daily', 'weekly', 'monthly'];
@@ -273,17 +296,14 @@ exports.current = function(req, res) {
 				) as "data"
 				GROUP BY "data"."datetime"
 			) as "grouped"
-			WHERE "grouped"."loggers" = $2
-			ORDER BY "grouped"."datetime" DESC
+			ORDER BY "grouped"."loggers" DESC, "grouped"."datetime" DESC
 			LIMIT 10
 		) as "lastTen"`;
 
 	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) throw err;
 
-		// TODO: the 2 here is the number of loggers for the building, this is 2 for all 
-		// buildings right now, but should pull from a query
-		dbClient.query(query, [req.params.building, 2], function(err, result) {
+		dbClient.query(query, [req.params.building], function(err, result) {
 			if (err) throw err;
 
 			var data = {

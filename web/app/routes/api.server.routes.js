@@ -1,7 +1,8 @@
 'use strict';
 
 var pg = require('pg'),
-	config = require('../../config/config');
+	config = require('../../config/config'),
+	apicache = require('apicache').options({debug: config.apicachedebug }).middleware;
 
 module.exports = function(app) {
 	var api = require('../controllers/api.server.controller');
@@ -21,6 +22,8 @@ module.exports = function(app) {
 	app.route('/api/percent/building/:building/:timespan').get(api.goals, api.percentBuilding);
 
 	app.route('/api/percent/enduse/:building/:timespan').get(api.goals, api.percentEnduse);
+
+	app.route('/api/weather').get(apicache('10 minutes'), api.weather);
 
 
 	// PARAMETERS

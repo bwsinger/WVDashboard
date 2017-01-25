@@ -1,5 +1,6 @@
 'use strict';
 
 module.exports  = {
-	connString: 'postgres://postgres:postgres@db:5432/wvdashboard'
+	connString: 'postgres://postgres:postgres@db:5432/wvdashboard',
+	apicachedebug: false,
 };

@@ -11,6 +11,8 @@
 		$routeProvider
 			.when('/', {
 				templateUrl: './modules/splash/views/splash.client.view.html',
+				controller: 'Splash',
+				controllerAs: 'vm'
 			})
 			.otherwise('/');
 	}

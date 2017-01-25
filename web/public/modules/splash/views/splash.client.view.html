@@ -1,3 +1,6 @@
 <div class="row full-height">
-	<h1 style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Splash Page</h1>
+	<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" class="text-center">
+		<h1 >Splash Page</h1>
+		<p ng-if="vm.weather">Currently <img ng-src="https://icons.wxug.com/i/c/a/{{vm.weather.icon}}.gif"> and {{vm.weather.temperature}} &deg;F</p>
+	</div>
 </div>

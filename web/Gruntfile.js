@@ -111,9 +111,26 @@ module.exports = function(grunt) {
                 },
             }
         },
+        jshint: {
+            server: {
+                src: [
+                    'Gruntfile.js',
+                    'server.js',
+                    'config/**/*.js',
+                    'app/**/*.js',
+                    'public/application.js',
+                    'public/modules/**/*.js',
+                ],
+                options: {
+                    jshintrc: true,
+                    reporter: require('jshint-stylish')
+                }
+            }
+        }
     });
 
     grunt.loadNpmTasks('grunt-nodemon');
+    grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-sass');
     grunt.loadNpmTasks('grunt-contrib-cssmin');
@@ -121,7 +138,7 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-uglify');
     grunt.loadNpmTasks('grunt-concurrent');
 
-    grunt.registerTask('default', ['sass', 'concurrent',]);
+    grunt.registerTask('default', ['jshint', 'sass', 'concurrent']);
     grunt.registerTask('dist', ['sass', 'concat:css', 'cssmin', 'concat:js', 'uglify']);
 
 };

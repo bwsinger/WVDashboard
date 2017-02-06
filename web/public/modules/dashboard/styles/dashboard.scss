@@ -63,7 +63,22 @@ polygon {
     stroke-width: 1px;
 }
 
-.click-215Sage {
+#hover-215Sage {
+	display: none;
+	position: absolute;
+    height:12%;
+    width:45%;
+    top: 20%;
+    left: 40%;
+    font-size: 2em;
+    z-index: 5;
+    font-weight: bold;
+    color: white;
+    background-color: rgba(128,128,128,0.6);
+    text-align: center;
+}
+
+#click-215Sage {
 	position: absolute;
 	top: 30%;
 	left: 0%;
@@ -72,7 +87,26 @@ polygon {
 	z-index: 2;
 }
 
-.click-1715Tilia {
+#click-215Sage:hover #hover-215Sage {
+	display: block;
+}
+
+#hover-1715Tilia {
+	display: none;
+	position: absolute;
+    height:12%;
+    width:45%;
+    top: 55%;
+    left: 30%;
+    font-size: 2em;
+    z-index: 5;
+    font-weight: bold;
+    color: white;
+    background-color: rgba(128,128,128,0.6);
+    text-align: center;
+}
+
+#click-1715Tilia {
 	position: absolute;
 	top: 30%;
 	left: 18.5%;
@@ -81,7 +115,26 @@ polygon {
 	z-index: 2;
 }
 
-.click-1605Tilia {
+#click-1715Tilia:hover #hover-1715Tilia {
+	display: block;
+}
+
+#hover-1605Tilia {
+	display: none;
+	position: absolute;
+    height:22%;
+    width:25%;
+    top: 13%;
+    left: 70%;
+    font-size: 2em;
+    z-index: 5;
+    font-weight: bold;
+    color: white;
+    background-color: rgba(128,128,128,0.6);
+    text-align: center;
+}
+
+#click-1605Tilia {
 	position: absolute;
 	top: 42%;
 	left: 41%;
@@ -90,7 +143,26 @@ polygon {
 	z-index: 2;
 }
 
-.click-1590Tilia {
+#click-1605Tilia:hover #hover-1605Tilia {
+	display: block;
+}
+
+#hover-1590Tilia {
+	display: none;
+	position: absolute;
+    height:10%;
+    width:35%;
+    top: 17%;
+    left: 46%;
+    font-size: 2em;
+    z-index: 5;
+    font-weight: bold;
+    color: white;
+    background-color: rgba(128,128,128,0.6);
+    text-align: center;
+}
+
+#click-1590Tilia {
 	position: absolute;
 	top: 28%;
 	left: 77%;
@@ -99,28 +171,8 @@ polygon {
 	z-index: 2;
 }
 
-.tooltip {
-	position:absolute;
-    max-height: 1em;
-	border:1px solid #333;
-    background-color:rgba(22, 22, 22, 0.8);
-	border-radius:5px;
-	padding:10px;
-	color:#fff;
-	font-size:.75em;
-    z-index: 1000;
-}
-
-.tooltip-inner{
-    /*max-width:310px;*/
-    /*padding:3px 8px;*/
-    position: relative;
-    top:-6px;
-    color:#fff;
-    text-align:center;
-/*    background-color:#245973;*/
-    border-radius:5px;
-    z-index: 1001;
+#click-1590Tilia:hover #hover-1590Tilia {
+	display: block;
 }
 
 

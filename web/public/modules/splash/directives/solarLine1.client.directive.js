@@ -23,7 +23,13 @@
         ////////////
 
         function link(scope, element) {
+
+
+            console.log('linking'); 
+
             d3Service.d3().then(function(d3) {
+
+                console.log('d3 loaded');
 
                 var margin = {top: 0, right: 0, bottom: 0, left: 0};
 
@@ -49,7 +55,7 @@
 
                 //Render the chart
                 // function(data, buildings)
-                scope.render = function() {
+                //scope.render = function() {
                     // Setup sizing
                     var height = svg.nodes()[0].getBoundingClientRect().height - margin.top - margin.bottom,
                         width = svg.nodes()[0].getBoundingClientRect().width - margin.left - margin.right;
@@ -79,15 +85,13 @@
                     // number of total arrows to spawn
                     var arrowData = d3.range(50);
 
-                    var svg = d3.select("body").append("svg")
-                        .attr("width", 960)
-                        .attr("height", 500);
+                    // var svg = d3.select("body").append("svg")
+                    //     .attr("width", 960)
+                    //     .attr("height", 500);
 
                     var path = svg.append("path")
                         .data([points])
-                        .attr("d", d3.svg.line()
-                            .tension(1) // Catmull–Rom
-                            .interpolate("linear"));
+                        .attr("d", d3.line());
 
                     var arrow = svg.selectAll(".arrow")
                         .data(arrowData)
@@ -112,9 +116,9 @@
                     function transition(elem) {
                         elem.transition()
                             .duration(50000) // total time for an arrow to move along path
-                            .ease("linear")
+                            .ease(d3.easeLinear)
                             .attrTween("transform", translateAlong(path.node()))
-                            .each("end", function() {
+                            .on("end", function() {
                                 return transition(elem)
                             }); //infinite loop
                     }
@@ -139,7 +143,7 @@
                             };
                         };
                     }
-                }; // end render function
+               // }; // end render function
             }); // end function(d3)
         } // end link(scope,element)
     } // end solarLine1(d3Service)

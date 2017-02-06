@@ -123,7 +123,8 @@ module.exports = function(grunt) {
             ],
             options: {
                 jshintrc: true,
-                reporter: require('jshint-stylish')
+                reporter: require('jshint-stylish'),
+                force: true
             }
         }
     });

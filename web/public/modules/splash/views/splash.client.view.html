@@ -1,6 +1,41 @@
-<div class="row full-height">
-	<div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);" class="text-center">
-		<h1 >Splash Page</h1>
-		<p ng-if="vm.weather">Currently <img ng-src="https://icons.wxug.com/i/c/a/{{vm.weather.icon}}.gif"> and {{vm.weather.temperature}} &deg;F</p>
-	</div>
+<div class="row full-height splash-bg">
+    <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 full-height">
+        <!-- Temp power grid -->
+        <svg width="10%" height="25%" style="position: absolute; top: 70%; left: 28%;">
+            <rect width="100%" height="100%" style="fill:steelblue;">
+        </svg>
+        <!-- Temp weather icon -->
+        <svg width="8%" height="13.8%" style="position: absolute; top: 7%; left: 60%;">
+            <rect width="100%" height="100%" style="fill:yellow;">
+        </svg>
+        <!-- 215 Sage Click Box -->
+        <a href="#!/dashboard/1" class="click-215Sage">
+            <img src="./images/favicon.png" style="z-index: 1;opacity: 0;">
+        </a>
+        <!-- 1715 Tilia Click Box -->
+        <a href="#!/dashboard/2" class="click-1715Tilia">
+            <img src="./images/favicon.png" style="z-index: 1;opacity: 0;">
+        </a>
+        <!-- 1605 Tilia Click Box -->
+        <a href="#!/dashboard/3" class="click-1605Tilia">
+            <img src="./images/favicon.png" style="z-index: 1;opacity: 0;">
+        </a>
+        <!-- 1590 Tilia Click Box -->
+        <a href="#!/dashboard/4" class="click-1590Tilia">
+            <img src="./images/favicon.png" style="z-index: 1;opacity: 0;">
+        </a>
+
+        <div class="row full-height">
+            <!-- Solar Line 1 -->
+            <!-- BROKEN!!!!!!!!!!!!!!!! -->
+            <div class="col-xs-10 col-sm-10 col-md-10 col-lg-10 full-height solarLine1-container" ng-include="'./modules/splash/views/solarLine1.client.view.html'"></div>
+            <div class="col-xs-2 col-sm-2 col-md-2 col-lg-2 full-height">
+                <div class="weather-text">
+                    <p ng-if="vm.weather">
+                        <img ng-src="https://icons.wxug.com/i/c/a/{{vm.weather.icon}}.gif"><br>{{vm.weather.temperature}} &deg;F
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>

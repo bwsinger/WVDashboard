@@ -41,11 +41,18 @@
 			<div class="current-value">-{{vm.currentData.kitchen}} W</div>
 		</div>
 
-		<div class="current-power-tile">
+		<div class="current-power-tile" ng-if="vm.hasEV">
 			<img ng-if="vm.enabled.ev" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('ev');">
 			<img ng-if="!vm.enabled.ev" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('ev');">
 			<img class="current-power-img" src="./images/current/enduse_ev.svg">
 			<div class="current-value">-{{vm.currentData.ev}} W</div>
+		</div>
+
+		<div class="current-power-tile" ng-if="vm.hasLab">
+			<img ng-if="vm.enabled.lab" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('lab');">
+			<img ng-if="!vm.enabled.lab" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('lab');">
+			<img class="current-power-img" src="./images/current/enduse_lab.svg">
+			<div class="current-value">-{{vm.currentData.lab}} W</div>
 		</div>
 
 		<svg class="current-power-divider" width = "0.4%" height = "100%">

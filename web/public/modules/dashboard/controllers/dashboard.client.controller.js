@@ -61,10 +61,13 @@
 				vm.enabled = {};
 
 				for(var enduse in data) {
-					if(enduse !== 'total' && enduse !== 'solar') {
+					if(enduse !== 'total' && enduse !== 'solar' && enduse !== 'latest') {
 						vm.enabled[enduse] = true;
 					}
 				}
+
+				vm.hasEV = vm.enabled.hasOwnProperty('ev');
+				vm.hasLab = vm.enabled.hasOwnProperty('lab');
 
 				// weekly by default
 				changeHistoricalTimespan(vm.historicalTimespans[2]);

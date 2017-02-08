@@ -27,6 +27,44 @@ exports.weather = function(req, res) {
 	});
 };
 
+exports.getEndUses = function(req, res, next) {
+	pg.connect(config.connString, function(err, dbClient, done) {
+		if(err) {
+			throw err;
+		}
+
+		var query = `
+			SELECT "ev", "lab" FROM "buildings"
+			WHERE "id" = $1`
+
+		dbClient.query(query, [req.params.building], function(err, result) {
+			if(err) {
+				throw err;
+			}
+
+			var enduses = {
+				'hvac': true,
+				'lights': true,
+				'plugs': true,
+				'kitchen': true,
+			};
+
+			if(result.rows[0].ev) {
+				enduses.ev = true;
+			}
+
+			if(result.rows[0].lab) {
+				enduses.lab = true;
+			}
+
+			req.enduses = enduses;
+
+			done();
+			next();
+		});
+	});
+};
+
 exports.validateTimespan = function(req, res, next, value) {
 	var timespans = ['hourly', 'daily', 'weekly', 'monthly'];
 
@@ -75,11 +113,11 @@ exports.goals = function(req, res, next) {
 
 	var query = `
 		SELECT "buildings"."id",
-				"buildings"."total",
-				"buildings"."hvac", 
-				"buildings"."lights",
-				"buildings"."plugs",
-				"buildings"."kitchen"
+				"buildings"."zne_total",
+				"buildings"."zne_hvac",
+				"buildings"."zne_lights",
+				"buildings"."zne_plugs",
+				"buildings"."zne_kitchen"
 		FROM "buildings"
 		ORDER BY "buildings"."street", "buildings"."number"`;
 
@@ -99,11 +137,11 @@ exports.goals = function(req, res, next) {
 
 			for(var i = 0, len = result.rows.length; i < len; i++) {
 				goals[result.rows[i].id] = {
-					total: parseInt(result.rows[i].total),
-					hvac: parseInt(result.rows[i].hvac),
-					kitchen: parseInt(result.rows[i].kitchen),
-					plugs: parseInt(result.rows[i].plugs),
-					lights: parseInt(result.rows[i].lights),
+					total: parseInt(result.rows[i].zne_total),
+					hvac: parseInt(result.rows[i].zne_hvac),
+					kitchen: parseInt(result.rows[i].zne_kitchen),
+					plugs: parseInt(result.rows[i].zne_plugs),
+					lights: parseInt(result.rows[i].zne_lights),
 				};
 			}
 
@@ -284,35 +322,34 @@ exports.current = function(req, res) {
 			ROUND(AVG("lights"), 2) as "lights",
 			ROUND(AVG("solar"), 2) as "solar",
 			ROUND(AVG("ev"), 2) as "ev",
+			ROUND(AVG("lab"), 2) as "lab",
 			MAX("datetime") as "latest"
 		FROM (
-			SELECT *
-			FROM (
-				SELECT 
-					"data"."datetime",
-					SUM("data"."hvac") as "hvac",
-					SUM("data"."kitchen") as "kitchen",
-					SUM("data"."plugs") as "plugs",
-					SUM("data"."lights") as "lights",
-					SUM("data"."solar") as "solar",
-					SUM("data"."ev") as "ev",
-					count("data"."datetime") as "loggers"
-				FROM (
-					SELECT
-						"hobodata"."datetime",
-						"hobodata"."hvac",
-						"hobodata"."kitchen",
-						"hobodata"."plugs",
-						"hobodata"."lights",
-						"hobodata"."solar",
-						"hobodata"."ev"
-					FROM "hobodata"
-					JOIN "loggers" ON "hobodata"."logger" = "loggers"."id"
-					WHERE "loggers"."building" = $1
-				) as "data"
-				GROUP BY "data"."datetime"
-			) as "grouped"
-			ORDER BY "grouped"."loggers" DESC, "grouped"."datetime" DESC
+			SELECT 
+				"data"."datetime",
+				SUM("data"."hvac") as "hvac",
+				SUM("data"."kitchen") as "kitchen",
+				SUM("data"."plugs") as "plugs",
+				SUM("data"."lights") as "lights",
+				SUM("data"."solar") as "solar",
+				SUM("data"."ev") as "ev",
+				SUM("data"."lab") as "lab"
+			FROM(
+				SELECT
+					"hobodata"."datetime",
+					"hobodata"."hvac",
+					"hobodata"."kitchen",
+					"hobodata"."plugs",
+					"hobodata"."lights",
+					"hobodata"."solar",
+					"hobodata"."ev",
+					"hobodata"."lab"
+				FROM "hobodata"
+				JOIN "loggers" ON "hobodata"."logger" = "loggers"."id"
+				WHERE "loggers"."building" = $1
+			) as "data"
+			GROUP BY "data"."datetime"
+			ORDER BY "data"."datetime" DESC
 			LIMIT 10
 		) as "lastTen"`;
 
@@ -326,25 +363,19 @@ exports.current = function(req, res) {
 				throw err;
 			}
 
-			var data = {
-				hvac: result.rows[0].hvac !== null ? parseFloat(result.rows[0].hvac) : 0,
-				kitchen: result.rows[0].kitchen !== null ? parseFloat(result.rows[0].kitchen) : 0,
-				plugs: result.rows[0].plugs !== null ? parseFloat(result.rows[0].plugs) : 0,
-				lights: result.rows[0].lights !== null ? parseFloat(result.rows[0].lights) : 0,
-				solar: result.rows[0].solar !== null ? parseFloat(result.rows[0].solar) : 0,
-				ev: result.rows[0].ev !== null ? parseFloat(result.rows[0].ev) : 0,
-				latest: result.rows[0].latest,
-			};
+			var data = {};
+			var production = parseFloat(result.rows[0].solar);
+			var demand = 0;
 
-			data.total = data.solar-(data.hvac+data.kitchen+data.plugs+data.lights+data.ev);
+			for(var use in req.enduses) {
+				var val = parseFloat(result.rows[0][use])
+				data[use] =  Math.round(val);
+				demand += parseFloat(val);
+			}
 
-			data.total = Math.round(data.total);
-			data.hvac = Math.round(data.hvac);
-			data.kitchen = Math.round(data.kitchen);
-			data.plugs = Math.round(data.plugs);
-			data.lights = Math.round(data.lights);
-			data.solar = Math.round(data.solar);
-			data.ev = Math.round(data.ev);
+			data.solar = Math.round(production);
+			data.total = Math.round(production-demand);
+			data.latest = result.rows[0].latest;
 
 			res.status(200).send(data); // send response
 
@@ -355,13 +386,11 @@ exports.current = function(req, res) {
 
 exports.historical = function(req, res) {
 
-	var enabled = {
-		'hvac': true,
-		'lights': true,
-		'plugs': true,
-		'kitchen': true,
-		'ev': true,
-	};
+	var enabled = {};
+
+	for(use in req.enduses) {
+		enabled[use] = true;
+	}
 
 	if(req.query.disabled) {
 		var passed = req.query.disabled.split(',');
@@ -769,7 +798,8 @@ function _buildHistoricalQuery(start, minutes, enabled) {
 					SUM("data"."plugs") as "plugs",
 					SUM("data"."lights") as "lights",
 					SUM("data"."solar") as "solar",
-					SUM("data"."ev") as "ev"
+					SUM("data"."ev") as "ev",
+					SUM("data"."lab") as "lab"
 				FROM(
 					SELECT
 						"hobodata"."datetime",
@@ -778,7 +808,8 @@ function _buildHistoricalQuery(start, minutes, enabled) {
 						"hobodata"."plugs",
 						"hobodata"."lights",
 						"hobodata"."solar",
-						"hobodata"."ev"
+						"hobodata"."ev",
+						"hobodata"."lab"
 					FROM "hobodata"
 					JOIN "loggers" ON "hobodata"."logger" = "loggers"."id"
 					WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'

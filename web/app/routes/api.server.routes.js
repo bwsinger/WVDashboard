@@ -12,9 +12,9 @@ module.exports = function(app) {
 
 	app.route('/api/leaderboard').get(api.goals, api.leaderboard);
 
-	app.route('/api/current/:building').get(api.current);
+	app.route('/api/current/:building').get(api.getEndUses, api.current);
 
-	app.route('/api/historical/:building/:timespan').get(api.historical);
+	app.route('/api/historical/:building/:timespan').get(api.getEndUses, api.historical);
 
 	app.route('/api/percent/all/:timespan').get(api.goals, api.percentAll);
 

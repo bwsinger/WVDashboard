@@ -1,5 +1,6 @@
 hobo/venv/
 hobo/hobolink.yml
+hobo/db.yml
 twitter/venv/
 db/data/
 web/node_modules/

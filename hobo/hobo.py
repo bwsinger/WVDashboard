@@ -11,10 +11,17 @@ from dateutil import parser
 from apscheduler.schedulers.blocking import BlockingScheduler
 
 def parse_row(row, columns):
+    # this is defined as a bad reading in the hobolink API
+    bad_values = [
+        '-889',
+        '-888.9',
+        '-888.88',
+    ]
     total = 0
     if len(columns):
         for column in columns:
-            total += float(row[column])
+            if row[column] not in bad_values:
+                total += float(row[column].replace(',',''))
         return total
     else:
         return None
@@ -23,9 +30,22 @@ def fetch():
 
     logging.info("Starting run @ {}".format(datetime.now()))
 
+    # load credentials
+    if os.path.isfile('db.yml'):
+        postgres = yaml.load(open('db.yml'))
+    else:
+        logging.error("Missing database credentials, see README")
+        return
+
     # connect to db
     try:
-        conn = psycopg2.connect("dbname='wvdashboard' user='postgres' host='db' password='postgres'")
+        conn_string = "dbname='{}' user='{}' host='{}' password='{}'".format(
+            postgres['database'],
+            postgres['username'],
+            postgres['hostname'],
+            postgres['password'],
+        )
+        conn = psycopg2.connect(conn_string)
         cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         logging.debug("Successfully connected to the database")
     except:
@@ -37,7 +57,7 @@ def fetch():
     loggers = cur.fetchall()
 
     for logger in loggers:
-        logging.debug("Starting hobo logger with serial {}".format(logger['serial']))
+        logging.debug("Starting hobo logger with data export {}".format(logger['export']))
 
         # get the last timestamp from db for this logger
         cur.execute("""
@@ -61,38 +81,84 @@ def fetch():
             logging.error("Missing hobolink credentials, see README")
             return
 
-        # grab the latest file  
-        url = "http://webservice.hobolink.com/rest/private/devices/{}/data_files/latest/txt".format(logger['serial'])
-        req = requests.get(url, auth=(hobolink['username'], hobolink['password']))
+        # grab the latest file
+        url = 'https://webservice.hobolink.com/restv2/data/custom/file'
 
-        # split csv portion from the junk at the top
-        # trim excess whitespace
-        # split into lines and feed to the reader
-        reader = csv.reader(req.text.split("------------")[1].strip().split('\n'))
+        payload = {
+            "query": logger['export'],
+            "authentication": {
+                "password": hobolink['password'],
+                "user": hobolink['username'],
+                "token": hobolink['token'],
+            }
+        }
 
+        r = requests.post(url, json=payload)
+
+        reader = csv.reader(r.text.strip().split('\n'))
         next(reader) #headers
 
         skipped = 0
         rowstoinsert = []
 
         for row in reader:
-
-            currtimestamp = parser.parse(row[1])
+            currtimestamp = parser.parse(row[0])
 
             # is the row newer?
             if lasttimestamp is None or currtimestamp > lasttimestamp:
 
                 logging.debug("Found row with more recent timestamp: {}".format(currtimestamp))
 
-                # aggregate stats from relevant columns
-                hvac = parse_row(row, json.loads(logger['hvac']))
-                lights = parse_row(row, json.loads(logger['lights']))
-                plugs = parse_row(row, json.loads(logger['plugs']))
-                kitchen = parse_row(row, json.loads(logger['kitchen']))
-                solar = parse_row(row, json.loads(logger['solar']))
-                ev = parse_row(row, json.loads(logger['ev']))
+                # validate row first
+                bad_row = False
+                for col in row:
+                    if col == '':
+                        bad_row = True
+                        break
 
-                rowstoinsert.append((logger['id'], currtimestamp, hvac, kitchen, plugs, lights, solar, ev))
+                if not bad_row:
+
+                    # aggregate stats from relevant columns
+                    hvac = parse_row(row, json.loads(logger['hvac']))
+                    lights = parse_row(row, json.loads(logger['lights']))
+                    plugs = parse_row(row, json.loads(logger['plugs']))
+                    kitchen = parse_row(row, json.loads(logger['kitchen']))
+                    solar = parse_row(row, json.loads(logger['solar']))
+                    ev = parse_row(row, json.loads(logger['ev']))
+                    lab = parse_row(row, json.loads(logger['lab']))
+
+                    # custom stuff for 215 here
+                    # eventually find some way to store the equation in the database
+                    # the normal ones would be like 1 + 2 + 3
+                    # the more complex ones are like abs(4 - 32) - 16
+                    # then parse it on the fly to figure out the correct value
+                    if logger['export'] == '215_Last_30_Days':
+                        T1_Total = parse_row(row, [2])
+                        T1_Solar = parse_row(row, [18])
+                        T1_Kitchen = parse_row(row, [15,16,17])
+
+                        # can't find this column right now maybe its on the logger thats not connecting
+                        T1_Lights = 0
+
+                        T1_Plugs = abs(T1_Total - T1_Solar) - T1_Kitchen - T1_Lights
+                        plugs += T1_Plugs
+
+                        T3_Total = parse_row(row, [3])
+                        T3_Solar = parse_row(row, [1])
+                        T3_Lab = abs(T3_Total - T3_Solar)
+
+                        T2A_AND_T2B_TOTAL = parse_row(row, [13])
+                        # can't find this column right now maybe its on the logger thats not connecting
+                        T4A_Total = 0
+
+                        T2_Lab = T2A_AND_T2B_TOTAL + T4A_Total
+
+                        lab = T2_Lab + T3_Lab
+
+                    
+                    rowstoinsert.append((logger['id'], currtimestamp, hvac, kitchen, plugs, lights, solar, ev, lab))
+                else:
+                    logging.debug('Bad row with timestamp: {}'.format(currtimestamp))
                 
             else:
                 logging.debug("Skipped old row with timestamp: {}".format(currtimestamp))
@@ -103,8 +169,8 @@ def fetch():
         if len(rowstoinsert):
             cur.executemany("""
                     INSERT INTO "hobodata"
-                    ("logger", "datetime", "hvac", "kitchen", "plugs", "lights", "solar", "ev")
-                    VALUES(%s, %s, %s, %s, %s, %s, %s, %s)
+                    ("logger", "datetime", "hvac", "kitchen", "plugs", "lights", "solar", "ev", "lab")
+                    VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, rowstoinsert)
             conn.commit()
 

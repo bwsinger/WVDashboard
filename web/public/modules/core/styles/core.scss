@@ -1,4 +1,36 @@
 @font-face {
+    font-family: LetterGothicStd;
+    src: url('../../fonts/LetterGothicStd.otf'),
+    url('../../fonts/LetterGothicStd.otf'); // IE
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: LetterGothicStd;
+    src: url('../../fonts/LetterGothicStd-Slanted.otf'),
+    url('../../fonts/LetterGothicStd-Slanted.otf'); // IE
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: LetterGothicStd;
+    src: url('../../fonts/LetterGothicStd-Bold.otf'),
+    url('../../fonts/LetterGothicStd-Bold.otf'); // IE
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: LetterGothicStd;
+    src: url('../../fonts/LetterGothicStd-BoldSlanted.otf'),
+    url('../../fonts/LetterGothicStd-BoldSlanted.otf'); // IE
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
     font-family: webly;
     src: url('../../fonts/weblysleekuil.ttf');
     font-weight: normal;
@@ -37,7 +69,8 @@
 body {
 	background-color: #29343f;
 	color: white;
-	font-family: webly;
+	font-family: LetterGothicStd;
+    letter-spacing: -0.2em;
 }
 
 .full-height {
@@ -75,10 +108,9 @@ body {
 	right: 0;
 	width: 20em;
 	z-index: 1001;
-	background-color: #29343e;
+	background-color: #383838;
 	margin: 0;
 	padding: 0;
-	padding-left: 2px;
 
 	ul {
 		list-style: none;
@@ -93,26 +125,37 @@ body {
 			font-weight: 200;
 
 			&.active {
-				border: 3px solid #a7bcb6;
+				border: 5px solid #FAF1E0;
 				cursor: default;
 			}
 
-			&:nth-child(odd) {
-				background-color: #4d4d4d;
-			}
+            // "Home"
+            &:nth-child(1){
+                background-color: #252525;
+            }
 
-			&:nth-child(even) {
-				background-color: #666666;
-			}
+            // "Dashboards"
+            &:nth-child(2){
+                background-color: #252525;
+            }
+
+			// Buildings
+            &:nth-child(n+3):nth-child(-n+6){
+                padding-left: 2.5em;
+            }
+
+            // "About"
+            &:nth-child(7){
+                background-color: #252525;
+            }
 
 			a, span {
-				color: #a7bcb6;
+				color: #FAF1E0;
 			}
 
 			span.text {
-				color: #2d3741;
+				color: #525252;
 			}
 		}
 	}
-
 }

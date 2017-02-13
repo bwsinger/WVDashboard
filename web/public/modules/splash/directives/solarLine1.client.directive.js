@@ -13,6 +13,7 @@
             restrict: 'EA',
             link: link,
             scope: {
+                points: '=',
                 // data: '=',
                 // buildings: '=',
             }
@@ -72,15 +73,15 @@
                     // var cont = svg.append('g')
                     //     .attr('transform', 'translate('+margin.left+','+margin.top+')');
 
-                    var points = [
-                        [480, 200],
-                        [580, 400],
-                        [680, 100],
-                        [780, 300],
-                        [180, 300],
-                        [280, 100],
-                        [380, 400]
-                    ];
+                    // var points = [
+                    //     [480, 200],
+                    //     [580, 400],
+                    //     [680, 100],
+                    //     [780, 300],
+                    //     [180, 300],
+                    //     [280, 100],
+                    //     [380, 400]
+                    // ];
 
                     // number of total arrows to spawn
                     var arrowData = d3.range(50);
@@ -90,7 +91,7 @@
                     //     .attr("height", 500);
 
                     var path = svg.append("path")
-                        .data([points])
+                        .data([scope.points])
                         .attr("d", d3.line());
 
                     var arrow = svg.selectAll(".arrow")

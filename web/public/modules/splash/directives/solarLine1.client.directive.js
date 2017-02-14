@@ -14,6 +14,7 @@
             link: link,
             scope: {
                 points: '=',
+                arrow: '=',
                 // data: '=',
                 // buildings: '=',
             }
@@ -84,7 +85,7 @@
                     // ];
 
                     // number of total arrows to spawn
-                    var arrowData = d3.range(50);
+                    // var arrowData = d3.range(50);
 
                     // var svg = d3.select("body").append("svg")
                     //     .attr("width", 960)
@@ -94,33 +95,24 @@
                         .data([scope.points])
                         .attr("d", d3.line());
 
-                    var arrow = svg.selectAll(".arrow")
-                        .data(arrowData)
-                        .enter()
-                        .append("polygon")
-                        .attr("points", "0,24, 15,12, 0,0");
-
-                    var counter = -1;
-
-                    // IIFE that sets delay for each spawned arrow
-                    (function loop() {
-                        if (counter++ > 48) return;
-                        setTimeout(function() {
-                            var thisPolygon = d3.selectAll("polygon").filter(function(d, i) {
-                                return i == counter;
-                            });
-                            transition(thisPolygon);
-                            loop()
-                        }, 1000) // delay between arrows
-                    }())
+                    setInterval(function() {
+                        var thisPolygon = svg.append("polygon")
+                            .attr("points", "0,18, 18,12, 0,6")
+                            .attr('class', scope.arrow);
+                        transition(thisPolygon);
+                        // Make duration funtion of path length
+                        // path.getTotalLength()
+                    }, 800); // delay between arrows
 
                     function transition(elem) {
                         elem.transition()
-                            .duration(50000) // total time for an arrow to move along path
+                            // Make duration funtion of path length (and later date input)
+                            // path.getTotalLength()
+                            .duration(10000) // total time for an arrow to move along path
                             .ease(d3.easeLinear)
                             .attrTween("transform", translateAlong(path.node()))
                             .on("end", function() {
-                                return transition(elem)
+                                elem.remove();
                             }); //infinite loop
                     }
 

@@ -54,13 +54,17 @@
 path {
     fill: none;
     stroke: #000;
-    stroke-width: 5px;
+    stroke-width: 2px;
 }
 
-polygon {
-    fill: steelblue;
-    stroke: #fff;
-    stroke-width: 1px;
+// Solar to building arrows
+.arrow-yellow {
+	fill: #FAF8CE; //light yellow
+}
+
+// Grid to building arrows
+.arrow-red {
+	fill: #D21F27; // red
 }
 
 #hover-215Sage {

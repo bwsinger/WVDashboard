@@ -1,12 +1,9 @@
 <div class="row full-height splash-bg">
     <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 full-height">
         <!-- Power Grid -->
-        <img width="10%" height="25%" src="./images/splash/powertower.svg" style="position: absolute; top: 70%; left: 28%;"></img>
-
-        <!-- Temp weather icon -->
-        <svg width="8%" height="13.8%" style="position: absolute; top: 7%; left: 60%;">
-            <rect width="100%" height="100%" style="fill:yellow;">
-        </svg>
+        <img width="10%" height="25%" src="./images/splash/powertower.svg" style="position: absolute; top: 70%; left: 28%;">
+        <!-- Weather icon -->
+        <img width="8%" height="13.8%" src="./images/splash/weather/{{vm.weather.icon}}.svg" alt="{{vm.weather.icon}}" style="position: absolute; top: 7%; left: 60%;">
         <!-- 215 Sage Click Box -->
         <a href="#!/dashboard/1" id="click-215Sage">
             <img src="./images/favicon.png" style="z-index: 1;opacity: 0;">

@@ -37,7 +37,10 @@
 
                 var svg = d3.select(element[0])
                             .append('svg')
-                            .attr('class', 'solarLine1');
+                            .attr('class', 'solarLine1')
+                            // .attr("viewBox", "0 0 1640 860")
+                            // .attr("preserveAspectRatio", "xMidYMid meet")
+                            ;
 
                 //Watch for resizing (window / angular) or data changing
                 window.onresize = function() {

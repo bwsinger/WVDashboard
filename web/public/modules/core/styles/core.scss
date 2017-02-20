@@ -67,10 +67,9 @@
 }
 
 body {
-	background-color: #29343f;
-	color: white;
+	background-color: #252525;
+	color: #FAF1E0; // yellowish white
 	font-family: LetterGothicStd;
-    letter-spacing: -0.2em;
 }
 
 .full-height {
@@ -122,6 +121,7 @@ body {
 
 			padding: 0.3em 1em;
 			font-size: 2em;
+            letter-spacing: -0.1em;
 			font-weight: 200;
 
 			&.active {

@@ -136,24 +136,22 @@ def fetch():
                         T1_Total = parse_row(row, [2])
                         T1_Solar = parse_row(row, [18])
                         T1_Kitchen = parse_row(row, [15,16,17])
-
-                        # can't find this column right now maybe its on the logger thats not connecting
-                        T1_Lights = 0
+                        T1_Lights = parse_row(row, [22,24,25])
 
                         T1_Plugs = abs(T1_Total - T1_Solar) - T1_Kitchen - T1_Lights
                         plugs += T1_Plugs
 
                         T3_Total = parse_row(row, [3])
                         T3_Solar = parse_row(row, [1])
+
                         T3_Lab = abs(T3_Total - T3_Solar)
+                        lab += T3_Lab
 
                         T2A_AND_T2B_TOTAL = parse_row(row, [13])
-                        # can't find this column right now maybe its on the logger thats not connecting
-                        T4A_Total = 0
+                        T4A_Total = parse_row(row, [29])
 
                         T2_Lab = T2A_AND_T2B_TOTAL + T4A_Total
-
-                        lab = T2_Lab + T3_Lab
+                        lab += T2_Lab
 
                     
                     rowstoinsert.append((logger['id'], currtimestamp, hvac, kitchen, plugs, lights, solar, ev, lab))

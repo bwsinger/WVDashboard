@@ -139,19 +139,31 @@ def fetch():
                         T1_Lights = parse_row(row, [22,24,25])
 
                         T1_Plugs = abs(T1_Total - T1_Solar) - T1_Kitchen - T1_Lights
-                        plugs += T1_Plugs
+
+                        if plugs is not None:
+                            plugs += T1_Plugs
+                        else:
+                            plugs = T1_Plugs
 
                         T3_Total = parse_row(row, [3])
                         T3_Solar = parse_row(row, [1])
 
                         T3_Lab = abs(T3_Total - T3_Solar)
-                        lab += T3_Lab
+
+                        if lab is not None:
+                            lab += T3_Lab
+                        else:
+                            lab = T3_Lab
 
                         T2A_AND_T2B_TOTAL = parse_row(row, [13])
                         T4A_Total = parse_row(row, [29])
 
                         T2_Lab = T2A_AND_T2B_TOTAL + T4A_Total
-                        lab += T2_Lab
+
+                        if lab is not None:
+                            lab += T2_Lab
+                        else:
+                            lab = T2_Lab
 
                     
                     rowstoinsert.append((logger['id'], currtimestamp, hvac, kitchen, plugs, lights, solar, ev, lab))

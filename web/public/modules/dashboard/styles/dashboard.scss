@@ -11,11 +11,11 @@
 
 .section-left-bottom {
 	height:60%;
-	background-color: #7fa097;
+	background-color: #252525;
 }
 
 .section-right {
-	background-color: #46605a;
+	background-color: #1E1E1E;
 	overflow: hidden;
 	padding: 0;
 }
@@ -23,7 +23,7 @@
 // SPLASH PAGE
 
 .splash-bg {
-	background-image: url('../../../images/splash/Asset\ 5.svg');
+	background-image: url('../../../images/splash/splash_scene.svg');
 	// background-size: auto 100%;
 	background-size: cover;
 	background-repeat: no-repeat;
@@ -54,23 +54,28 @@
 path {
     fill: none;
     stroke: #000;
-    stroke-width: 5px;
+    stroke-width: 2px;
 }
 
-polygon {
-    fill: steelblue;
-    stroke: #fff;
-    stroke-width: 1px;
+// Solar to building arrows
+.arrow-yellow {
+	fill: #FAF8CE; //light yellow
+}
+
+// Grid to building arrows
+.arrow-red {
+	fill: #D21F27; // red
 }
 
 #hover-215Sage {
 	display: none;
 	position: absolute;
-    height:12%;
+    height:8%;
     width:45%;
     top: 20%;
     left: 40%;
     font-size: 2em;
+    letter-spacing: -0.1em;
     z-index: 5;
     font-weight: bold;
     color: white;
@@ -94,11 +99,12 @@ polygon {
 #hover-1715Tilia {
 	display: none;
 	position: absolute;
-    height:12%;
+    height:10%;
     width:45%;
     top: 55%;
     left: 30%;
     font-size: 2em;
+    letter-spacing: -0.1em;
     z-index: 5;
     font-weight: bold;
     color: white;
@@ -122,11 +128,12 @@ polygon {
 #hover-1605Tilia {
 	display: none;
 	position: absolute;
-    height:22%;
+    height:18%;
     width:25%;
     top: 13%;
     left: 70%;
     font-size: 2em;
+    letter-spacing: -0.1em;
     z-index: 5;
     font-weight: bold;
     color: white;
@@ -150,11 +157,12 @@ polygon {
 #hover-1590Tilia {
 	display: none;
 	position: absolute;
-    height:10%;
+    height:8%;
     width:35%;
     top: 17%;
     left: 46%;
     font-size: 2em;
+    letter-spacing: -0.1em;
     z-index: 5;
     font-weight: bold;
     color: white;
@@ -215,8 +223,8 @@ polygon {
 		text-align: center;
 		margin: 0;
 		padding: 0;
-		border-bottom: solid #aad6cd 1px;
-		color: #aad6cd;
+		border-bottom: solid #FAF1E0 1px;
+		color: #FAF1E0;
 		cursor: pointer;
 		font-size: 0.8em;
 
@@ -228,7 +236,7 @@ polygon {
 			font-size: 1.7em;
 			line-height: 1.2em;
 			font-weight: 700;
-			color: white;
+			color: #E8C67E;
 			cursor: default;
 		}
 	}
@@ -244,10 +252,14 @@ polygon {
 	transform: translate(-50%, -50%);
 }
 
+.mascot-bg {
+	background-color: #020202; //black
+}
+
 // LEADERBOARD
 
 .leaderboard-container {
-	background-color: #a7bcb6;
+	background-color: #383838; //light grey
 	overflow: hidden;
 	padding: 0;
 }
@@ -380,7 +392,7 @@ polygon {
 .legend-label {
 	float: left;
 	margin-left: 10px;
-	color: #29343e;
+	// color: #29343e;
 	font-size: 1.1em;
 	font-weight: bold;
 	line-height: 1.4em;

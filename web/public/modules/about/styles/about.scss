@@ -1,6 +1,5 @@
 .about-main {
 	height: 60%;
-	color: #a7bcb6;
 	margin-top: 15%;
 
 
@@ -8,24 +7,24 @@
 		width: 12px;
 	}
 	::-webkit-scrollbar-thumb{
-		background-color:rgb(87, 112, 106);
+		background-color:rgb(250, 241, 224);
 		border-radius: 12px;
 	}
 	::-webkit-scrollbar-track{
-		background-color:rgb(41, 52, 63);
+		background-color:rgb(37, 37, 37);
 		border-radius: 12px;
 	}
 }
 
 .about-content-container {
-	background-color: #35414d;
+	background-color: #383838;
 	position: relative;
 }
 
 
 .about-title-container {
 	position:absolute;
-	background-color: #35414d;
+	background-color: #383838;
 	top: 2em;
 	left: 3em;
 	right: 4em;
@@ -33,11 +32,12 @@
 
 	h1 {
 		font-weight: bold;
-		border-bottom: #29343f 0.5em solid;
+		border-bottom: #252525 0.5em solid;
 		margin: 0;
 		padding: 0;
 		padding-bottom: 0.4em;
 		margin-bottom: 0.4em;
+		letter-spacing: -0.1em;
 		display:inline-block;
 	}
 }
@@ -59,6 +59,7 @@
 	p {
 		font-size: 1.8em;
 		margin-bottom: 1.8em;
+		margin-top: 0.1em;
 	}
 
 	img {
@@ -72,7 +73,7 @@
 	li {
 		height: 47%;
 		margin: 0;
-		background-color: #35414d;
+		background-color: #383838;
 		text-align: center;
 		position: relative;
 		cursor: pointer;
@@ -88,6 +89,7 @@
 			transform: translate(-50%, -50%);
 			margin: 0;
 			width: 100%;
+			letter-spacing: -0.1em;
 			font-weight: bold;
 		}
 	}

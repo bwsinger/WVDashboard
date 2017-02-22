@@ -30,7 +30,7 @@
 
 			for(var i = 0, len = buildings.length; i < len; i++) {
 				vm.items.push({
-					'text': '+ '+buildings[i].name,
+					'text': '+'+buildings[i].name,
 					'link': '/dashboard/'+buildings[i].id,
 				});
 			}

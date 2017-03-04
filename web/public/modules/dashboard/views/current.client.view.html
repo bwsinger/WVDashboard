@@ -1,15 +1,27 @@
 <!-- Current power section -->
-<div class="section-banner">
+<div class="section-banner current-banner">
 	<h1 class="section-banner-title section-banner-title-solo">current power demand</h1>
 </div>
 <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 full-height current-power-wrapper">
 	<div class="current-power">
+		<!-- Solar -->
 		<div class="current-power-tile">
 			<img ng-if="vm.currentData.solar >= 0" class="current-power-img" src="./images/current/solar_on.svg">
 			<img ng-if="vm.currentData.solar < 0" class="current-power-img" src="./images/current/solar_off.svg">
 			<div class="current-value">{{vm.currentData.solar}} W</div>
 		</div>
 
+		<!-- Minus -->
+		<div class="math-symbol minus">
+			<img src="./images/current/minus.svg" style="width: 100%; height: 100%;">
+		</div>
+
+		<!-- Parenthesis Opened -->
+		<div class="math-symbol parenthesis-open">
+			<img src="./images/current/parenthesis_opened.svg" style="width: 100%; height: 100%;">
+		</div>
+
+		<!-- HVAC -->
 		<div class="current-power-tile">
 			<img ng-if="vm.enabled.hvac" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('hvac');">
 			<img ng-if="!vm.enabled.hvac" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('hvac');">
@@ -20,6 +32,12 @@
 			<div class="current-value">-{{vm.currentData.hvac}} W</div>
 		</div>
 
+		<!-- Plus -->
+		<div class="math-symbol plus">
+			<img src="./images/current/plus.svg" style="width: 100%; height: 100%;">
+		</div>
+
+		<!-- Lights -->
 		<div class="current-power-tile">
 			<img ng-if="vm.enabled.lights" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('lights');">
 			<img ng-if="!vm.enabled.lights" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('lights');">
@@ -28,6 +46,12 @@
 			<div class="current-value">-{{vm.currentData.lights}} W</div>
 		</div>
 
+		<!-- Plus -->
+		<div class="math-symbol plus">
+			<img src="./images/current/plus.svg" style="width: 100%; height: 100%;">
+		</div>
+
+		<!-- Plugs -->
 		<div class="current-power-tile">
 			<img ng-if="vm.enabled.plugs" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('plugs');">
 			<img ng-if="!vm.enabled.plugs" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('plugs');">
@@ -36,6 +60,12 @@
 			<div class="current-value">-{{vm.currentData.plugs}} W</div>
 		</div>
 
+		<!-- Plus -->
+		<div class="math-symbol plus">
+			<img src="./images/current/plus.svg" style="width: 100%; height: 100%;">
+		</div>
+
+		<!-- Kitchen -->
 		<div class="current-power-tile">
 			<img ng-if="vm.enabled.kitchen" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('kitchen');">
 			<img ng-if="!vm.enabled.kitchen" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('kitchen');">
@@ -44,6 +74,12 @@
 			<div class="current-value">-{{vm.currentData.kitchen}} W</div>
 		</div>
 
+		<!-- Plus -->
+		<div ng-if="vm.hasEV" class="math-symbol plus">
+			<img src="./images/current/plus.svg" style="width: 100%; height: 100%;">
+		</div>
+
+		<!-- EV -->
 		<div class="current-power-tile" ng-if="vm.hasEV">
 			<img ng-if="vm.enabled.ev" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('ev');">
 			<img ng-if="!vm.enabled.ev" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('ev');">
@@ -52,6 +88,12 @@
 			<div class="current-value">-{{vm.currentData.ev}} W</div>
 		</div>
 
+		<!-- Plus -->
+		<div ng-if="vm.hasLab" class="math-symbol plus">
+			<img src="./images/current/plus.svg" style="width: 100%; height: 100%;">
+		</div>
+
+		<!-- Lab -->
 		<div class="current-power-tile" ng-if="vm.hasLab">
 			<img ng-if="vm.enabled.lab" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('lab');">
 			<img ng-if="!vm.enabled.lab" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('lab');">
@@ -60,10 +102,17 @@
 			<div class="current-value">-{{vm.currentData.lab}} W</div>
 		</div>
 
-		<svg class="current-power-divider" width = "0.4%" height = "100%">
-  			<rect width = "100%" height = "90%">
-		</svg>
+		<!-- Parenthesis Closed -->
+		<div class="math-symbol parenthesis-close">
+			<img src="./images/current/parenthesis_closed.svg" style="width: 100%; height: 100%;">
+		</div>
 
+		<!-- Equal -->
+		<div class="math-symbol minus">
+			<img src="./images/current/equal.svg" style="width: 100%; height: 100%;">
+		</div>
+
+		<!-- Sum -->
 		<div class="current-power-tile"> <!-- "current-power-sum" used to be included -->
 			<img class="current-power-img" ng-if="vm.currentData.total >= 0" src="./images/current/sum_green.svg">
 			<img class="current-power-img" ng-if="vm.currentData.total < 0" src="./images/current/sum_red.svg">

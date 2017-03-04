@@ -68,7 +68,7 @@ path {
 }
 
 #hover-215Sage {
-	display: none;
+	// display: none;
 	position: absolute;
     height:8%;
     width:45%;
@@ -92,12 +92,12 @@ path {
 	z-index: 2;
 }
 
-#click-215Sage:hover #hover-215Sage {
-	display: block;
-}
+// #click-215Sage:hover #hover-215Sage {
+// 	display: block;
+// }
 
 #hover-1715Tilia {
-	display: none;
+	// display: none;
 	position: absolute;
     height:10%;
     width:45%;
@@ -121,12 +121,12 @@ path {
 	z-index: 2;
 }
 
-#click-1715Tilia:hover #hover-1715Tilia {
-	display: block;
-}
+// #click-1715Tilia:hover #hover-1715Tilia {
+// 	display: block;
+// }
 
 #hover-1605Tilia {
-	display: none;
+	// display: none;
 	position: absolute;
     height:18%;
     width:25%;
@@ -150,12 +150,12 @@ path {
 	z-index: 2;
 }
 
-#click-1605Tilia:hover #hover-1605Tilia {
-	display: block;
-}
+// #click-1605Tilia:hover #hover-1605Tilia {
+// 	display: block;
+// }
 
 #hover-1590Tilia {
-	display: none;
+	// display: none;
 	position: absolute;
     height:8%;
     width:35%;
@@ -179,16 +179,63 @@ path {
 	z-index: 2;
 }
 
-#click-1590Tilia:hover #hover-1590Tilia {
-	display: block;
+// #click-1590Tilia:hover #hover-1590Tilia {
+// 	display: block;
+// }
+
+.info-box {
+	position: absolute;
+	font-size: 2em;
+	letter-spacing: -0.1em;
+	color: white;
+	background-color: rgba(128,128,128,0.6);
+	z-index: 2;
+	text-align: left;
+	padding: 0.8%;
+	font-weight: normal;
 }
 
+.main-box {
+	height: 10%;
+	width: 28%;
+	bottom: 5%;
+	right: 5%;
+}
+
+.bottom-box {
+	height: 15%;
+	width: 23%;
+	bottom: 2%;
+	right: 35%;
+	padding: 0.3%;
+}
+
+.top-box {
+	height: 16%;
+	width: 17%;
+	top: 16%;
+	right: 15.5%;
+	padding: 0.4%;
+}
+
+.info-button {
+	height: 40%;
+	width: 10%;
+	position: relative;
+	display: inline;
+	cursor: pointer;
+}
 
 // HEADERS
 
 .section-banner {
 	width: 650px;
-	background-color: #29343f;
+	// background-color: #29343f;
+	background-image: url('../../../images/title_board.svg');
+	background-size: 70% 100%;
+	// background-size: cover;
+	background-repeat: no-repeat;
+	background-position: 8% 0%; 
 	overflow: auto;
 	padding: 2px;
 	transform: rotate(-12deg);
@@ -201,14 +248,30 @@ path {
 
 .section-banner-title {
 	font-size: 2.5em;
-	font-family: malina;
+	// font-family: malina;
 	float: left;
 	margin-left: 15px;
 	margin-top: 30px;
+	letter-spacing: -0.1em;
+	text-transform: uppercase;
+	font-weight: bold;
+	z-index: 5;
 }
 
 .section-banner-title-solo {
-	margin-left: 45px;
+	margin-left: 20px;
+}
+
+.percent-banner {
+	background-size: 55% 100%;
+}
+
+.current-banner {
+	background-size: 58% 100%;
+}
+
+.historical-banner {
+	background-size: 55% 100%;
 }
 
 .timespan {
@@ -284,7 +347,7 @@ path {
 	width: 80%;
 	margin-top: 65px;
 	padding-bottom: 12px;
-	border-bottom: 10px solid #a7bcb6;
+	border-bottom: 10px solid #535353;
 	overflow: auto;
 }
 
@@ -298,7 +361,7 @@ path {
 	text-align: center;
 	float: left;
 	//margin-left: 65px;
-	margin-left: 4%;
+	margin-left: 1.5%;
 	position: relative;
 	padding-top: 15px;
 
@@ -335,7 +398,7 @@ path {
 }
 
 .current-power-divider > rect {
-	fill: #ffffff;
+	fill: #535353;
 }
 
 .current-power-sum {
@@ -349,6 +412,32 @@ path {
 	font-weight: 700;
 	font-size: 1.2em;
 	color: #172739;
+}
+
+.math-symbol {
+	display: inline;
+	margin-left: 1%;
+	float: left;
+	position: relative;
+	width: 2%;
+	height: 100%;
+}
+
+.minus {
+	padding-top: 4.5%;
+}
+
+.plus {
+	padding-top: 4.4%;
+}
+
+.parenthesis-open {
+	padding-top: 0%;
+	margin-left: 1.7%;
+}
+
+.parenthesis-close {
+	padding-top: 0%;
 }
 
 // HISTORICAL POWER

@@ -25,7 +25,7 @@
 		function link(scope, element) {
 			d3Service.d3().then(function(d3) {
 
-				var margin = {top: 100, right: 45, bottom: 50, left: 250};
+				var margin = {top: 120, right: 45, bottom: 30, left: 40};
 
 				var svg = d3.select(element[0])
 							.append('svg')
@@ -98,7 +98,7 @@
 						.data(buildingData).enter()
 						.append('rect')
 							.attr('class', 'background')
-							.attr('fill', '#d3d4b1')
+							.attr('fill', '#F3DEB4')
 							.attr('x', 0)
 							.attr('y', function(d) { return y(d.building); })
 							.attr('width', function() { return x(1); })
@@ -116,7 +116,7 @@
 							.attr('width', function(d) { return x(d.position); })
 							.attr('height', y.bandwidth());
 
-					var horseExtra = 25,
+					var horseExtra = 100,
 						horseHeight = y.bandwidth() + horseExtra,
 						horseWidth = horseHeight * 1.722222222;
 
@@ -124,10 +124,10 @@
 						.data(buildingData).enter()
 						.append('image')
 							.attr('class', 'horse')
-							.attr('x', function(d) { return x(d.position); })
-							.attr('y', function(d) { return y(d.building) - horseExtra; })
+							.attr('x', function(d) { return x(d.position) - 105; })
+							.attr('y', function(d) { return y(d.building) - 43; })
 							.attr('href', function(d) {
-								return 'images/leaderboard/'+names(d.building)+'-'+d.place+'.svg';
+								return 'images/leaderboard/'+names(d.building)+/*'-'+d.place+*/'.svg';
 							})
 							.attr('height', horseHeight)
 							.attr('width', horseWidth);
@@ -136,6 +136,7 @@
 					var gateHeight = y.bandwidth(),
 						gateWidth = gateHeight * 1.320754717;
 
+					/*
 					cont.selectAll('image.gate')
 						.data(buildingData).enter()
 						.append('image')
@@ -146,13 +147,14 @@
 							.attr('width', gateWidth)
 							.attr('href', 'images/leaderboard/leaderboard_gate.svg');
 							//.attr('transform', 'skewY(55)');
+					*/
 
 					cont.append('image')
 							.attr('class', 'finish')
 							.attr('x', x(zneData[0].position))
 							.attr('y', 0)
 							.attr('height', height)
-							.attr('width', 30)
+							.attr('width', 65)
 							.attr('href', 'images/leaderboard/leaderboard_finish_line.svg');
 
 				};

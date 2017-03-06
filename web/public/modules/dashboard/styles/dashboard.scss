@@ -36,6 +36,8 @@
 	left: 50%;
 	transform: translate(-50%, 0%);
 	font-size: 3em;
+	letter-spacing: -0.15em;
+	text-align: right;
 }
 
 .solarLine1-container {
@@ -212,10 +214,11 @@ path {
 
 .top-box {
 	height: 16%;
-	width: 17%;
+	width: 14%;
 	top: 16%;
-	right: 15.5%;
-	padding: 0.4%;
+	right: 19%;
+	padding: 0.2%;
+	letter-spacing: -0.15em;
 }
 
 .info-button {
@@ -224,6 +227,49 @@ path {
 	position: relative;
 	display: inline;
 	cursor: pointer;
+}
+
+.credit-box {
+	position: absolute;
+	font-size: 1.3em;
+	letter-spacing: -0.1em;
+	color: white;
+	// background-color: rgba(128,128,128,0.6);
+	z-index: 2;
+	text-align: left;
+	font-weight: normal;
+}
+
+.credit-image {
+	height: auto;
+	width: auto;
+	position: relative;
+	display: inline-block;
+	cursor: pointer; 
+}
+
+.credit-cenergi {
+	height: 8%;
+	width: 20%;
+	bottom: 8%;
+	left: 3%;
+}
+
+.credit-wu {
+	height: 6%;
+	width: 20%;
+	bottom: 1%;
+	left: 3%;	
+}
+
+.img-cenergi {
+	height: auto;
+	width: 50%;
+}
+
+.credit-text {
+	vertical-align: middle;
+	display: inline-block;
 }
 
 // HEADERS

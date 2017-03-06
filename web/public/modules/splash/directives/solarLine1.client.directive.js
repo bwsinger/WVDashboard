@@ -98,20 +98,25 @@
                         .data([scope.points])
                         .attr("d", d3.line());
 
+                    path.each(function(d) { d.totalLength = this.getTotalLength(); })
+                        .attr("length", function(d) { return d.totalLength; })
+
+                    var arrowDelay = 800;
+
                     setInterval(function() {
                         var thisPolygon = svg.append("polygon")
                             .attr("points", "0,18, 18,12, 0,6")
                             .attr('class', scope.arrow);
                         transition(thisPolygon);
-                        // Make duration funtion of path length
-                        // path.getTotalLength()
-                    }, 800); // delay between arrows
+                    }, arrowDelay); // delay between arrows
 
                     function transition(elem) {
+                        var dur = path.attr("length") * 16;
+                        console.log(dur);
                         elem.transition()
                             // Make duration funtion of path length (and later date input)
                             // path.getTotalLength()
-                            .duration(10000) // total time for an arrow to move along path
+                            .duration(dur) // total time for an arrow to move along path
                             .ease(d3.easeLinear)
                             .attrTween("transform", translateAlong(path.node()))
                             .on("end", function() {

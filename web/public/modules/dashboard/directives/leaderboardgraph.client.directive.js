@@ -154,7 +154,7 @@
 							.attr('x', x(zneData[0].position))
 							.attr('y', 0)
 							.attr('height', height)
-							.attr('width', 65)
+							.attr('width', 69)
 							.attr('href', 'images/leaderboard/leaderboard_finish_line.svg');
 
 				};

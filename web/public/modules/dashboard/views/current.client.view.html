@@ -8,7 +8,7 @@
 		<div class="current-power-tile">
 			<img ng-if="vm.currentData.solar >= 0" class="current-power-img" src="./images/current/solar_on.svg">
 			<img ng-if="vm.currentData.solar < 0" class="current-power-img" src="./images/current/solar_off.svg">
-			<div class="current-value">{{vm.currentData.solar}} W</div>
+			<div class="current-value sun-value">{{vm.currentData.solar}} W</div>
 		</div>
 
 		<!-- Minus -->
@@ -116,7 +116,8 @@
 		<div class="current-power-tile"> <!-- "current-power-sum" used to be included -->
 			<img class="current-power-img" ng-if="vm.currentData.total >= 0" src="./images/current/sum_green.svg">
 			<img class="current-power-img" ng-if="vm.currentData.total < 0" src="./images/current/sum_red.svg">
-			<div class="current-value">{{vm.currentData.total}} W</div>
+			<div class="current-value" ng-if="vm.currentData.total >= 0" style="color: #70C141;">{{vm.currentData.total}} W</div>
+			<div class="current-value" ng-if="vm.currentData.total < 0">{{vm.currentData.total}} W</div>
 		</div>
 	</div>
 </div>

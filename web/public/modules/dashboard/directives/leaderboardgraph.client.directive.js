@@ -116,7 +116,7 @@
 							.attr('width', function(d) { return x(d.position); })
 							.attr('height', y.bandwidth());
 
-					var horseExtra = 100,
+					var horseExtra = 120,
 						horseHeight = y.bandwidth() + horseExtra,
 						horseWidth = horseHeight * 1.722222222;
 
@@ -124,8 +124,8 @@
 						.data(buildingData).enter()
 						.append('image')
 							.attr('class', 'horse')
-							.attr('x', function(d) { return x(d.position) - 105; })
-							.attr('y', function(d) { return y(d.building) - 43; })
+							.attr('x', function(d) { return x(d.position) - 125; })
+							.attr('y', function(d) { return y(d.building) - 52; })
 							.attr('href', function(d) {
 								return 'images/leaderboard/'+names(d.building)+/*'-'+d.place+*/'.svg';
 							})

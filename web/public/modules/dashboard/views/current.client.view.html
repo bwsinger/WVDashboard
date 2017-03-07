@@ -6,8 +6,8 @@
 	<div class="current-power">
 		<!-- Solar -->
 		<div class="current-power-tile">
-			<img ng-if="vm.currentData.solar >= 0" class="current-power-img" src="./images/current/solar_on.svg">
-			<img ng-if="vm.currentData.solar < 0" class="current-power-img" src="./images/current/solar_off.svg">
+			<img ng-if="vm.currentData.solar > 0" class="current-power-img" src="./images/current/solar_on.svg">
+			<img ng-if="vm.currentData.solar <= 0" class="current-power-img" src="./images/current/solar_off.svg">
 			<div class="current-value sun-value">{{vm.currentData.solar}} W</div>
 		</div>
 

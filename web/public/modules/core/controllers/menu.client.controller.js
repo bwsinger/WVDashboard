@@ -11,9 +11,11 @@
 
 		var vm = this;
 
+		vm.loading = true;
 		vm.toggle = toggle;
 
 		$rootScope.$on('$locationChangeSuccess', updateMenu);
+		$rootScope.$on('loaded', hideLoading);
 
 		$rootScope.init.then(activate);
 
@@ -48,6 +50,11 @@
 		function updateMenu() {
 			vm.location = $location.path();
 			vm.visible = false; // re hide the menu after a click
+		}
+
+		function hideLoading() {
+			vm.loading = false;
+			$scope.$apply();
 		}
 	}
 

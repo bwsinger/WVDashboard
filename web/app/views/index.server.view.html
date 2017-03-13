@@ -19,6 +19,9 @@ html(lang="en" class="full-height")
 
 		div(ng-include="'./modules/core/views/menu.client.view.html'" ng-controller="Menu as menu")
 
+		div(class="loading fade-in-out" ng-if="vm.loading")
+			img(src="./images/loading.gif")
+
 		div(class="logo")
 			a(href="#!/")
 				img(src="./images/logo.svg")

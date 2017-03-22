@@ -15,6 +15,7 @@
             scope: {
                 points: '=',
                 arrow: '=',
+                path: '=',
                 // data: '=',
                 // buildings: '=',
             }
@@ -96,7 +97,8 @@
 
                     var path = svg.append("path")
                         .data([scope.points])
-                        .attr("d", d3.line());
+                        .attr("d", d3.line())
+                        .attr('class', scope.path);
 
                     path.each(function(d) { d.totalLength = this.getTotalLength(); })
                         .attr("length", function(d) { return d.totalLength; })

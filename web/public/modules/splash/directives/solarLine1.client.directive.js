@@ -114,7 +114,7 @@
 
                     function transition(elem) {
                         var dur = path.attr("length") * 16;
-                        console.log(dur);
+                        // console.log(dur);
                         elem.transition()
                             // Make duration funtion of path length (and later date input)
                             // path.getTotalLength()

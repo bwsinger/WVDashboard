@@ -66,6 +66,35 @@
     font-style: normal;
 }
 
+// $break-laptop: 900px;
+// $break-desktop: 1080px;
+
+// @mixin respond-to($media) {
+//   @if $media == handhelds {
+//     @media only screen and (max-width: $break-laptop) { @content; }
+//   }
+//   @else if $media == medium-screens {
+//     @media only screen and (min-width: $break-laptop + 1) and (max-width: $break-desktop - 1) { @content; }
+//   }
+//   @else if $media == wide-screens {
+//     @media only screen and (min-width: $break-desktop) { @content; }
+//   }
+// }
+
+// MEDIA QUERIES
+// Reference: http://thesassway.com/intermediate/responsive-web-design-in-sass-using-media-queries-in-sass-32
+
+@mixin respond-to($media) {
+  @if $media == laptop {
+    @media only screen and (max-aspect-ratio: 8/5) { @content; }
+  }
+  // The idea is to get as close to 8/5 (1.6) as possible
+  // The "desktop" query is actually made for 16:9 screens
+  @else if $media == desktop {
+    @media only screen and (min-aspect-ratio: 16001/10000) { @content; }
+  }
+}
+
 body {
 	background-color: #252525;
 	color: #FAF1E0; // yellowish white

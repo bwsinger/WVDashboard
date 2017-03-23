@@ -66,97 +66,101 @@
     font-style: normal;
 }
 
-// $break-laptop: 900px;
-// $break-desktop: 1080px;
-
-// @mixin respond-to($media) {
-//   @if $media == handhelds {
-//     @media only screen and (max-width: $break-laptop) { @content; }
-//   }
-//   @else if $media == medium-screens {
-//     @media only screen and (min-width: $break-laptop + 1) and (max-width: $break-desktop - 1) { @content; }
-//   }
-//   @else if $media == wide-screens {
-//     @media only screen and (min-width: $break-desktop) { @content; }
-//   }
-// }
-
 // MEDIA QUERIES
 // Reference: http://thesassway.com/intermediate/responsive-web-design-in-sass-using-media-queries-in-sass-32
 
 @mixin respond-to($media) {
   @if $media == laptop {
-    @media only screen and (max-aspect-ratio: 8/5) { @content; }
+    @media only screen and (max-aspect-ratio: 168888/100000) { @content; }
   }
-  // The idea is to get as close to 8/5 (1.6) as possible
-  // The "desktop" query is actually made for 16:9 screens
   @else if $media == desktop {
-    @media only screen and (min-aspect-ratio: 16001/10000) { @content; }
+    @media only screen and (min-aspect-ratio: 1688881/1000000) and (max-aspect-ratio: 181197/100000) { @content; }
+  }
+  @else if $media == laptopW {
+    @media only screen and (min-aspect-ratio: 1811971/1000000) and (max-aspect-ratio: 186425/100000) { @content; }
+  }
+  @else if $media == laptop2W {
+    @media only screen and (min-aspect-ratio: 1864251/1000000) and (max-aspect-ratio: 194118/100000) { @content; }
+  }
+  @else if $media == desktopW {
+    @media only screen and (min-aspect-ratio: 1941181/1000000) and (max-aspect-ratio: 205/100) { @content; }
+  }
+  @else if $media == popularW {
+    @media only screen and (min-aspect-ratio: 2051/1000) { @content; }
   }
 }
 
+// Use in other style sheets:
+/*
+@include respond-to(laptop) {  }
+@include respond-to(desktop) {  }
+@include respond-to(laptopW) {  }
+@include respond-to(laptop2W) {  }
+@include respond-to(popularW) {  }
+*/
+
 body {
-	background-color: #252525;
-	color: #FAF1E0; // yellowish white
-	font-family: LetterGothicStd;
+  background-color: #252525;
+  color: #FAF1E0; // yellowish white
+  font-family: LetterGothicStd;
 }
 
 .full-height {
-	height: 100%;
+  height: 100%;
 }
 
 .logo {
-	position: absolute;
-	top: 20px;
-	left: 30px; 
-	width: 125px;
-	z-index: 1000;
+  position: absolute;
+  top: 20px;
+  left: 30px; 
+  width: 125px;
+  z-index: 1000;
 }
 
 .hamburger {
-	width: 41px;
-	height: 32px;
-	margin-top: 21px;
-	margin-left: 21px;
-	margin-bottom: 39px;
-	cursor: pointer;
+  width: 41px;
+  height: 32px;
+  margin-top: 21px;
+  margin-left: 21px;
+  margin-bottom: 39px;
+  cursor: pointer;
 }
 
 .hamburger-top {
-	position: absolute;
-	top: 21px;
-	right: 21px;
-	z-index: 1000;
-	margin: 0;
+  position: absolute;
+  top: 21px;
+  right: 21px;
+  z-index: 1000;
+  margin: 0;
 }
 
 .menu {
-	position: absolute;
-	top: 0;
-	right: 0;
-	width: 20em;
-	z-index: 1001;
-	background-color: #383838;
-	margin: 0;
-	padding: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 20em;
+  z-index: 1001;
+  background-color: #383838;
+  margin: 0;
+  padding: 0;
 
-	ul {
-		list-style: none;
-		width: 100%;
-		margin: 0;
-		padding: 0;
+  ul {
+    list-style: none;
+    width: 100%;
+    margin: 0;
+    padding: 0;
 
-		li {
+    li {
 
-			padding: 0.3em 1em;
-			font-size: 2em;
+      padding: 0.3em 1em;
+      font-size: 2em;
             letter-spacing: -0.1em;
-			font-weight: 200;
+      font-weight: 200;
 
-			&.active {
-				border: 5px solid #FAF1E0;
-				cursor: default;
-			}
+      &.active {
+        border: 5px solid #FAF1E0;
+        cursor: default;
+      }
 
             // "Home"
             &:nth-child(1){
@@ -168,7 +172,7 @@ body {
                 background-color: #252525;
             }
 
-			// Buildings
+      // Buildings
             &:nth-child(n+3):nth-child(-n+6){
                 padding-left: 2.5em;
             }
@@ -178,15 +182,15 @@ body {
                 background-color: #252525;
             }
 
-			a, span {
-				color: #FAF1E0;
-			}
+      a, span {
+        color: #FAF1E0;
+      }
 
-			span.text {
-				color: #525252;
-			}
-		}
-	}
+      span.text {
+        color: #525252;
+      }
+    }
+  }
 }
 
 // Loading Screen

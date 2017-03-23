@@ -30,6 +30,25 @@
 	background-position: left top;
 }
 
+.power-grid {
+	position: absolute;
+	width: 10%;
+	height: 25%;
+	top: 70%;
+	left: 28%;
+}
+
+.weather-icon {
+	position: absolute;
+	width: 8%;height: 13.8%;top: 7%;left: 60%;
+	@include respond-to(laptop) {  }
+	@include respond-to(desktop) { width: 8%;height: 13.8%;top: 7%;left: 60%; }
+	@include respond-to(laptopW) {  }
+	@include respond-to(laptop2W) {  }
+	@include respond-to(desktopW) {  }
+	@include respond-to(popularW) {  }
+}
+
 .weather-text {
 	position: absolute;
 	top: 10%;

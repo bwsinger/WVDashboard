@@ -36,11 +36,16 @@
 
                 var margin = {top: 0, right: 0, bottom: 0, left: 0};
 
+
                 var svg = d3.select(element[0])
                             .append('svg')
                             .attr('class', 'solarLine1')
-                            // .attr("viewBox", "0 0 1640 860")
-                            // .attr("preserveAspectRatio", "xMidYMid meet")
+                            // 245 150 1345 710 -> The actual bounding box of the lines (1080p)
+                            // 0 0 1640 860     -> Old values that work better for some reason (1080p)
+                            // Not sure why, but these values work well for 16:9. Make it into a class so
+                            //      it can be regulated with media queries.
+                            .attr("viewBox", "0 0 1600 1080")
+                            .attr("preserveAspectRatio", "xMidYMid meet")
                             ;
 
                 //Watch for resizing (window / angular) or data changing
@@ -101,7 +106,7 @@
                         .attr('class', scope.path);
 
                     path.each(function(d) { d.totalLength = this.getTotalLength(); })
-                        .attr("length", function(d) { return d.totalLength; })
+                        .attr("length", function(d) { return d.totalLength; });
 
                     var arrowDelay = 800;
 

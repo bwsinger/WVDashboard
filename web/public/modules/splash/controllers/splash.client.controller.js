@@ -11,7 +11,25 @@
 
 		var vm = this,
 			tmonth = new Array("Jan", "Feb", "Mar", "Apr", "May", "June",
-								"July", "Aug", "Sept", "Oct", "Nov", "Dec");
+								"July", "Aug", "Sept", "Oct", "Nov", "Dec"),
+			// copied from core.scss
+			mqls = [
+				window.matchMedia("only screen and (max-aspect-ratio: 168888/100000)"),
+				window.matchMedia("only screen and (min-aspect-ratio: 1688881/1000000) and (max-aspect-ratio: 181197/100000)"),
+				window.matchMedia("only screen and (min-aspect-ratio: 1811971/1000000) and (max-aspect-ratio: 186425/100000)"),
+				window.matchMedia("only screen and (min-aspect-ratio: 1864251/1000000) and (max-aspect-ratio: 194118/100000)"),
+				window.matchMedia("only screen and (min-aspect-ratio: 1941181/1000000) and (max-aspect-ratio: 205/100)"),
+				window.matchMedia("only screen and (min-aspect-ratio: 2051/1000)")
+			],
+			strViewBoxs = [
+				"0 0 1600 1080",
+				"0 0 1600 1080",
+				"0 0 1600 1080",
+				"0 0 1600 1080",
+				"0 0 1600 1080",
+				"0 0 1600 1080"
+			],
+			strVB = "";
 
 		vm.toggleInfo = toggleInfo;
 		vm.addressTrue = addressTrue;
@@ -20,6 +38,9 @@
 		vm.allAddressFalse = allAddressFalse;
 		vm.GetClock = GetClock;
 		vm.timer = timer;
+		vm.MediaQuery = MediaQuery;
+		vm.strVB = strVB;
+		vm.mqls = mqls;
 
 		$rootScope.init.then(activate);
 
@@ -101,5 +122,33 @@
 			vm.GetClock();
 			setInterval(vm.GetClock, 1000);
 		};
+
+		// Media Query event listener
+		function MediaQuery(mq) {
+			if (mq[0].matches) {
+				vm.strVB = strViewBoxs[0];
+			}
+			else if (mq[1].matches) {
+				vm.strVB = strViewBoxs[1];
+			}
+			else if (mq[2].matches) {
+				vm.strVB = strViewBoxs[2];
+			}
+			else if (mq[3].matches) {
+				vm.strVB = strViewBoxs[3];
+			}
+			else if (mq[4].matches) {
+				vm.strVB = strViewBoxs[4];
+			}
+			else if (mq[5].matches) {
+				vm.strVB = strViewBoxs[5];
+			}
+		}
+
+		// for (var i=0; i<vm.mqls.length; i++){
+  //           MediaQuery(mqls[i]);
+  //           console.log(vm.strVB);
+  //           mqls.addListener(MediaQuery);
+  //       }
 	}
 })();

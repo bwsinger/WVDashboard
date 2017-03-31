@@ -393,7 +393,8 @@
 					gy.selectAll('text')
 						.attr('transform', 'rotate(90) translate(25, 50)')
 						.attr('fill', 'white')
-						.attr('font-size', '2em')
+						.attr('font-size', '1.1vw')
+						.attr('letter-spacing', '-0.1vw')
 						.attr('font-family', 'LetterGothicStd')
 						.attr('font-weight', 'bold')
 						.attr('text-anchor', 'middle');
@@ -404,12 +405,13 @@
 
 					// add the label text
 					gx.append('text')
-						.attr('font-size', '2.5em')
+						.attr('font-size', '1.5vw')
 						.attr('fill', '#FFF')
 						.attr('x', width/2)
 						.attr('y', -25)
 						.attr('font-family', 'LetterGothicStd')
 						.attr('font-weight', 'bold')
+						.attr('letter-spacing', '-0.2vw')
 						.style('text-anchor', 'middle')
 						.text('percent of zero-net goal');
 
@@ -453,7 +455,7 @@
 
 						items.append('text')
 							.attr('x', function(d) {
-								return ((legendWidth / 4) * keys.indexOf(d)) + 35;
+								return ((legendWidth / 4) * keys.indexOf(d)) + 22;
 							})
 							.attr('y', svg.nodes()[0].getBoundingClientRect().height - legendMargin.bottom - 20)
 							.text(function(d) { 
@@ -462,11 +464,12 @@
 								}
 								return names(d);
 							})
-							.attr('dy', '1em')
+							.attr('dy', '1.5vh')
 							.attr('fill', 'white')
 							.attr('font-family', 'LetterGothicStd')
-							.attr('font-size', '1em')
-							.attr('text-anchor', 'start');
+							.attr('font-size', '0.8vw')
+							.attr('text-anchor', 'start')
+							.attr('letter-spacing', '-0.1vw');
 
 					}
 				};

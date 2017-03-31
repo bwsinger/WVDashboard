@@ -16,8 +16,8 @@
                 points: '=',
                 arrow: '=',
                 path: '=',
-                // data: '=',
-                // buildings: '=',
+                data: '=',
+                buildings: '=',
             }
         };
 

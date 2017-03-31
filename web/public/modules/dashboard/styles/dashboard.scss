@@ -34,19 +34,29 @@
 	position: absolute;
 	width: 10%;
 	height: 25%;
-	top: 70%;
+	bottom: 8%;
 	left: 28%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) { bottom: 6%; }
+    @include respond-to(laptop2W) { bottom: 5%; }
+    @include respond-to(desktopW) { height: 23%; bottom: 5%; }
+    @include respond-to(popularW) { height: 20%; bottom: 5%; }
 }
 
 .weather-icon {
 	position: absolute;
-	width: 8%;height: 13.8%;top: 7%;left: 60%;
+	width: 8%;
+	height: 13.8%;
+	top: 7%;
+	left: 60%;
 	@include respond-to(laptop) {  }
 	@include respond-to(desktop) { width: 8%;height: 13.8%;top: 7%;left: 60%; }
 	@include respond-to(laptopW) {  }
 	@include respond-to(laptop2W) {  }
 	@include respond-to(desktopW) {  }
 	@include respond-to(popularW) {  }
+
 }
 
 .weather-text {
@@ -58,6 +68,12 @@
 	font-size: 2.3vw;
 	letter-spacing: -0.15em;
 	text-align: right;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) { left: 40%; }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .solarLine1-container {
@@ -103,6 +119,12 @@
     color: white;
     background-color: rgba(128,128,128,0.6);
     text-align: center;
+    @include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 #click-215Sage {
@@ -112,6 +134,12 @@
 	width: 18.5%;
 	height: 40%;
 	z-index: 2;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 // #click-215Sage:hover #hover-215Sage {
@@ -132,6 +160,12 @@
     color: white;
     background-color: rgba(128,128,128,0.6);
     text-align: center;
+    @include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 #click-1715Tilia {
@@ -141,6 +175,12 @@
 	width: 21%;
 	height: 32%;
 	z-index: 2;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 // #click-1715Tilia:hover #hover-1715Tilia {
@@ -161,6 +201,12 @@
     color: white;
     background-color: rgba(128,128,128,0.6);
     text-align: center;
+    @include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 #click-1605Tilia {
@@ -170,6 +216,12 @@
 	width: 32%;
 	height: 20%;
 	z-index: 2;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 // #click-1605Tilia:hover #hover-1605Tilia {
@@ -190,6 +242,12 @@
     color: white;
     background-color: rgba(128,128,128,0.6);
     text-align: center;
+    @include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 #click-1590Tilia {
@@ -199,6 +257,12 @@
 	width: 22.5%;
 	height: 40%;
 	z-index: 2;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 // #click-1590Tilia:hover #hover-1590Tilia {
@@ -215,6 +279,12 @@
 	text-align: left;
 	padding: 0.8%;
 	font-weight: normal;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .main-box {
@@ -222,6 +292,12 @@
 	width: 28%;
 	bottom: 5%;
 	right: 5%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .bottom-box {
@@ -230,6 +306,12 @@
 	bottom: 2%;
 	right: 35%;
 	padding: 0.3%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .top-box {
@@ -239,6 +321,12 @@
 	right: 18.3%;
 	padding: 0.2%;
 	letter-spacing: -0.15em;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .info-button {
@@ -247,6 +335,12 @@
 	position: relative;
 	display: inline;
 	cursor: pointer;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .credit-box {
@@ -258,6 +352,12 @@
 	z-index: 2;
 	text-align: left;
 	font-weight: normal;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .credit-image {
@@ -273,18 +373,36 @@
 	width: 20%;
 	bottom: 8%;
 	left: 3%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .credit-wu {
 	height: 6%;
 	width: 20%;
 	bottom: 1%;
-	left: 3%;	
+	left: 3%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }	
 }
 
 .img-cenergi {
 	height: auto;
 	width: 50%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .credit-text {
@@ -310,6 +428,12 @@
 	top: -15px;
 	min-height: 80px;
 	z-index: 1;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .section-banner-title {
@@ -322,22 +446,52 @@
 	text-transform: uppercase;
 	font-weight: bold;
 	z-index: 5;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .section-banner-title-solo {
 	margin-left: 20px;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .percent-banner {
 	background-size: 55% 100%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .current-banner {
 	background-size: 58% 100%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .historical-banner {
 	background-size: 55% 100%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .timespan {
@@ -347,6 +501,12 @@
 	width: 82px;
 	margin-left: 40px;
 	float: left;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 
 	li {
 		text-align: center;
@@ -356,6 +516,12 @@
 		color: #FAF1E0;
 		cursor: pointer;
 		font-size: 0.8em;
+		@include respond-to(laptop) {  }
+	    @include respond-to(desktop) {  }
+	    @include respond-to(laptopW) {  }
+	    @include respond-to(laptop2W) {  }
+	    @include respond-to(desktopW) {  }
+	    @include respond-to(popularW) {  }
 
 		&:last-child {
 			border-bottom: 0;
@@ -375,6 +541,14 @@
 
 .mascot {
 	height: 80%;
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.mascot-light {
+	height: 150%;
 	position: absolute;
 	top: 50%;
 	left: 50%;
@@ -415,6 +589,12 @@
 	padding-bottom: 12px;
 	border-bottom: 10px solid #535353;
 	overflow: auto;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .current-power-wrapper {
@@ -430,9 +610,21 @@
 	margin-left: 1.5%;
 	position: relative;
 	padding-top: 15px;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 
 	&:first-child {
 		margin-left: 20px;
+		@include respond-to(laptop) {  }
+	    @include respond-to(desktop) {  }
+	    @include respond-to(laptopW) {  }
+	    @include respond-to(laptop2W) {  }
+	    @include respond-to(desktopW) {  }
+	    @include respond-to(popularW) {  }
 	}
 }
 
@@ -442,6 +634,13 @@
 	height: 85%;
 	width: 85%;
 	margin-bottom: 10px;
+	cursor: pointer;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .current-power-toggle {
@@ -455,14 +654,28 @@
 	//top: 35px;
 	top: 25%;
 	cursor: pointer;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
+// DELETE?
 .current-power-divider {
 	margin-left: 4.5%;
 	float: left;
 	position: relative;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
+// DELETE?
 .current-power-divider > rect {
 	fill: #535353;
 }
@@ -472,6 +685,12 @@
 	//width: 135px;
 	width: 13.5%;
 	padding-left: 30px;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .current-value {
@@ -497,19 +716,43 @@
 	position: relative;
 	width: 2%;
 	height: 100%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .minus {
 	padding-top: 4.5%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .plus {
 	padding-top: 4.4%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .parenthesis-open {
 	padding-top: 0%;
 	margin-left: 1.7%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .parenthesis-close {
@@ -523,11 +766,23 @@
 	position: relative;
 	overflow: hidden;
 	height: 62%;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .historicalGraph {
 	width: 100%;
 	height: 350px;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .legend {
@@ -536,11 +791,23 @@
 	bottom: 0;
 	width: 120px;
 	padding-bottom: 50px;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .legend-item {
 	height: 3em;
 	margin-bottom: 10px;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .legend-image {
@@ -551,6 +818,12 @@
 	img {
 		width: 20px;
 		margin: auto;
+		@include respond-to(laptop) {  }
+	    @include respond-to(desktop) {  }
+	    @include respond-to(laptopW) {  }
+	    @include respond-to(laptop2W) {  }
+	    @include respond-to(desktopW) {  }
+	    @include respond-to(popularW) {  }
 	}
 }
 
@@ -561,6 +834,12 @@
 	font-size: 1.1em;
 	font-weight: bold;
 	line-height: 1.4em;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 // PERCENT ZNE
@@ -576,6 +855,12 @@
 	right: 0;
 	bottom: 50px;
 	text-align:center;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }
 
 .selector-section {
@@ -598,4 +883,10 @@
 	width: 184px;
 	cursor: pointer;
 	margin: 5px 0 0 0;
+	@include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 }

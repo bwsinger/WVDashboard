@@ -40,10 +40,10 @@
                 var svg = d3.select(element[0])
                             .append('svg')
                             .attr('class', 'solarLine1')
+                            .attr('id', 'allsolarLines')
                             // 245 150 1345 710 -> The actual bounding box of the lines (1080p)
                             // 0 0 1640 860     -> Old values that work better for some reason (1080p)
-                            // Not sure why, but these values work well for 16:9. Make it into a class so
-                            //      it can be regulated with media queries.
+                            // Not sure why, but these values work well for 16:9. Needs to be set via media queries
                             .attr("viewBox", "0 0 1600 1080")
                             .attr("preserveAspectRatio", "xMidYMid meet")
                             ;

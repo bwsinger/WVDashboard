@@ -68,6 +68,7 @@
 
 // MEDIA QUERIES
 // Reference: http://thesassway.com/intermediate/responsive-web-design-in-sass-using-media-queries-in-sass-32
+// Ratio values come from calculations illustrated in "./web/WV_Resolutions.txt"
 
 @mixin respond-to($media) {
   @if $media == laptop {
@@ -92,11 +93,12 @@
 
 // Use in other style sheets:
 /*
-@include respond-to(laptop) {  }
-@include respond-to(desktop) {  }
-@include respond-to(laptopW) {  }
-@include respond-to(laptop2W) {  }
-@include respond-to(popularW) {  }
+    @include respond-to(laptop) {  }
+    @include respond-to(desktop) {  }
+    @include respond-to(laptopW) {  }
+    @include respond-to(laptop2W) {  }
+    @include respond-to(desktopW) {  }
+    @include respond-to(popularW) {  }
 */
 
 body {
@@ -111,9 +113,12 @@ body {
 
 .logo {
   position: absolute;
-  top: 20px;
-  left: 30px; 
-  width: 125px;
+  // top: 20px;
+  top: 2%;
+  // left: 30px;
+  left: 1%;
+  // width: 125px;
+  width: 7%;
   z-index: 1000;
 }
 
@@ -154,7 +159,7 @@ body {
 
       padding: 0.3em 1em;
       font-size: 2em;
-            letter-spacing: -0.1em;
+      letter-spacing: -0.1em;
       font-weight: 200;
 
       &.active {

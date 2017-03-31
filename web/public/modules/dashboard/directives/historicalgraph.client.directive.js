@@ -208,7 +208,7 @@
 					gx.selectAll('text')
 						.attr('fill', 'white')
 						.attr('font-size', '2em')
-						.attr('font-family', 'webly')
+						.attr('font-family', 'LetterGothicStd')
 						.attr('font-weight', 'bold')
 						.attr('text-anchor', 'middle');
 
@@ -221,7 +221,7 @@
 						.attr('x', -height/2)
 						.attr('y', -25)
 						.attr('transform', 'rotate(-90)')
-						.attr('font-family', 'webly')
+						.attr('font-family', 'LetterGothicStd')
 						.style('text-anchor', 'middle')
 						.attr('font-size', '2em')
 						.attr('font-weight', 'bold')

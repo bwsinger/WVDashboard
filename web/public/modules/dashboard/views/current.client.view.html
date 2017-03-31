@@ -25,8 +25,8 @@
 		<div class="current-power-tile">
 			<img ng-if="vm.enabled.hvac" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('hvac');">
 			<img ng-if="!vm.enabled.hvac" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('hvac');">
-			<img ng-if="vm.enabled.hvac == true" class="current-power-img" src="./images/current/hvac_on.svg">
-			<img ng-if="vm.enabled.hvac == false" class="current-power-img" src="./images/current/hvac_off.svg">
+			<img ng-if="vm.enabled.hvac" class="current-power-img" src="./images/current/hvac_on.svg" ng-click="vm.toggleUse('hvac');">
+			<img ng-if="!vm.enabled.hvac" class="current-power-img" src="./images/current/hvac_off.svg" ng-click="vm.toggleUse('hvac');">
 			<!-- <img ng-if="vm.currentData.total < 0" class="current-power-img" src="./images/current/enduse_hvac_red.svg">
 			<img ng-if="vm.currentData.total >= 0" class="current-power-img" src="./images/current/enduse_hvac_green.svg"> -->
 			<div class="current-value">-{{vm.currentData.hvac}} W</div>
@@ -41,8 +41,8 @@
 		<div class="current-power-tile">
 			<img ng-if="vm.enabled.lights" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('lights');">
 			<img ng-if="!vm.enabled.lights" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('lights');">
-			<img ng-if="vm.enabled.lights == true" class="current-power-img" src="./images/current/light_on.svg">
-			<img ng-if="vm.enabled.lights == false" class="current-power-img" src="./images/current/light_off.svg">
+			<img ng-if="vm.enabled.lights" class="current-power-img" src="./images/current/light_on.svg" ng-click="vm.toggleUse('lights');">
+			<img ng-if="!vm.enabled.lights" class="current-power-img" src="./images/current/light_off.svg" ng-click="vm.toggleUse('lights');">
 			<div class="current-value">-{{vm.currentData.lights}} W</div>
 		</div>
 
@@ -55,8 +55,8 @@
 		<div class="current-power-tile">
 			<img ng-if="vm.enabled.plugs" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('plugs');">
 			<img ng-if="!vm.enabled.plugs" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('plugs');">
-			<img ng-if="vm.enabled.plugs == true" class="current-power-img" src="./images/current/plugs_on.svg">
-			<img ng-if="vm.enabled.plugs == false" class="current-power-img" src="./images/current/plugs_off.svg">
+			<img ng-if="vm.enabled.plugs" class="current-power-img" src="./images/current/plugs_on.svg" ng-click="vm.toggleUse('plugs');">
+			<img ng-if="!vm.enabled.plugs" class="current-power-img" src="./images/current/plugs_off.svg" ng-click="vm.toggleUse('plugs');">
 			<div class="current-value">-{{vm.currentData.plugs}} W</div>
 		</div>
 
@@ -69,8 +69,8 @@
 		<div class="current-power-tile">
 			<img ng-if="vm.enabled.kitchen" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('kitchen');">
 			<img ng-if="!vm.enabled.kitchen" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('kitchen');">
-			<img ng-if="vm.enabled.kitchen == true" class="current-power-img" src="./images/current/kitchen_on.svg">
-			<img ng-if="vm.enabled.kitchen == false" class="current-power-img" src="./images/current/kitchen_off.svg">
+			<img ng-if="vm.enabled.kitchen" class="current-power-img" src="./images/current/kitchen_on.svg" ng-click="vm.toggleUse('kitchen');">
+			<img ng-if="!vm.enabled.kitchen" class="current-power-img" src="./images/current/kitchen_off.svg" ng-click="vm.toggleUse('kitchen');">
 			<div class="current-value">-{{vm.currentData.kitchen}} W</div>
 		</div>
 
@@ -83,8 +83,8 @@
 		<div class="current-power-tile" ng-if="vm.hasEV">
 			<img ng-if="vm.enabled.ev" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('ev');">
 			<img ng-if="!vm.enabled.ev" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('ev');">
-			<img ng-if="vm.enabled.ev == true" class="current-power-img" src="./images/current/ev_on.svg">
-			<img ng-if="vm.enabled.ev == false" class="current-power-img" src="./images/current/ev_off.svg">
+			<img ng-if="vm.enabled.ev" class="current-power-img" src="./images/current/ev_on.svg" ng-click="vm.toggleUse('ev');">
+			<img ng-if="!vm.enabled.ev" class="current-power-img" src="./images/current/ev_off.svg" ng-click="vm.toggleUse('ev');">
 			<div class="current-value">-{{vm.currentData.ev}} W</div>
 		</div>
 
@@ -97,8 +97,8 @@
 		<div class="current-power-tile" ng-if="vm.hasLab">
 			<img ng-if="vm.enabled.lab" class="current-power-toggle" src="./images/current/toggle_stat_on.svg" ng-click="vm.toggleUse('lab');">
 			<img ng-if="!vm.enabled.lab" class="current-power-toggle" src="./images/current/toggle_stat_off.svg" ng-click="vm.toggleUse('lab');">
-			<img ng-if="vm.enabled.lab == true" class="current-power-img" src="./images/current/lab_on.svg">
-			<img ng-if="vm.enabled.lab == false" class="current-power-img" src="./images/current/lab_off.svg">
+			<img ng-if="vm.enabled.lab" class="current-power-img" src="./images/current/lab_on.svg" ng-click="vm.toggleUse('lab');">
+			<img ng-if="!vm.enabled.lab" class="current-power-img" src="./images/current/lab_off.svg" ng-click="vm.toggleUse('lab');">
 			<div class="current-value">-{{vm.currentData.lab}} W</div>
 		</div>
 

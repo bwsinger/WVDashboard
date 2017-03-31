@@ -98,11 +98,11 @@
 						.data(buildingData).enter()
 						.append('rect')
 							.attr('class', 'background')
-							.attr('fill', '#F3DEB4')
+							.attr('fill', '#F3DEB4') // light yellow
 							.attr('x', 0)
 							.attr('y', function(d) { return y(d.building); })
 							.attr('width', function() { return x(1); })
-							.attr('height', y.bandwidth());
+							.attr('height', y.bandwidth()+1);
 
 					cont.selectAll('rect.bar')
 						.data(buildingData).enter()
@@ -154,7 +154,7 @@
 							.attr('x', x(zneData[0].position))
 							.attr('y', 0)
 							.attr('height', height)
-							.attr('width', 69)
+							.attr('width', 72)
 							.attr('href', 'images/leaderboard/leaderboard_finish_line.svg');
 
 				};

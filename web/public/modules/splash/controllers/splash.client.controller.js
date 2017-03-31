@@ -29,7 +29,9 @@
 				"0 0 1600 1080",
 				"0 0 1600 1080"
 			],
-			strVB = "";
+			path = document.getElementById("allsolarLines")
+			// path = document.getElementsByClassName("solarLine1")[0]
+			;
 
 		vm.toggleInfo = toggleInfo;
 		vm.addressTrue = addressTrue;
@@ -39,8 +41,8 @@
 		vm.GetClock = GetClock;
 		vm.timer = timer;
 		vm.MediaQuery = MediaQuery;
-		vm.strVB = strVB;
-		vm.mqls = mqls;
+		vm.viewBoxAdjuster = viewBoxAdjuster;
+
 
 		$rootScope.init.then(activate);
 
@@ -121,34 +123,37 @@
 		function timer() {
 			vm.GetClock();
 			setInterval(vm.GetClock, 1000);
-		};
+		}
 
 		// Media Query event listener
 		function MediaQuery(mq) {
-			if (mq[0].matches) {
-				vm.strVB = strViewBoxs[0];
+			if (mqls[0].matches) {
+				console.log("");
+				path.setAttribute("viewBox", strViewBoxs[0]);
 			}
-			else if (mq[1].matches) {
-				vm.strVB = strViewBoxs[1];
+			else if (mqls[1].matches) {
+				path.setAttribute("viewBox", strViewBoxs[1]);
 			}
-			else if (mq[2].matches) {
-				vm.strVB = strViewBoxs[2];
+			else if (mqls[2].matches) {
+				path.setAttribute("viewBox", strViewBoxs[2]);
 			}
-			else if (mq[3].matches) {
-				vm.strVB = strViewBoxs[3];
+			else if (mqls[3].matches) {
+				path.setAttribute("viewBox", strViewBoxs[3]);
 			}
-			else if (mq[4].matches) {
-				vm.strVB = strViewBoxs[4];
+			else if (mqls[4].matches) {
+				path.setAttribute("viewBox", strViewBoxs[4]);
 			}
-			else if (mq[5].matches) {
-				vm.strVB = strViewBoxs[5];
+			else if (mqls[5].matches) {
+				path.setAttribute("viewBox", strViewBoxs[5]);
 			}
 		}
 
-		// for (var i=0; i<vm.mqls.length; i++){
-  //           MediaQuery(mqls[i]);
-  //           console.log(vm.strVB);
-  //           mqls.addListener(MediaQuery);
-  //       }
+		function viewBoxAdjuster() {
+			for (var i=0; i<6; i++){
+	            vm.MediaQuery(mqls[i]);
+	            // console.log(vm.strVB);
+	            mqls[i].addListener(vm.MediaQuery);
+	        }
+	    }
 	}
 })();

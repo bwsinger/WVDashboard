@@ -393,8 +393,8 @@
 					gy.selectAll('text')
 						.attr('transform', 'rotate(90) translate(25, 50)')
 						.attr('fill', 'white')
-						.attr('font-size', '15')
-						.attr('font-family', 'webly')
+						.attr('font-size', '2em')
+						.attr('font-family', 'LetterGothicStd')
 						.attr('font-weight', 'bold')
 						.attr('text-anchor', 'middle');
 
@@ -404,11 +404,11 @@
 
 					// add the label text
 					gx.append('text')
-						.attr('font-size', '25')
+						.attr('font-size', '2.5em')
 						.attr('fill', '#FFF')
 						.attr('x', width/2)
 						.attr('y', -25)
-						.attr('font-family', 'webly')
+						.attr('font-family', 'LetterGothicStd')
 						.attr('font-weight', 'bold')
 						.style('text-anchor', 'middle')
 						.text('percent of zero-net goal');
@@ -464,7 +464,7 @@
 							})
 							.attr('dy', '1em')
 							.attr('fill', 'white')
-							.attr('font-family', 'webly')
+							.attr('font-family', 'LetterGothicStd')
 							.attr('font-size', '1em')
 							.attr('text-anchor', 'start');
 

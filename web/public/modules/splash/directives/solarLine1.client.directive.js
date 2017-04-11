@@ -99,7 +99,7 @@
                         energy = 0;
 
                     console.log(data);
-                    while(go) {
+                    while(go && i < data.length) {
                         if( data[i].demand !== null && data[i].production !== null ) {
                             if( scope.arrow === "arrow-red" ) {
                                 energy = data[i].demand;
@@ -108,6 +108,7 @@
                             } else {
                                 console.log("Error: soloarLine1.client.directive: unexpected arrow style class");
                             }
+                            go = false;
                         }
                         i = i + 1;
                     }

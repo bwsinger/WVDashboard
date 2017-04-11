@@ -28,6 +28,8 @@
 				buildingId = parseInt($routeParams.building),
 				ids = buildings.map(function(b) { return b.id; });
 
+			console.log(buildingId);
+
 			if(ids.indexOf(buildingId) === -1) {
 				$location.path('/');
 				return;

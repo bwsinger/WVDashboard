@@ -5,9 +5,9 @@
 		.module('splash')
 		.controller('Splash', SplashController);
 
-	SplashController.$inject = ['$rootScope', 'Weather'];
+	SplashController.$inject = ['$rootScope', 'Weather', 'Hobo'];
 
-	function SplashController($rootScope, Weather) {
+	function SplashController($rootScope, Weather, Hobo) {
 
 		var vm = this,
 			tmonth = new Array("Jan", "Feb", "Mar", "Apr", "May", "June",
@@ -29,7 +29,7 @@
 				"0 0 1600 1080",
 				"0 0 1600 1080"
 			],
-			path = document.getElementById("allsolarLines")
+			path = $('#allsolarLines') //document.getElementById("allsolarLines")
 			// path = document.getElementsByClassName("solarLine1")[0]
 			;
 
@@ -55,6 +55,16 @@
 			Weather.getWeather().then(function(weather) {
 				vm.weather = weather;
 			});
+
+			vm.lineData = [];
+
+			for(var buildingID = 1; buildingID < 5; buildingID++) {
+				Hobo.getCurrent(buildingID).then(function(data) {
+					vm.lineData.push(data);
+				});
+			}
+
+			console.log(vm.lineData);
 		}
 
 		function toggleInfo() {
@@ -128,23 +138,34 @@
 		// Media Query event listener
 		function MediaQuery(mq) {
 			if (mqls[0].matches) {
-				console.log("");
-				path.setAttribute("viewBox", strViewBoxs[0]);
+				console.log("laptop");
+				// path.setAttribute("viewBox", strViewBoxs[0]);
+				$('.solarLine1').attr("viewBox", strViewBoxs[0]);
 			}
 			else if (mqls[1].matches) {
-				path.setAttribute("viewBox", strViewBoxs[1]);
+				console.log("desktop");
+				// path.setAttribute("viewBox", strViewBoxs[1]);
+				$('.solarLine1').attr("viewBox", strViewBoxs[1]);
 			}
 			else if (mqls[2].matches) {
-				path.setAttribute("viewBox", strViewBoxs[2]);
+				console.log("laptopW");
+				// path.setAttribute("viewBox", strViewBoxs[2]);
+				$('.solarLine1').attr("viewBox", strViewBoxs[2]);
 			}
 			else if (mqls[3].matches) {
-				path.setAttribute("viewBox", strViewBoxs[3]);
+				console.log("laptop2W");
+				// path.setAttribute("viewBox", strViewBoxs[3]);
+				$('.solarLine1').attr("viewBox", strViewBoxs[3]);
 			}
 			else if (mqls[4].matches) {
-				path.setAttribute("viewBox", strViewBoxs[4]);
+				console.log("desktopW");
+				// path.setAttribute("viewBox", strViewBoxs[4]);
+				$('.solarLine1').attr("viewBox", strViewBoxs[4]);
 			}
 			else if (mqls[5].matches) {
-				path.setAttribute("viewBox", strViewBoxs[5]);
+				console.log("popularW");
+				// path.setAttribute("viewBox", strViewBoxs[5]);
+				$('.solarLine1').attr("viewBox", strViewBoxs[5]);
 			}
 		}
 

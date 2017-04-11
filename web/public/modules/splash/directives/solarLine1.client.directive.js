@@ -28,7 +28,7 @@
         function link(scope, element) {
 
 
-            console.log('linking'); 
+            // console.log('linking'); 
 
             d3Service.d3().then(function(d3) {
 
@@ -40,12 +40,12 @@
                 var svg = d3.select(element[0])
                             .append('svg')
                             .attr('class', 'solarLine1')
-                            .attr('id', 'allsolarLines')
+                            // .attr('id', 'allsolarLines')
                             // 245 150 1345 710 -> The actual bounding box of the lines (1080p)
                             // 0 0 1640 860     -> Old values that work better for some reason (1080p)
                             // Not sure why, but these values work well for 16:9. Needs to be set via media queries
                             .attr("viewBox", "0 0 1600 1080")
-                            .attr("preserveAspectRatio", "xMidYMid meet")
+                            .attr("preserveAspectRatio", "none" /*"xMidYMid meet"*/)
                             ;
 
                 //Watch for resizing (window / angular) or data changing
@@ -54,19 +54,18 @@
                 };
                 scope.$watch(function() {
                     return angular.element(window)[0].innerWidth;
+                }, function(newVal, oldVal) {
+                    if(newVal !== oldVal) {
+                        scope.render(scope.data, scope.buildings);
+                    }
                 });
-                // , function(newVal, oldVal) {
-                //     if(newVal !== oldVal) {
-                //         scope.render(scope.data, scope.buildings);
-                //     }
-                // });
-                // scope.$watch('data', function() {
-                //     scope.render(scope.data, scope.buildings);
-                // }, true);
+                scope.$watch('data', function() {
+                    scope.render(scope.data, scope.buildings);
+                }, true);
 
                 //Render the chart
                 // function(data, buildings)
-                //scope.render = function() {
+                scope.render = function(data, buildings) {
                     // Setup sizing
                     var height = svg.nodes()[0].getBoundingClientRect().height - margin.top - margin.bottom,
                         width = svg.nodes()[0].getBoundingClientRect().width - margin.left - margin.right;
@@ -82,19 +81,6 @@
                     // // Wrapper to ensure margins
                     // var cont = svg.append('g')
                     //     .attr('transform', 'translate('+margin.left+','+margin.top+')');
-
-                    // var points = [
-                    //     [480, 200],
-                    //     [580, 400],
-                    //     [680, 100],
-                    //     [780, 300],
-                    //     [180, 300],
-                    //     [280, 100],
-                    //     [380, 400]
-                    // ];
-
-                    // number of total arrows to spawn
-                    // var arrowData = d3.range(50);
 
                     // var svg = d3.select("body").append("svg")
                     //     .attr("width", 960)
@@ -151,7 +137,7 @@
                             };
                         };
                     }
-               // }; // end render function
+                }; // end render function
             }); // end function(d3)
         } // end link(scope,element)
     } // end solarLine1(d3Service)

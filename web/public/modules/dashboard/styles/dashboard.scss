@@ -25,7 +25,8 @@
 .splash-bg {
 	background-image: url('../../../images/splash/splash_scene.svg');
 	background-size: 100% auto;
-	// background-size: cover;
+	// background-size: fill;
+    // object-fit: fill;
 	background-repeat: no-repeat;
 	background-position: center; // left top
 	background-color: #1E1E1E;
@@ -41,8 +42,8 @@
     @include respond-to(desktop) {  }
     @include respond-to(laptopW) { bottom: 6%; }
     @include respond-to(laptop2W) { bottom: 5%; }
-    @include respond-to(desktopW) { height: 23%; bottom: 5%; }
-    @include respond-to(popularW) { height: 20%; bottom: 5%; }
+    @include respond-to(desktopW) { height: 26%; bottom: 5%; }
+    @include respond-to(popularW) { height: 27%; bottom: 5%; }
 }
 
 .weather-icon {
@@ -93,8 +94,8 @@
 // Solar lines
 .path-splash {
     fill: none;
-    stroke: #000;
-    stroke-width: 2px;
+    // stroke: #000;
+    // stroke-width: 2px;
 }
 
 // Solar to building arrows

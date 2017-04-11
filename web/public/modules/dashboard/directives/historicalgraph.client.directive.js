@@ -93,7 +93,7 @@
 					// TODO add timespan dependent ticks (see percent ZNE directive)
 
 					var yAxis = d3.axisLeft(y)
-									.ticks(8)
+									.ticks(5)
 									.tickSize(15)
 									.tickSizeOuter(1);
 
@@ -216,18 +216,6 @@
 					var gy = cont.append('g')
 						// .attr('transform', 'translate(0,' + height + ')')
 						.call(yAxis);
-					
-					// Y-axis label (kW)
-					gy.append('text')
-						.attr('fill', '#FFF')
-						.attr('x', -height/2)
-						.attr('y', -45)
-						.attr('transform', 'rotate(-90)')
-						.attr('font-family', 'LetterGothicStd')
-						.style('text-anchor', 'middle')
-						.attr('font-size', '3em')
-						.attr('font-weight', 'bold')
-						.text('kW');
 
 					// y-axis line
 					gy.selectAll('path')
@@ -246,7 +234,20 @@
 						.attr('font-size', '2em')
 						.attr('font-family', 'LetterGothicStd')
 						.attr('font-weight', 'bold')
-						.attr('text-anchor', 'middle');
+						.attr('text-anchor', 'end')
+						.attr('transform', 'translate(-7.5, 0)');
+
+					// Y-axis label (kW)
+					gy.append('text')
+						.attr('fill', '#FFF')
+						.attr('x', -height/2)
+						.attr('y', -55)
+						.attr('transform', 'rotate(-90)')
+						.attr('font-family', 'LetterGothicStd')
+						.style('text-anchor', 'middle')
+						.attr('font-size', '3em')
+						.attr('font-weight', 'bold')
+						.text('kW');
 
 				};
 

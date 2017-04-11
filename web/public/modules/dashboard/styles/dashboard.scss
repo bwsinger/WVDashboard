@@ -775,16 +775,18 @@
 	bottom: 0;
 	width: 5vw;
 	margin-bottom: 6%;
-	@include respond-to(laptop) { right: 5.5%; }
+	@include respond-to(laptop) { width: 8vw; }
     @include respond-to(desktop) {  }
-    @include respond-to(laptopW) { right: 5%; }
+    @include respond-to(laptopW) {  }
     @include respond-to(laptop2W) {  }
-    @include respond-to(desktopW) { padding-bottom: 3%; }
+    @include respond-to(desktopW) {  }
     @include respond-to(popularW) {  }
 }
 
+
 .legend-item {
-	height: 3em;
+	// height: 3em;
+    padding-bottom: 10px;
 	margin-bottom: 10px;
 	@include respond-to(laptop) {  }
     @include respond-to(desktop) {  }
@@ -795,13 +797,15 @@
 }
 
 .legend-image {
-	float: left;
-	height: 100%;
-	display: flex;
-
+	// float: left;
+	// height: 100%;
+	display: block;
+    // position: center;
+    // margin: auto;
 	img {
 		width: 20%;
-		// margin: auto;
+		margin-left: 40%;
+        margin-right: 40%;
 		@include respond-to(laptop) {  }
 	    @include respond-to(desktop) {  }
 	    @include respond-to(laptopW) {  }
@@ -812,14 +816,15 @@
 }
 
 .legend-label {
-	float: left;
-	margin-left: 10%;
+	// float: left;
+	// margin-left: 10%;
 	// color: #29343e;
 	font-size: 0.9vw;
 	font-weight: bold;
 	line-height: 2vh;
 	letter-spacing: -0.1vw;
-	@include respond-to(laptop) { font-size: 1.2vw; }
+    text-align: center;
+	@include respond-to(laptop) {  }
     @include respond-to(desktop) {  }
     @include respond-to(laptopW) {  }
     @include respond-to(laptop2W) {  }

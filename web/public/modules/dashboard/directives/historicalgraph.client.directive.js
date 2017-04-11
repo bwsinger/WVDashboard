@@ -93,11 +93,12 @@
 					// TODO add timespan dependent ticks (see percent ZNE directive)
 
 					var yAxis = d3.axisLeft(y)
-								.ticks(0)
-								.tickSizeOuter(1);
+									.ticks(5)
+									.tickSize(15)
+									.tickSizeOuter(1);
 
 					var xAxis = d3.axisBottom(x)
-									.ticks(5)
+									.ticks(8)
 									.tickSize(15)
 									.tickSizeOuter(1);
 
@@ -213,6 +214,7 @@
 						.attr('text-anchor', 'middle');
 
 					var gy = cont.append('g')
+						// .attr('transform', 'translate(0,' + height + ')')
 						.call(yAxis);
 					
 					// Y-axis label

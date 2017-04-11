@@ -56,6 +56,8 @@
 
 			vm.lineData = [];
 
+			// Get the last day of data for each building to display the most
+			// recent non-null production and demand values
 			for(var buildingID = 1; buildingID < 5; buildingID++) {
 				Hobo.getHistorical('hourly', buildingID, true).then(function(data) {
 					vm.lineData.push(data);
@@ -124,8 +126,9 @@
 				nmin = "0" + nmin
 			}
 
-			document.getElementById('clockbox').innerHTML = 
-				"" + tmonth[nmonth] + " " + ndate + "<br>" + nhour + ":" + nmin + ap + "<br>";
+			$('#clockbox').html( 
+				"" + tmonth[nmonth] + " " + ndate + "<br>" + nhour + ":" + nmin + ap + "<br>"
+			);
 		}
 
 		function timer() {

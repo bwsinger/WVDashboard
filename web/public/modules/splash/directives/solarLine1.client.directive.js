@@ -17,7 +17,6 @@
                 arrow: '=',
                 path: '=',
                 data: '=',
-                buildings: '=',
             }
         };
 
@@ -56,16 +55,15 @@
                     return angular.element(window)[0].innerWidth;
                 }, function(newVal, oldVal) {
                     if(newVal !== oldVal) {
-                        scope.render(scope.data, scope.buildings);
+                        scope.render(scope.data);
                     }
                 });
                 scope.$watch('data', function() {
-                    scope.render(scope.data, scope.buildings);
+                    scope.render(scope.data);
                 }, true);
 
                 //Render the chart
-                // function(data, buildings)
-                scope.render = function(data, buildings) {
+                scope.render = function(data) {
                     // Setup sizing
                     var height = svg.nodes()[0].getBoundingClientRect().height - margin.top - margin.bottom,
                         width = svg.nodes()[0].getBoundingClientRect().width - margin.left - margin.right;
@@ -96,19 +94,36 @@
 
                     var arrowDelay = 800;
 
+                    var go = true,
+                        i = 0,
+                        energy = 0;
+
+                    console.log(data);
+                    while(go) {
+                        if( data[i].demand !== null && data[i].production !== null ) {
+                            if( scope.arrow === "arrow-red" ) {
+                                energy = data[i].demand;
+                            } else if( scope.arrow === "arrow-yellow" ) {
+                                energy = data[i].production;
+                            } else {
+                                console.log("Error: soloarLine1.client.directive: unexpected arrow style class");
+                            }
+                        }
+                        i = i + 1;
+                    }
+
                     setInterval(function() {
                         var thisPolygon = svg.append("polygon")
                             .attr("points", "0,18, 18,12, 0,6")
                             .attr('class', scope.arrow);
-                        transition(thisPolygon);
+                        transition(thisPolygon, energy);
                     }, arrowDelay); // delay between arrows
 
-                    function transition(elem) {
-                        var dur = path.attr("length") * 16;
+                    function transition(elem, energy) {
+                        console.log(energy);
+                        var dur = (path.attr("length") * 16) - (energy * 5);
                         // console.log(dur);
                         elem.transition()
-                            // Make duration funtion of path length (and later date input)
-                            // path.getTotalLength()
                             .duration(dur) // total time for an arrow to move along path
                             .ease(d3.easeLinear)
                             .attrTween("transform", translateAlong(path.node()))

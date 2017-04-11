@@ -28,9 +28,7 @@
 				"0 0 1600 1080",
 				"0 0 1600 1080",
 				"0 0 1600 1080"
-			],
-			path = $('#allsolarLines') //document.getElementById("allsolarLines")
-			// path = document.getElementsByClassName("solarLine1")[0]
+			]
 			;
 
 		vm.toggleInfo = toggleInfo;
@@ -59,7 +57,7 @@
 			vm.lineData = [];
 
 			for(var buildingID = 1; buildingID < 5; buildingID++) {
-				Hobo.getCurrent(buildingID).then(function(data) {
+				Hobo.getHistorical('hourly', buildingID, true).then(function(data) {
 					vm.lineData.push(data);
 				});
 			}
@@ -138,33 +136,27 @@
 		// Media Query event listener
 		function MediaQuery(mq) {
 			if (mqls[0].matches) {
-				console.log("laptop");
-				// path.setAttribute("viewBox", strViewBoxs[0]);
+				// console.log("laptop");
 				$('.solarLine1').attr("viewBox", strViewBoxs[0]);
 			}
 			else if (mqls[1].matches) {
-				console.log("desktop");
-				// path.setAttribute("viewBox", strViewBoxs[1]);
+				// console.log("desktop");
 				$('.solarLine1').attr("viewBox", strViewBoxs[1]);
 			}
 			else if (mqls[2].matches) {
-				console.log("laptopW");
-				// path.setAttribute("viewBox", strViewBoxs[2]);
+				// console.log("laptopW");
 				$('.solarLine1').attr("viewBox", strViewBoxs[2]);
 			}
 			else if (mqls[3].matches) {
-				console.log("laptop2W");
-				// path.setAttribute("viewBox", strViewBoxs[3]);
+				// console.log("laptop2W");
 				$('.solarLine1').attr("viewBox", strViewBoxs[3]);
 			}
 			else if (mqls[4].matches) {
-				console.log("desktopW");
-				// path.setAttribute("viewBox", strViewBoxs[4]);
+				// console.log("desktopW");
 				$('.solarLine1').attr("viewBox", strViewBoxs[4]);
 			}
 			else if (mqls[5].matches) {
-				console.log("popularW");
-				// path.setAttribute("viewBox", strViewBoxs[5]);
+				// console.log("popularW");
 				$('.solarLine1').attr("viewBox", strViewBoxs[5]);
 			}
 		}

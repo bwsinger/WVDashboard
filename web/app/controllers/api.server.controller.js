@@ -3,7 +3,8 @@
 var pg = require('pg'),
 	moment = require('moment'),
 	config = require('../../config/config'),
-	request = require('request');
+	request = require('request'),
+	URL = require('url');
 
 exports.weather = function(req, res) {
 
@@ -19,10 +20,16 @@ exports.weather = function(req, res) {
 			return res.status(500).send({ message: 'Bad response from weather API' });
 		}
 		var data = JSON.parse(body.trim());
+		var icon = URL
+			.parse(data.current_observation.icon_url)
+			.path
+			.split('/')
+			.pop()
+			.split('.')[0];
 
 		res.status(200).send({
 			temperature: data.current_observation.temp_f,
-			icon: data.current_observation.icon,
+			icon: icon,
 		});
 	});
 };

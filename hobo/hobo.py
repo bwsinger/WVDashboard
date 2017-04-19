@@ -8,7 +8,6 @@ import os
 import yaml
 from datetime import datetime
 from dateutil import parser
-from apscheduler.schedulers.blocking import BlockingScheduler
 
 def parse_row(row, columns):
     # this is defined as a bad reading in the hobolink API
@@ -53,26 +52,11 @@ def fetch():
         return
 
     # grab logger data
-    cur.execute(""" SELECT * FROM "loggers" """)
-    loggers = cur.fetchall()
+    cur.execute(""" SELECT * FROM "buildings" """)
+    buildings = cur.fetchall()
 
-    for logger in loggers:
-        logging.debug("Starting hobo logger with data export {}".format(logger['export']))
-
-        # get the last timestamp from db for this logger
-        cur.execute("""
-            SELECT "datetime"
-            FROM "hobodata"
-            WHERE "logger" = %s
-            ORDER BY "datetime" DESC
-            LIMIT 1
-        """, (logger['id'], ))
-        result = cur.fetchone()
-        lasttimestamp = None
-        if result is not None:
-            lasttimestamp = result[0]
-
-        logging.debug("Looking for data after {}".format(lasttimestamp))
+    for building in buildings:
+        logging.debug("Starting hobo logger with data export {}".format(building['export']))
             
         # load credentials
         if os.path.isfile('hobolink.yml'):
@@ -85,7 +69,7 @@ def fetch():
         url = 'https://webservice.hobolink.com/restv2/data/custom/file'
 
         payload = {
-            "query": logger['export'],
+            "query": building['export'],
             "authentication": {
                 "password": hobolink['password'],
                 "user": hobolink['username'],
@@ -95,44 +79,72 @@ def fetch():
 
         r = requests.post(url, json=payload)
 
-        reader = csv.reader(r.text.strip().split('\n'))
+        lines = r.text.strip().split('\n')
+        reader = csv.reader(lines)
+        next(reader) # headers
+
+        start = parser.parse(next(reader)[0])
+        for row in reader:
+            pass
+        end = parser.parse(row[0])
+
+        print("file starts at: {}".format(start))
+        print("file ends at: {}".format(end))
+
+        # get the last timestamp from db for this logger
+        cur.execute("""
+            SELECT "datetime"
+            FROM "hobodata"
+            WHERE "building" = %s
+            AND "datetime" >= %s
+            AND "datetime" <= %s
+            ORDER BY "datetime" DESC
+        """, (building['id'], start, end))
+        datetimes = [r[0] for r in cur.fetchall()]
+
+        print(len(datetimes))
+
+        reader = csv.reader(lines)
         next(reader) #headers
 
         skipped = 0
+        bad = 0
         rowstoinsert = []
 
         for row in reader:
-            currtimestamp = parser.parse(row[0])
+            currdatetime = parser.parse(row[0])
 
             # is the row newer?
-            if lasttimestamp is None or currtimestamp > lasttimestamp:
+            if currdatetime not in datetimes:
 
-                logging.debug("Found row with more recent timestamp: {}".format(currtimestamp))
+                logging.debug("Found row with more recent timestamp: {}".format(currdatetime))
 
                 # validate row first
                 bad_row = False
                 for col in row:
                     if col == '':
                         bad_row = True
+                        bad += 1
+                        logging.debug('Bad row with timestamp: {}'.format(currdatetime))
                         break
 
                 if not bad_row:
 
                     # aggregate stats from relevant columns
-                    hvac = parse_row(row, json.loads(logger['hvac']))
-                    lights = parse_row(row, json.loads(logger['lights']))
-                    plugs = parse_row(row, json.loads(logger['plugs']))
-                    kitchen = parse_row(row, json.loads(logger['kitchen']))
-                    solar = parse_row(row, json.loads(logger['solar']))
-                    ev = parse_row(row, json.loads(logger['ev']))
-                    lab = parse_row(row, json.loads(logger['lab']))
+                    hvac = parse_row(row, json.loads(building['hvac']))
+                    lights = parse_row(row, json.loads(building['lights']))
+                    plugs = parse_row(row, json.loads(building['plugs']))
+                    kitchen = parse_row(row, json.loads(building['kitchen']))
+                    solar = parse_row(row, json.loads(building['solar']))
+                    ev = parse_row(row, json.loads(building['ev']))
+                    lab = parse_row(row, json.loads(building['lab']))
 
                     # custom stuff for 215 here
                     # eventually find some way to store the equation in the database
                     # the normal ones would be like 1 + 2 + 3
                     # the more complex ones are like abs(4 - 32) - 16
                     # then parse it on the fly to figure out the correct value
-                    if logger['export'] == '215_Last_30_Days':
+                    if building['export'] == '215_Last_30_Days':
                         T1_Total = parse_row(row, [2])
                         T1_Solar = parse_row(row, [18])
                         T1_Kitchen = parse_row(row, [15,16,17])
@@ -166,12 +178,10 @@ def fetch():
                             lab = T2_Lab
 
                     
-                    rowstoinsert.append((logger['id'], currtimestamp, hvac, kitchen, plugs, lights, solar, ev, lab))
-                else:
-                    logging.debug('Bad row with timestamp: {}'.format(currtimestamp))
+                    rowstoinsert.append((building['id'], currdatetime, hvac, kitchen, plugs, lights, solar, ev, lab))                    
                 
             else:
-                logging.debug("Skipped old row with timestamp: {}".format(currtimestamp))
+                logging.debug("Skipped old row with timestamp: {}".format(currdatetime))
                 skipped+= 1
 
 
@@ -179,7 +189,7 @@ def fetch():
         if len(rowstoinsert):
             cur.executemany("""
                     INSERT INTO "hobodata"
-                    ("logger", "datetime", "hvac", "kitchen", "plugs", "lights", "solar", "ev", "lab")
+                    ("building", "datetime", "hvac", "kitchen", "plugs", "lights", "solar", "ev", "lab")
                     VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """, rowstoinsert)
             conn.commit()
@@ -189,26 +199,11 @@ def fetch():
         if skipped > 0:
             logging.info("Skipped {} old rows".format(skipped))
 
+        if bad > 0:
+            logging.info("Skipped {} bad rows".format(bad))
+
     logging.info("Finished run")
 
 if __name__ == "__main__":
-
-    
-    # log info to console
     logging.basicConfig(level=logging.INFO)
-    # logging.basicConfig(level=logging.DEBUG)
-
-    # log debug to file   
-    # logfile = logging.FileHandler('output.log')
-    # logfile.setLevel(logging.DEBUG)
-    # logging.getLogger('').addHandler(logfile)
-
-    # setup scheduler
-    sched = BlockingScheduler()
-
-    # runs every ten minutes
-    sched.add_job(fetch, 'cron', minute='1,11,21,31,41,51')
-    # sched.add_job(fetch, 'cron', minute='*/5')
-
-    sched.start()
-    logging.info("Starting scheduler")
+    fetch()

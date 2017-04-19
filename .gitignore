@@ -1,3 +1,4 @@
+__pycache__/
 hobo/venv/
 hobo/hobolink.yml
 hobo/db.yml

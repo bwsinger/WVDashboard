@@ -13,6 +13,7 @@
 			getBuildings: getBuildings,
 			getLeaderboard: getLeaderboard,
 			getCurrent: getCurrent,
+			getCurrentAll: getCurrentAll,
 			getHistorical: getHistorical,
 			getPercentAll: getPercentAll,
 			getPercentBuilding: getPercentBuilding,
@@ -36,7 +37,13 @@
 		}
 
 		function getCurrent(building) {
-			return $http.get('./api/current/'+building).then(function(res) {
+			return $http.get('./api/current/building/'+building).then(function(res) {
+				return res.data;
+			});
+		}
+
+		function getCurrentAll() {
+			return $http.get('./api/current/all').then(function(res) {
 				return res.data;
 			});
 		}

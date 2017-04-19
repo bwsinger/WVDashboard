@@ -41,7 +41,7 @@ exports.getEndUses = function(req, res, next) {
 		}
 
 		var query = `
-			SELECT "ev", "lab" FROM "buildings"
+			SELECT "has_ev", "has_lab" FROM "buildings"
 			WHERE "id" = $1`
 
 		dbClient.query(query, [req.params.building], function(err, result) {
@@ -49,22 +49,10 @@ exports.getEndUses = function(req, res, next) {
 				throw err;
 			}
 
-			var enduses = {
-				'hvac': true,
-				'lights': true,
-				'plugs': true,
-				'kitchen': true,
-			};
-
-			if(result.rows[0].ev) {
-				enduses.ev = true;
-			}
-
-			if(result.rows[0].lab) {
-				enduses.lab = true;
-			}
-
-			req.enduses = enduses;
+			req.enduses = _buildEndUses(
+				result.rows[0].has_ev,
+				result.rows[0].has_lab
+			);
 
 			done();
 			next();
@@ -119,14 +107,14 @@ exports.validateBuilding = function(req, res, next, value) {
 exports.goals = function(req, res, next) {
 
 	var query = `
-		SELECT "buildings"."id",
-				"buildings"."zne_total",
-				"buildings"."zne_hvac",
-				"buildings"."zne_lights",
-				"buildings"."zne_plugs",
-				"buildings"."zne_kitchen"
+		SELECT "id",
+				"zne_total",
+				"zne_hvac",
+				"zne_lights",
+				"zne_plugs",
+				"zne_kitchen"
 		FROM "buildings"
-		ORDER BY "buildings"."street", "buildings"."number"`;
+		ORDER BY "street", "number"`;
 
 	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) {
@@ -162,12 +150,12 @@ exports.goals = function(req, res, next) {
 exports.buildings = function(req, res) {
 
 	var query = `
-		SELECT "buildings"."id",
-				"buildings"."name",
-				"buildings"."number", 
-				"buildings"."street"
+		SELECT "id",
+				"name",
+				"number", 
+				"street"
 		FROM "buildings"
-		ORDER BY "buildings"."street", "buildings"."number"`;
+		ORDER BY "street", "number"`;
 
 	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) {
@@ -204,27 +192,13 @@ exports.leaderboard = function(req, res) {
 	// gets the total kw for the week from midnight friday/saturday to following friday noon (almost 6 days)
 	var query = `
 		SELECT
-			"data"."building",
-			ROUND( (SUM("data"."hvac") + SUM("data"."kitchen") + SUM("data"."plugs") + SUM("data"."lights")) / 1000, 2) as "kw"
-		FROM (
-			SELECT
-				"buildings"."id" as "building",
-				"hobodata"."datetime",
-				"hobodata"."hvac",
-				"hobodata"."kitchen",
-				"hobodata"."plugs",
-				"hobodata"."lights",
-				"hobodata"."solar",
-				"hobodata"."ev"
-			FROM "hobodata"
-			JOIN "loggers"
-			ON "hobodata"."logger" = "loggers"."id"
-			JOIN "buildings"
-			ON "loggers"."building" = "buildings"."id"
-			WHERE "datetime" BETWEEN $1 AND $2
-			ORDER BY "buildings"."street", "buildings"."number", "hobodata"."datetime"
-		) as "data"
-		GROUP BY "data"."building"`;
+			"building",
+			ROUND( (SUM("hvac") + SUM("kitchen") + SUM("plugs") + SUM("lights")) / 1000, 2) as "kw"
+		FROM "hobodata"
+		WHERE "datetime" BETWEEN $1 AND $2
+		GROUP BY "building"
+		ORDER BY "building"
+	`;
 
 	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) {
@@ -322,41 +296,28 @@ exports.current = function(req, res) {
 	//AND "datetime" >= now() at time zone 'America/Los_Angeles' - interval '10 minutes'
 
 	var query = `
-		SELECT 
+		SELECT
+			MAX("datetime") as "latest",
 			ROUND(AVG("hvac"), 2) as "hvac",
 			ROUND(AVG("kitchen"), 2) as "kitchen",
 			ROUND(AVG("plugs"), 2) as "plugs",
 			ROUND(AVG("lights"), 2) as "lights",
 			ROUND(AVG("solar"), 2) as "solar",
 			ROUND(AVG("ev"), 2) as "ev",
-			ROUND(AVG("lab"), 2) as "lab",
-			MAX("datetime") as "latest"
+			ROUND(AVG("lab"), 2) as "lab"
 		FROM (
-			SELECT 
-				"data"."datetime",
-				SUM("data"."hvac") as "hvac",
-				SUM("data"."kitchen") as "kitchen",
-				SUM("data"."plugs") as "plugs",
-				SUM("data"."lights") as "lights",
-				SUM("data"."solar") as "solar",
-				SUM("data"."ev") as "ev",
-				SUM("data"."lab") as "lab"
-			FROM(
-				SELECT
-					"hobodata"."datetime",
-					"hobodata"."hvac",
-					"hobodata"."kitchen",
-					"hobodata"."plugs",
-					"hobodata"."lights",
-					"hobodata"."solar",
-					"hobodata"."ev",
-					"hobodata"."lab"
-				FROM "hobodata"
-				JOIN "loggers" ON "hobodata"."logger" = "loggers"."id"
-				WHERE "loggers"."building" = $1
-			) as "data"
-			GROUP BY "data"."datetime"
-			ORDER BY "data"."datetime" DESC
+			SELECT
+				"datetime",
+				"hvac",
+				"kitchen",
+				"plugs",
+				"lights",
+				"solar",
+				"ev",
+				"lab"
+			FROM "hobodata"
+			WHERE "building" = $1
+			ORDER BY "datetime" DESC
 			LIMIT 10
 		) as "lastTen"`;
 
@@ -370,25 +331,82 @@ exports.current = function(req, res) {
 				throw err;
 			}
 
-			var data = {};
-			var production = parseFloat(result.rows[0].solar);
-			var demand = 0;
-
-			for(var use in req.enduses) {
-				var val = parseFloat(result.rows[0][use])
-				data[use] =  Math.round(val);
-				demand += parseFloat(val);
-			}
-
-			data.solar = Math.round(production);
-			data.total = Math.round(production-demand);
-			data.latest = result.rows[0].latest;
-
-			res.status(200).send(data); // send response
+			var current = _buildCurrent(result.rows[0], req.enduses);
+			current.building = req.params.building;
+			res.status(200).send(current); // send response
 
 			done(); // close db connection
 		});
 	});
+};
+
+exports.currentAll = function(req, res) {
+
+	// Get the data for all buildings with row numbers
+	// Grab the last 10 rows for each building
+	// Average the values
+
+	var query = `
+		SELECT
+			"d"."building",
+			BOOL_AND("b"."has_ev") as "has_ev",
+			BOOL_AND("b"."has_lab") as "has_lab",
+			MAX("d"."datetime") as "latest",
+			ROUND(AVG("d"."hvac"), 2) as "hvac",
+			ROUND(AVG("d"."kitchen"), 2) as "kitchen",
+			ROUND(AVG("d"."plugs"), 2) as "plugs",
+			ROUND(AVG("d"."lights"), 2) as "lights",
+			ROUND(AVG("d"."solar"), 2) as "solar",
+			ROUND(AVG("d"."ev"), 2) as "ev",
+			ROUND(AVG("d"."lab"), 2) as "lab"
+		FROM (
+			SELECT
+				"building",
+				"datetime",
+				row_number() OVER (PARTITION BY "building" ORDER BY "datetime" DESC) as "rank",
+				"hvac",
+				"kitchen",
+				"plugs",
+				"lights",
+				"solar",
+				"ev",
+				"lab"
+			FROM "hobodata"
+			ORDER BY "datetime" DESC
+		) as "d"
+		JOIN "buildings" as "b"
+		ON "b"."id" = "d"."building"
+		WHERE "d"."rank" <= 10
+		GROUP BY "d"."building"
+		ORDER BY "d"."building" `;
+
+	pg.connect(config.connString, function(err, dbClient, done) {
+		if(err) {
+			throw err;
+		}
+
+		dbClient.query(query, function(err, result) {
+			if(err) {
+				throw err;
+			}
+
+			var data = [];
+
+			for(var i = 0, len = result.rows.length; i < len; i++) {
+				var enduses = _buildEndUses(
+					result.rows[i].has_ev,
+					result.rows[i].has_lab
+				);
+				var current = _buildCurrent(result.rows[i], enduses);
+				data.push(current);
+			}
+
+			res.status(200).send(data);
+
+			done(); // close db connection
+		});
+	});
+
 };
 
 exports.historical = function(req, res) {
@@ -571,6 +589,47 @@ exports.percentEnduse = function(req, res) {
 
 // HELPERS
 
+function _buildCurrent(data, enduses) {
+	var current = {};
+	var production = parseFloat(data.solar);
+	var demand = 0;
+
+	for(var use in enduses) {
+		var val = parseFloat(data[use])
+		current[use] =  Math.round(val);
+		demand += val;
+	}
+
+	current.solar = Math.round(production);
+	current.demand = Math.round(demand);
+	current.production = Math.round(production);
+	current.total = Math.round(production-demand);
+	current.latest = data.latest;
+	if(data.hasOwnProperty('building')) {
+		current.building = data.building;
+	}
+	return current
+}
+
+function _buildEndUses(has_ev, has_lab) {
+	var enduses = {
+		'hvac': true,
+		'lights': true,
+		'plugs': true,
+		'kitchen': true,
+	};
+
+	if(has_ev) {
+		enduses.ev = true;
+	}
+
+	if(has_lab) {
+		enduses.lab = true;
+	}
+
+	return enduses;
+}
+
 // Make the interval a property of the object and return an array
 function _transformPercentObject(data) {
 	var newData = [];
@@ -690,8 +749,18 @@ function _buildPercentBuildingQuery(timespan, filter) {
 		condition = '';
 
 	if(filter) {
-		condition = 'AND "loggers"."building" = $1';
+		condition = 'AND "hobodata"."building" = $1';
 	}
+
+	// Grab all the hobo data for the date range requested (optionally limited to a single building)
+	// Note that the timestamp for each data point is trucated to the period it will belong to
+
+	// Group by building and by interval (so that all data recorded over the period will be summed
+	// and each period yields a single reading)
+
+	// Create a series of all the periods that could exist over the requested time period
+	// Join the two so we get a complete set of periods. If we don't have data for a period, it will
+	// be a NULL
 
 	return `
 		SELECT "series"."interval",
@@ -707,16 +776,14 @@ function _buildPercentBuildingQuery(timespan, filter) {
 				SUM("data"."lights") as "lights"
 			FROM (
 				SELECT
-					"buildings"."id" as "building",
+					"hobodata"."building",
 					date_trunc('${unit}',  "hobodata"."datetime") as "interval",
 					"hobodata"."hvac",
 					"hobodata"."kitchen",
 					"hobodata"."plugs",
 					"hobodata"."lights"
 				FROM "hobodata"
-				JOIN "loggers" ON "hobodata"."logger" = "loggers"."id"
-				JOIN "buildings" ON "loggers"."building" = "buildings"."id"
-				WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${startText}'
+				WHERE "hobodata"."datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${startText}'
 				${condition}
 			) as "data"
 			GROUP BY "data"."building", "data"."interval"
@@ -737,6 +804,15 @@ function _buildPercentUseQuery(timespan) {
 		startText = `${start} ${unit}s`,
 		interval = `1 ${unit}`;
 
+	// Grab all the hobo data for the date range requested for a specific building
+	// Note that the timestamp for each data point is trucated to the period it will belong to
+
+	// Group by interval (so that all data recorded over the period will be summed
+	// and each period yields a single reading)
+
+	// Create a series of all the periods that could exist over the requested time period
+	// Join the two so we get a complete set of periods. If we don't have data for a period, it will
+	// be a NULL
 	return `
 		SELECT "series"."interval",
 				ROUND(("values"."hvac") / 1000, 2) as "hvac",
@@ -745,7 +821,6 @@ function _buildPercentUseQuery(timespan) {
 				ROUND(("values"."lights") / 1000, 2) as "lights"
 		FROM (
 			SELECT 
-				"data"."building",
 				"data"."interval",
 				SUM("data"."hvac") as "hvac",
 				SUM("data"."kitchen") as "kitchen",
@@ -753,19 +828,16 @@ function _buildPercentUseQuery(timespan) {
 				SUM("data"."lights") as "lights"
 			FROM (
 				SELECT
-					"buildings"."id" as "building",
 					date_trunc('${unit}',  "hobodata"."datetime") as "interval",
 					"hobodata"."hvac",
 					"hobodata"."kitchen",
 					"hobodata"."plugs",
 					"hobodata"."lights"
 				FROM "hobodata"
-				JOIN "loggers" ON "hobodata"."logger" = "loggers"."id"
-				JOIN "buildings" ON "loggers"."building" = "buildings"."id"
-				WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${startText}'
-				AND "loggers"."building" = $1
+				WHERE "hobodata"."building" = $1
+				AND "hobodata"."datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${startText}'
 			) as "data"
-			GROUP BY "data"."building", "data"."interval"
+			GROUP BY "data"."interval"
 		) as "values"
 		RIGHT JOIN (
 			SELECT generate_series(
@@ -785,45 +857,45 @@ function _buildHistoricalQuery(start, minutes, enabled) {
 	var uses = [];
 	for(var use in enabled) {
 		if(enabled[use]) {
-			uses.push('AVG("'+use+'")');
+			uses.push('AVG("data"."'+use+'")');
 		}
 	}
 
 	var demandString = uses.length ? uses.join(' + ') : 0;
 
+	// Grab all the hobo data for the date range requested for a specific building
+
+	// Create the demand and production totals based on the passed set of enduses
+	// Create the interval for each reading based upon the epoch (which gives us)
+	// the necessary resolution
+
+	// Group by interval (so that all data recorded over the period will be summed
+	// and each period yields a single reading)
+
+	// Create a series of all the periods that could exist over the requested time period
+	// Join the two so we get a complete set of periods. If we don't have data for a period,
+	// it will be a NULL
+
 	return `
 		SELECT "series"."interval", "values"."demand", "values"."production"
 		FROM (
-			SELECT to_timestamp(ceil(extract('epoch' from "datetime") / ${seconds}) * ${seconds}) AT TIME ZONE 'UTC' as "interval",
+			SELECT to_timestamp(ceil(extract('epoch' from "data"."datetime") / ${seconds}) * ${seconds}) AT TIME ZONE 'UTC' as "interval",
 				ROUND((${demandString}) / 1000, 2) as "demand",
-				ROUND(AVG("solar") / 1000, 2) as "production"
+				ROUND(AVG("data"."solar") / 1000, 2) as "production"
 			FROM (
-				SELECT 
-					"data"."datetime",
-					SUM("data"."hvac") as "hvac",
-					SUM("data"."kitchen") as "kitchen",
-					SUM("data"."plugs") as "plugs",
-					SUM("data"."lights") as "lights",
-					SUM("data"."solar") as "solar",
-					SUM("data"."ev") as "ev",
-					SUM("data"."lab") as "lab"
-				FROM(
-					SELECT
-						"hobodata"."datetime",
-						"hobodata"."hvac",
-						"hobodata"."kitchen",
-						"hobodata"."plugs",
-						"hobodata"."lights",
-						"hobodata"."solar",
-						"hobodata"."ev",
-						"hobodata"."lab"
-					FROM "hobodata"
-					JOIN "loggers" ON "hobodata"."logger" = "loggers"."id"
-					WHERE "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'
-					AND "loggers"."building" = $1
-				) as "data"
-				GROUP BY "data"."datetime"
-			) as "totals"
+				SELECT
+					"datetime",
+					"hvac",
+					"kitchen",
+					"plugs",
+					"lights",
+					"solar",
+					"ev",
+					"lab"
+				FROM "hobodata"
+				WHERE "building" = $1
+				AND "datetime" >= NOW() AT TIME ZONE 'America/Los_Angeles' - INTERVAL '${start}'
+			) as "data"
 			GROUP BY "interval"
 		) as "values"
 		RIGHT JOIN (

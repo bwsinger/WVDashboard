@@ -8,11 +8,13 @@ module.exports = function(app) {
 
 	// ROUTES
 	
-	app.route('/api/buildings').get(api.buildings);
+	app.route('/api/buildings').get(apicache('1 day'), api.buildings);
 
 	app.route('/api/leaderboard').get(api.goals, api.leaderboard);
 
-	app.route('/api/current/:building').get(api.getEndUses, api.current);
+	app.route('/api/current/all').get(api.currentAll);
+
+	app.route('/api/current/building/:building').get(api.getEndUses, api.current);
 
 	app.route('/api/historical/:building/:timespan').get(api.getEndUses, api.historical);
 

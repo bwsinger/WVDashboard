@@ -5,9 +5,9 @@
 		.module('splash')
 		.controller('Splash', SplashController);
 
-	SplashController.$inject = ['$rootScope', 'Weather', 'Hobo'];
+	SplashController.$inject = ['$rootScope', 'Weather', 'Hobo', 'Settings'];
 
-	function SplashController($rootScope, Weather, Hobo) {
+	function SplashController($rootScope, Weather, Hobo, Settings) {
 
 		var vm = this,
 			tmonth = new Array("Jan", "Feb", "Mar", "Apr", "May", "June",
@@ -40,6 +40,8 @@
 		vm.timer = timer;
 		vm.MediaQuery = MediaQuery;
 		vm.viewBoxAdjuster = viewBoxAdjuster;
+		vm.dataReady = false;
+		vm.getData = getData;
 
 
 		$rootScope.init.then(activate);
@@ -54,17 +56,32 @@
 				vm.weather = weather;
 			});
 
-			vm.lineData = [];
+			Hobo.getCurrentAll().then(function(data) {
+				vm.lineData = data;
+				vm.dataReady = true;
+			});
+		}
 
-			// Get the last day of data for each building to display the most
-			// recent non-null production and demand values
-			for(var buildingID = 1; buildingID < 5; buildingID++) {
-				Hobo.getHistorical('hourly', buildingID, true).then(function(data) {
-					vm.lineData.push(data);
-				});
+		function getData(streetnum) {
+			var buildings = Settings.getBuildings(),
+				bid;
+
+			// find the matching building for the number
+			for(var i = 0, leni = buildings.length; i < leni; i++) {
+				if(buildings[i].number === streetnum) {
+					bid = buildings[i].id;
+					break;
+				}
 			}
 
-			console.log(vm.lineData);
+			// return the data with the same id
+			if(bid) {
+				for(var j = 0, lenj = vm.lineData.length; j < lenj; j++) {
+					if(vm.lineData[j].building === bid) {
+						return vm.lineData[j];
+					}
+				}
+			}
 		}
 
 		function toggleInfo() {

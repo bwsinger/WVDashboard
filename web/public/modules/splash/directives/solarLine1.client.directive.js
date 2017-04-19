@@ -73,6 +73,11 @@
                         return;
                     }
 
+                    // No data to display for this building
+                    if(!data) {
+                        return;
+                    }
+
                     // Clear existing
                     svg.selectAll('*').remove();
 
@@ -92,26 +97,25 @@
                     path.each(function(d) { d.totalLength = this.getTotalLength(); })
                         .attr("length", function(d) { return d.totalLength; });
 
-                    var arrowDelay = 800;
-
-                    var go = true,
-                        i = 0,
+                    // TODO:
+                    // arrow delay needs to be on a scale that maps the duration
+                    // to some reasonable amount of arrows
+                    var arrowDelay = 800,
                         energy = 0;
 
-                    console.log(data);
-                    while(go && i < data.length) {
-                        if( data[i].demand !== null && data[i].production !== null ) {
-                            if( scope.arrow === "arrow-red" ) {
-                                energy = data[i].demand;
-                            } else if( scope.arrow === "arrow-yellow" ) {
-                                energy = data[i].production;
-                            } else {
-                                console.log("Error: soloarLine1.client.directive: unexpected arrow style class");
-                            }
-                            go = false;
-                        }
-                        i = i + 1;
-                    }
+                    // use data.demand / data.production depending on if its grid or solar
+                    // this is commented out until the scales for energy / delay are done
+                    // so the default values above are used in the meantime
+
+                    // if( data && data.demand !== null && data.production !== null ) {
+                    //     if( scope.arrow === "arrow-red" ) {
+                    //         energy = data.demand;
+                    //     } else if( scope.arrow === "arrow-yellow" ) {
+                    //         energy = data.production;
+                    //     } else {
+                    //         console.log("Error: soloarLine1.client.directive: unexpected arrow style class");
+                    //     }
+                    // }
 
                     setInterval(function() {
                         var thisPolygon = svg.append("polygon")
@@ -121,9 +125,12 @@
                     }, arrowDelay); // delay between arrows
 
                     function transition(elem, energy) {
-                        console.log(energy);
+                        
+                        // TODO:
+                        // Duration needs to be on a scale that maps the energy value
+                        // to some range of reasonable durations
                         var dur = (path.attr("length") * 16) - (energy * 5);
-                        // console.log(dur);
+
                         elem.transition()
                             .duration(dur) // total time for an arrow to move along path
                             .ease(d3.easeLinear)

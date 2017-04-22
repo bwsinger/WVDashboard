@@ -5,9 +5,9 @@
 		.module('core')
 		.controller('Menu', MenuController);
 
-	MenuController.$inject = ['$rootScope', '$location', 'Settings'];
+	MenuController.$inject = ['$rootScope', '$location', '$scope', 'Settings'];
 
-	function MenuController($rootScope, $location, Settings) {
+	function MenuController($rootScope, $location, $scope, Settings) {
 
 		var vm = this;
 

@@ -26,7 +26,6 @@ module.exports = function(app) {
 
 	app.route('/api/weather').get(apicache('10 minutes'), api.weather);
 
-
 	// PARAMETERS
 
 	app.param('timespan', api.validateTimespan);

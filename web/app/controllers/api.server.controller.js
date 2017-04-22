@@ -42,7 +42,7 @@ exports.getEndUses = function(req, res, next) {
 
 		var query = `
 			SELECT "has_ev", "has_lab" FROM "buildings"
-			WHERE "id" = $1`
+			WHERE "id" = $1`;
 
 		dbClient.query(query, [req.params.building], function(err, result) {
 			if(err) {
@@ -105,16 +105,21 @@ exports.validateBuilding = function(req, res, next, value) {
 };
 
 exports.goals = function(req, res, next) {
-
 	var query = `
-		SELECT "id",
-				"zne_total",
-				"zne_hvac",
-				"zne_lights",
-				"zne_plugs",
-				"zne_kitchen"
-		FROM "buildings"
-		ORDER BY "street", "number"`;
+		SELECT 
+			"g"."building",
+			"g"."season",
+			"s"."name",
+			"g"."hour",
+
+			"g"."hvac_weekday", 	"g"."hvac_weekend",
+			"g"."kitchen_weekday", 	"g"."kitchen_weekend",
+			"g"."lights_weekday", 	"g"."lights_weekend",
+			"g"."plugs_weekday", 	"g"."plugs_weekend"
+
+		FROM "goals" AS "g"
+		JOIN "seasons" AS "s"
+		ON "g"."season" = "s"."id"`;
 
 	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) {
@@ -131,14 +136,46 @@ exports.goals = function(req, res, next) {
 			var goals = {};
 
 			for(var i = 0, len = result.rows.length; i < len; i++) {
-				goals[result.rows[i].id] = {
-					total: parseInt(result.rows[i].zne_total),
-					hvac: parseInt(result.rows[i].zne_hvac),
-					kitchen: parseInt(result.rows[i].zne_kitchen),
-					plugs: parseInt(result.rows[i].zne_plugs),
-					lights: parseInt(result.rows[i].zne_lights),
+
+				var g = result.rows[i];
+
+				if(!goals.hasOwnProperty(g.building)) {
+					goals[g.building] = {};
+				}
+
+				if(!goals[g.building].hasOwnProperty(g.name)) {
+					goals[g.building][g.name] = {};
+				}
+
+				goals[g.building][g.name][g.hour] = {
+					hvac: {
+						weekday: parseFloat(g.hvac_weekday),
+						weekend: parseFloat(g.hvac_weekend),
+					},
+					kitchen: {
+						weekday: parseFloat(g.kitchen_weekday),
+						weekend: parseFloat(g.kitchen_weekend),
+					},
+					lights: {
+						weekday: parseFloat(g.lights_weekday),
+						weekend: parseFloat(g.lights_weekend),
+					},
+					plugs: {
+						weekday: parseFloat(g.plugs_weekday),
+						weekend: parseFloat(g.plugs_weekend),
+					}
 				};
+
+				// use spring data for all seasons for now
+				goals[g.building].summer = goals[g.building].spring;
+				goals[g.building].fall = goals[g.building].spring;
+				goals[g.building].winter = goals[g.building].spring;
 			}
+
+			// use 215 data for all buildings for now
+			goals[2] = goals[1];
+			goals[3] = goals[1];
+			goals[4] = goals[1];
 
 			req.goals = goals;
 
@@ -186,42 +223,65 @@ exports.leaderboard = function(req, res) {
 		current_day++;
 	}
 
-	var saturday = moment().subtract(current_day, 'days').startOf('day'); // saturday at midnight
+	// get the extents of the week
+	var saturday = moment().subtract(current_day, 'days').startOf('day'); // start of saturday
 	var fridayAtNoon = saturday.clone().add(6, 'days').hour(12).minute(0).seconds(0); // friday at noon
 
-	// gets the total kw for the week from midnight friday/saturday to following friday noon (almost 6 days)
+	// calculate the energy goals for each building for this week
+	var goals = _calcGoalsAll(req.goals, saturday, fridayAtNoon);
+
+	// gets the total kwh so far for the week
 	var query = `
 		SELECT
 			"building",
-			ROUND( (SUM("hvac") + SUM("kitchen") + SUM("plugs") + SUM("lights")) / 1000, 2) as "kw"
+			ROUND(
+				(
+					SUM("hvac"/60) +
+					SUM("kitchen"/60) +
+					SUM("plugs"/60) +
+					SUM("lights"/60)
+				) / 1000,
+				2
+			) as "kwh"
 		FROM "hobodata"
-		WHERE "datetime" BETWEEN $1 AND $2
+		WHERE "datetime" > $1
+		AND "datetime" <= $2
 		GROUP BY "building"
 		ORDER BY "building"
 	`;
+
+	var format = 'Y-MM-DD HH:mm:ss',
+		params = [
+		saturday.format(format),
+		fridayAtNoon.format(format)
+	];
 
 	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) {
 			throw err;
 		}
 
-		dbClient.query(query, [saturday, fridayAtNoon], function(err, result) {
+		dbClient.query(query, params, function(err, result) {
 			if(err) {
 				throw err;
 			}
 
-			// Build object with week-to-date kw values
-			var current_kw = {};
+			// Build object with week-to-date kwh values
+			var current_kwh = {};
 
-			for(var b in req.goals) {
-				current_kw[b] = null;
+			for(var b in goals) {
+				current_kwh[b] = null;
 			}
 
 			for(var i = 0, len = result.rows.length; i < len; i++) {
-				current_kw[result.rows[i].building] = parseFloat(result.rows[i].kw);
+				current_kwh[result.rows[i].building] = parseFloat(result.rows[i].kwh);
 			}
 
-			var zne_ratio = 0.75;
+			//console.log(current_kwh);
+
+			// track length is 1, where should the finish line be?
+			// need to allow some room for passing it
+			var zne_final = 0.75;
 			var exaggeration_factor = 0;
 
 			// Caculate the ratio of the current time to the entire week to scale
@@ -235,18 +295,20 @@ exports.leaderboard = function(req, res) {
 			}
 
 			var minute_ratio = minutes_so_far / minutes_in_week;
+			var zne_pos = zne_final * minute_ratio;
 
-			var zne_pos = zne_ratio * minute_ratio;
-
-			var positions = [];
+			var positions = [
+				{ building: 'ZNE', position: zne_pos }
+			];
 
 			// Calculate the position of each building
-			for(var building in req.goals) {
+			for(var building in goals) {
 
-				if(current_kw[building] !== null) {
+				if(current_kwh[building] !== null) {
 					// how much of the zne goal has been used
 					// (compared to adjusted goal for the current day)
-					var percent_used = current_kw[building] / (req.goals[building].total * minute_ratio);
+					var percent_used = current_kwh[building] / (goals[building] * minute_ratio);
+					//console.log('used: '+(percent_used*100).toFixed(2)+'%');
 
 					//do exaggeration
 					percent_used = 1 + (1 + exaggeration_factor) * (percent_used - 1);
@@ -257,6 +319,7 @@ exports.leaderboard = function(req, res) {
 						building: building,
 						position: zne_pos / percent_used,
 					});
+					//console.log('Position: '+(zne_pos / percent_used));
 				}
 				else {
 					positions.push({
@@ -273,11 +336,6 @@ exports.leaderboard = function(req, res) {
 
 				positions[j].good = positions[j].position >= zne_pos;
 			}
-
-			positions.push({
-				building: 'ZNE',
-				position: zne_ratio,
-			});
 
 			res.status(200).send(positions); // send response
 
@@ -363,7 +421,10 @@ exports.currentAll = function(req, res) {
 			SELECT
 				"building",
 				"datetime",
-				row_number() OVER (PARTITION BY "building" ORDER BY "datetime" DESC) as "rank",
+				row_number() OVER (
+					PARTITION BY "building"
+					ORDER BY "datetime" DESC
+				) as "rank",
 				"hvac",
 				"kitchen",
 				"plugs",
@@ -413,14 +474,14 @@ exports.historical = function(req, res) {
 
 	var enabled = {};
 
-	for(use in req.enduses) {
+	for(let use in req.enduses) {
 		enabled[use] = true;
 	}
 
 	if(req.query.disabled) {
 		var passed = req.query.disabled.split(',');
 
-		for(var use in enabled) {
+		for(let use in enabled) {
 			if(passed.indexOf(use) !== -1) {
 				enabled[use] = false;
 			}
@@ -486,8 +547,7 @@ exports.historical = function(req, res) {
 
 exports.percentAll = function(req, res) {
 
-	var goals = _getPercentGoals(req.params.timespan, req.goals),
-		query = _buildPercentBuildingQuery(req.params.timespan, false);
+	var query = _buildPercentBuildingQuery(req.params.timespan, false);
 
 	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) {
@@ -511,7 +571,7 @@ exports.percentAll = function(req, res) {
 				}
 			}
 
-			_doPercentAdjustment(data, result, goals);
+			_doPercentAdjustment(data, result, req.params.timespan, req.goals);
 
 			res.status(200).send(_transformPercentObject(data)); // send response
 
@@ -522,8 +582,7 @@ exports.percentAll = function(req, res) {
 
 exports.percentBuilding = function(req, res) {
 
-	var goals = _getPercentGoals(req.params.timespan, req.goals),
-		query = _buildPercentBuildingQuery(req.params.timespan, true);
+	var query = _buildPercentBuildingQuery(req.params.timespan, true);
 
 	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) {
@@ -544,7 +603,7 @@ exports.percentBuilding = function(req, res) {
 				data[intervals[j]][req.params.building] = null;
 			}
 
-			_doPercentAdjustment(data, result, goals);
+			_doPercentAdjustment(data, result, req.params.timespan, req.goals);
 
 			res.status(200).send(_transformPercentObject(data)); // send response
 
@@ -555,8 +614,7 @@ exports.percentBuilding = function(req, res) {
 
 exports.percentEnduse = function(req, res) {
 
-	var goals = _getPercentGoals(req.params.timespan, req.goals),
-		query = _buildPercentUseQuery(req.params.timespan);
+	var query = _buildPercentUseQuery(req.params.timespan);
 
 	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) {
@@ -571,12 +629,24 @@ exports.percentEnduse = function(req, res) {
 			var data = [];
 
 			for(var i = 0, len = result.rows.length; i < len; i++) {
+
+				var row = result.rows[i],
+					interval = row.interval.toISOString(),
+					start = moment(interval),
+					end = _addInterval(start, req.params.timespan),
+					goals = {
+						hvac: _calcGoal(req.goals[req.params.building], start, end, 'hvac'),
+						lights: _calcGoal(req.goals[req.params.building], start, end, 'lights'),
+						plugs: _calcGoal(req.goals[req.params.building], start, end, 'plugs'),
+						kitchen: _calcGoal(req.goals[req.params.building], start, end, 'kitchen'),
+					};
+
 				data.push({
-					interval: result.rows[i].interval.toISOString(),
-					HVAC: result.rows[i].hvac !== null ? (parseFloat(result.rows[i].hvac) / goals[req.params.building].hvac) * 100 : null,
-					Lights: result.rows[i].lights !== null ? (parseFloat(result.rows[i].lights) / goals[req.params.building].lights) * 100 : null,
-					Plugs: result.rows[i].plugs !== null ? (parseFloat(result.rows[i].plugs) / goals[req.params.building].plugs) * 100 : null,
-					Kitchen: result.rows[i].kitchen !== null ? (parseFloat(result.rows[i].kitchen) / goals[req.params.building].kitchen) * 100 : null,
+					interval: 	interval,
+					HVAC: 		row.hvac !== null ? 	(parseFloat(row.hvac) / goals.hvac) * 100 		: null,
+					Lights: 	row.lights !== null ? 	(parseFloat(row.lights) / goals.lights) * 100 	: null,
+					Plugs: 		row.plugs !== null ? 	(parseFloat(row.plugs) / goals.plugs) * 100 	: null,
+					Kitchen: 	row.kitchen !== null ? 	(parseFloat(row.kitchen) / goals.kitchen) * 100 : null,
 				});
 			}
 
@@ -589,13 +659,149 @@ exports.percentEnduse = function(req, res) {
 
 // HELPERS
 
+function _calcGoalsAll(hourly, start, end) {
+	// calculate the goals for all the buildings
+
+	var goals = {};
+
+	for(let b in hourly) {
+		//console.log('Calc for '+b);
+		goals[b] = _calcGoal(hourly[b], start, end);
+	}
+
+	//console.log(goals);
+
+	return goals;
+}
+
+function _calcGoal(hourly, start, end, enduse) {
+	
+	//console.log('Calc from '+start.format()+' to '+end.format()+' for '+(enduse === 'undefined'? 'all' : enduse));
+
+	var current = moment(start),
+		totalwatthours = 0;
+
+	if(start.minute() != 0) {
+
+		//console.log('partial at start');
+
+		totalwatthours += _partialHour(
+			hourly[_getSeason(start.month())],
+			start.hour(),
+			60-start.minute(), // remaining time in the hour
+			_getDayType(start.day()),
+			enduse
+		);
+
+		current.minute(0).add(1, 'hour');
+	}
+
+	//console.log('adding '+end.diff(current, 'hours')+' hours in between');
+
+	while(end.diff(current, 'hours') > 0) {
+		
+
+		totalwatthours += _fullHour(
+			hourly[_getSeason(current.month())],
+			current.hour(),
+			_getDayType(current.day()),
+			enduse
+		);
+
+		current.add(1, 'hour');
+	}
+
+	if(end.minute() > 0) {
+
+		//console.log('partial at end');
+
+		totalwatthours += _partialHour(
+			hourly[_getSeason(end.month())],
+			end.hour(),
+			end.minute(),
+			_getDayType(end.day()),
+			enduse
+		);
+	}
+
+	console.log('Total for time period '+(totalwatthours/1000));
+
+	return totalwatthours / 1000; //return kwh
+}
+
+function _getDayType(day) {
+	switch(day) {
+		case 0:
+		case 6:
+			return 'weekend';
+		default:
+			return 'weekday';
+	}
+}
+
+function _getSeason(month) {
+	switch(month) {
+		case 2:
+		case 3:
+		case 4:
+			return 'spring';
+		case 5:
+		case 6:
+		case 7:
+			return 'summer';
+		case 8:
+		case 9:
+		case 10:
+			return 'fall';
+		case 11:
+		case 0:
+		case 1:
+			return 'winter';
+	}
+}
+
+function _partialHour(season, hour, minutes, type, enduse) {
+	var watthours = 0,
+		ratio = minutes / 60;
+
+	if(typeof(enduse) === 'undefined') {
+		watthours += season[hour].hvac[type] * ratio;
+		watthours += season[hour].kitchen[type] * ratio;
+		watthours += season[hour].lights[type] * ratio;
+		watthours += season[hour].plugs[type] * ratio;
+	}
+	else {
+		watthours += season[hour][enduse][type] * ratio;	
+	}
+
+	//console.log('Caculated a partial hour at '+watthours);
+	return watthours;
+}
+
+function _fullHour(season, hour, type, enduse) {
+	var watthours = 0;
+
+	if(typeof(enduse) === 'undefined') {
+		watthours += season[hour].hvac[type];
+		watthours += season[hour].kitchen[type];
+		watthours += season[hour].lights[type];
+		watthours += season[hour].plugs[type];
+	}
+	else {
+		watthours += season[hour][enduse][type];	
+	}
+
+	//console.log('Caculated '+(end-start+1)+' hours at '+watthours);
+	return watthours;
+}
+
 function _buildCurrent(data, enduses) {
 	var current = {};
 	var production = parseFloat(data.solar);
 	var demand = 0;
 
 	for(var use in enduses) {
-		var val = parseFloat(data[use])
+		var val = parseFloat(data[use]);
 		current[use] =  Math.round(val);
 		demand += val;
 	}
@@ -608,7 +814,7 @@ function _buildCurrent(data, enduses) {
 	if(data.hasOwnProperty('building')) {
 		current.building = data.building;
 	}
-	return current
+	return current;
 }
 
 function _buildEndUses(has_ev, has_lab) {
@@ -643,19 +849,40 @@ function _transformPercentObject(data) {
 }
 
 // Adjust the kw values to be a percent of the zne goal
-function _doPercentAdjustment(data, result, goals) {
+function _doPercentAdjustment(data, result, timespan, goals) {
 
 	// Change any values that exist in the result
 	for(var i = 0, len = result.rows.length; i < len; i++) {
 
 		// building null means an interval with no data from any building
 		// kw null means an interval with no data for that building
-		if(result.rows[i].building !== null && result.rows[i].kw !== null) {
+		if(result.rows[i].building !== null && result.rows[i].kwh !== null) {
 
-			// calculate the percent of the zne
-			var percent = (parseFloat(result.rows[i].kw) / goals[result.rows[i].building].total) * 100;
-			data[result.rows[i].interval.toISOString()][result.rows[i].building] = percent;
+			var interval = result.rows[i].interval.toISOString(),
+				start = moment(interval),
+				end = _addInterval(start, timespan),
+				building = result.rows[i].building,
+				goal = _calcGoal(goals[building], start, end),
+				kwh = parseFloat(result.rows[i].kwh),
+				percent = (kwh / goal) * 100; //calculate the percent of the zne
+
+			console.log(kwh);
+
+			data[interval][building] = percent;
 		}
+	}
+}
+
+function _addInterval(start, timespan) {
+	switch(timespan) {
+		case 'hourly':
+			return moment(start).add(1, 'hour');
+		case 'daily':
+			return moment(start).add(1, 'day');
+		case 'weekly':
+			return moment(start).add(7, 'day');
+		case 'monthly':
+			return moment(start).add(1, 'month');
 	}
 }
 
@@ -710,37 +937,6 @@ function _getPercentUnit(timespan) {
 	}
 }
 
-// Adjust the zne goals for the timespan requested
-function _getPercentGoals(timespan, goals) {
-	var multiplier = 1,
-		adjusted = {};
-
-	switch(timespan) {
-		case 'hourly':
-			multiplier = 1 / (24 * 7); // weekly to hourly
-			break;
-		case 'daily':
-			multiplier = 1 / 7; // weekly to daily
-			break;
-		case 'weekly':
-			multiplier = 1; // weekly
-			break;
-		case 'monthly':
-			multiplier = 4; // weekly to monthly
-			break;
-	}
-
-	for(var building in goals) {
-		adjusted[building] = {};
-
-		for(var goal in goals[building]) {
-			adjusted[building][goal] = goals[building][goal] * multiplier;
-		}
-	}
-
-	return adjusted;
-}
-
 function _buildPercentBuildingQuery(timespan, filter) {
 	var unit = _getPercentUnit(timespan),
 		start = _getPercentStart(timespan),
@@ -765,15 +961,15 @@ function _buildPercentBuildingQuery(timespan, filter) {
 	return `
 		SELECT "series"."interval",
 				"values"."building",
-			ROUND(("values"."hvac" + "values"."kitchen" + "values"."plugs" + "values"."lights") / 1000, 2) as "kw"
+			ROUND(("values"."hvac" + "values"."kitchen" + "values"."plugs" + "values"."lights") / 1000, 2) as "kwh"
 		FROM (
 			SELECT 
 				"data"."building",
 				"data"."interval",
-				SUM("data"."hvac") as "hvac",
-				SUM("data"."kitchen") as "kitchen",
-				SUM("data"."plugs") as "plugs",
-				SUM("data"."lights") as "lights"
+				SUM("data"."hvac"/60) as "hvac",
+				SUM("data"."kitchen"/60) as "kitchen",
+				SUM("data"."plugs"/60) as "plugs",
+				SUM("data"."lights"/60) as "lights"
 			FROM (
 				SELECT
 					"hobodata"."building",
@@ -822,10 +1018,10 @@ function _buildPercentUseQuery(timespan) {
 		FROM (
 			SELECT 
 				"data"."interval",
-				SUM("data"."hvac") as "hvac",
-				SUM("data"."kitchen") as "kitchen",
-				SUM("data"."plugs") as "plugs",
-				SUM("data"."lights") as "lights"
+				SUM("data"."hvac"/60) as "hvac",
+				SUM("data"."kitchen"/60) as "kitchen",
+				SUM("data"."plugs"/60) as "plugs",
+				SUM("data"."lights"/60) as "lights"
 			FROM (
 				SELECT
 					date_trunc('${unit}',  "hobodata"."datetime") as "interval",

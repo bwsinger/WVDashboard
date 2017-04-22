@@ -63,7 +63,6 @@
 
 					// Wrapper to ensure margins
 					var cont = svg.append('g')
-						//.attr('transform', 'translate('+margin.left+','+margin.top+') skewX(-30)');
 						.attr('transform', 'translate('+margin.left+','+margin.top+')');
 
 					// separate out the data for buildings from the zne location
@@ -116,6 +115,14 @@
 							.attr('width', function(d) { return x(d.position); })
 							.attr('height', y.bandwidth());
 
+					cont.append('image')
+							.attr('class', 'finish')
+							.attr('x', x(zneData[0].position))
+							.attr('y', 0)
+							.attr('height', height)
+							.attr('width', 72)
+							.attr('href', 'images/leaderboard/leaderboard_finish_line.svg');
+
 					var horseExtra = 120,
 						horseHeight = y.bandwidth() + horseExtra,
 						horseWidth = horseHeight * 1.722222222;
@@ -127,35 +134,10 @@
 							.attr('x', function(d) { return x(d.position) - 125; })
 							.attr('y', function(d) { return y(d.building) - 52; })
 							.attr('href', function(d) {
-								return 'images/leaderboard/'+names(d.building)+/*'-'+d.place+*/'.svg';
+								return 'images/leaderboard/'+names(d.building)+'.svg';
 							})
 							.attr('height', horseHeight)
 							.attr('width', horseWidth);
-							//.attr('transform', 'skewX(30)');;
-
-					var gateHeight = y.bandwidth(),
-						gateWidth = gateHeight * 1.320754717;
-
-					/*
-					cont.selectAll('image.gate')
-						.data(buildingData).enter()
-						.append('image')
-							.attr('class', 'gate')
-							.attr('x', -gateWidth)
-							.attr('y', function(d) { return y(d.building); })
-							.attr('height', gateHeight)
-							.attr('width', gateWidth)
-							.attr('href', 'images/leaderboard/leaderboard_gate.svg');
-							//.attr('transform', 'skewY(55)');
-					*/
-
-					cont.append('image')
-							.attr('class', 'finish')
-							.attr('x', x(zneData[0].position))
-							.attr('y', 0)
-							.attr('height', height)
-							.attr('width', 72)
-							.attr('href', 'images/leaderboard/leaderboard_finish_line.svg');
 
 				};
 			});

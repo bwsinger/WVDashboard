@@ -51,7 +51,7 @@ CREATE TABLE "goals" (
 );
 
 INSERT INTO "buildings"
-("id", "name", "number", "street", "has_ev", "has_lab", "zne_total", "zne_hvac", "zne_kitchen", "zne_plugs", "zne_lights", "export", "hvac", "kitchen", "plugs", "lights", "solar", "ev", "lab")
+("id", "name", "number", "street", "has_ev", "has_lab", "export", "hvac", "kitchen", "plugs", "lights", "solar", "ev", "lab")
 VALUES
 (1, '215 Sage', 215, 'Sage', FALSE, TRUE, '215_Last_30_Days', '[6,11,19,20,21,23]', '[15,16,17]', '[5,7,8,9,10,12,26,27,28]', '[4,22,24,25]', '[1,14,18]', '[]', '[]'),
 (2, '1590 Tilia', 1590, 'Tilia', TRUE, FALSE, '1590_Last_30_Days', '[22,23,24,25]', '[2,3,4,5,6,7]', '[10,11,12,13,14,26,27,28,29,30,31]', '[8,9]', '[15,16,32]', '[18,19,20,21]', '[]'),

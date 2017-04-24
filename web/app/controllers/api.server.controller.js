@@ -681,7 +681,7 @@ function _calcGoal(hourly, start, end, enduse) {
 	var current = moment(start),
 		totalwatthours = 0;
 
-	if(start.minute() != 0) {
+	if(start.minute() !== 0) {
 
 		//console.log('partial at start');
 

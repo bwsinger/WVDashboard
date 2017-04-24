@@ -724,7 +724,7 @@ function _calcGoal(hourly, start, end, enduse) {
 		);
 	}
 
-	console.log('Total for time period '+(totalwatthours/1000));
+	//console.log('Total for time period '+(totalwatthours/1000));
 
 	return totalwatthours / 1000; //return kwh
 }
@@ -866,7 +866,7 @@ function _doPercentAdjustment(data, result, timespan, goals) {
 				kwh = parseFloat(result.rows[i].kwh),
 				percent = (kwh / goal) * 100; //calculate the percent of the zne
 
-			console.log(kwh);
+			//console.log(kwh);
 
 			data[interval][building] = percent;
 		}

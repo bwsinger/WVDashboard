@@ -297,9 +297,7 @@ exports.leaderboard = function(req, res) {
 			var minute_ratio = minutes_so_far / minutes_in_week;
 			var zne_pos = zne_final * minute_ratio;
 
-			var positions = [
-				{ building: 'ZNE', position: zne_pos }
-			];
+			var positions = [];
 
 			// Calculate the position of each building
 			for(var building in goals) {
@@ -336,6 +334,8 @@ exports.leaderboard = function(req, res) {
 
 				positions[j].good = positions[j].position >= zne_pos;
 			}
+
+			positions.push({ building: 'ZNE', position: zne_pos });
 
 			res.status(200).send(positions); // send response
 

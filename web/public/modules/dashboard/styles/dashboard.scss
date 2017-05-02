@@ -52,6 +52,9 @@
 	height: 13.8%;
 	top: 7%;
 	left: 60%;
+    border-color: white;
+    border-width: 1px;
+    border-style: solid;
 	@include respond-to(laptop) {  }
 	@include respond-to(desktop) { width: 8%;height: 13.8%;top: 7%;left: 60%; }
 	@include respond-to(laptopW) {  }
@@ -319,11 +322,11 @@
 	right: 18.3%;
 	padding: 0.2%;
 	letter-spacing: -0.15em;
-	@include respond-to(laptop) { top: 19%; }
+	@include respond-to(laptop) { top: 17%; }
     @include respond-to(desktop) {  }
-    @include respond-to(laptopW) { right: 20%; width: 13%; }
+    @include respond-to(laptopW) { right: 18%; width: 13%; }
     @include respond-to(laptop2W) { right: 20%; width: 12%; font-size: 1vw; }
-    @include respond-to(desktopW) { right: 23%; width: 10%; font-size: 1vw; }
+    @include respond-to(desktopW) { right: 18%; width: 14%; height: 11%; font-size: 1vw; }
     @include respond-to(popularW) { right: 24%; width: 9%; font-size: 1vw; height: 21%; }
 }
 

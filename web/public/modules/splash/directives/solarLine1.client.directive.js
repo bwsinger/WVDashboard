@@ -100,22 +100,29 @@
                     // TODO:
                     // arrow delay needs to be on a scale that maps the duration
                     // to some reasonable amount of arrows
-                    var arrowDelay = 800,
-                        energy = 0;
+                    var energy = 0,
+                        energyRatio = 5000;
 
                     // use data.demand / data.production depending on if its grid or solar
                     // this is commented out until the scales for energy / delay are done
                     // so the default values above are used in the meantime
 
-                    // if( data && data.demand !== null && data.production !== null ) {
-                    //     if( scope.arrow === "arrow-red" ) {
-                    //         energy = data.demand;
-                    //     } else if( scope.arrow === "arrow-yellow" ) {
-                    //         energy = data.production;
-                    //     } else {
-                    //         console.log("Error: soloarLine1.client.directive: unexpected arrow style class");
-                    //     }
-                    // }
+                    if( data && data.demand !== null && data.production !== null ) {
+                        if( scope.arrow === "arrow-red" ) {
+                            energy = data.demand;
+                        } else if( scope.arrow === "arrow-yellow" ) {
+                            energy = data.production;
+                        } else {
+                            console.log("Error: soloarLine1.client.directive: unexpected arrow style class");
+                        }
+                    }
+
+                    var arrowDelay = 1200 
+                    // / (energy / energyRatio)
+                    ;
+
+                    // console.log("arrowDelay: " + arrowDelay);
+                    console.log(energy / energyRatio);
 
                     setInterval(function() {
                         var thisPolygon = svg.append("polygon")
@@ -124,12 +131,19 @@
                         transition(thisPolygon, energy);
                     }, arrowDelay); // delay between arrows
 
+                    // console.log((path.attr("length") * 16));
+
                     function transition(elem, energy) {
                         
                         // TODO:
                         // Duration needs to be on a scale that maps the energy value
                         // to some range of reasonable durations
-                        var dur = (path.attr("length") * 16) - (energy * 5);
+                        // (energy / 5)
+                        var dur = (path.attr("length") * 30)
+                        // - energy
+                        // / (energy / energyRatio)
+                        ;
+
 
                         elem.transition()
                             .duration(dur) // total time for an arrow to move along path

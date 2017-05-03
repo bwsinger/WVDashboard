@@ -220,7 +220,7 @@ exports.leaderboard = function(req, res) {
 	var endFriday = moment().day(5).hour(12).minute(0).seconds(0).millisecond(0);
 
 	// When to unfreeze the results? Monday at Midnight
-	var unfreezeOn = moment().day(3).hour(0).minute(0).seconds(0).millisecond(0);
+	var unfreezeOn = moment().day(1).hour(0).minute(0).seconds(0).millisecond(0);
 
 	// Freeze the results during the appropriate period
 	var resultsFrozen = startFriday <= moment() && moment() < unfreezeOn;

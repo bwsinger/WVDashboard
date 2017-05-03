@@ -12,6 +12,8 @@ module.exports = function(app) {
 
 	app.route('/api/leaderboard').get(api.goals, api.leaderboard);
 
+	app.route('/api/trophies/:building').get(api.trophies);
+
 	app.route('/api/current/all').get(api.currentAll);
 
 	app.route('/api/current/building/:building').get(api.getEndUses, api.current);

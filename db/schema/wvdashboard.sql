@@ -50,6 +50,13 @@ CREATE TABLE "goals" (
 	"plugs_weekend" numeric(13,8)
 );
 
+CREATE TABLE "trophies" (
+	"id" SERIAL PRIMARY KEY,
+	"building" INTEGER REFERENCES "buildings" ("id"),
+	"year" INTEGER NOT NULL,
+	"isoweek" INTEGER NOT NULL
+);
+
 INSERT INTO "buildings"
 ("id", "name", "number", "street", "has_ev", "has_lab", "export", "hvac", "kitchen", "plugs", "lights", "solar", "ev", "lab")
 VALUES

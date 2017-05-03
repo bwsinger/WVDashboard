@@ -2,4 +2,10 @@
 	<h1 class="section-banner-title section-banner-title-solo">This Week's Leaderboard</h1>
 </div>
 
+<div class="container-fluid trophies" ng-if="vm.trophies">
+	<div class="col-md-1 full-height" ng-repeat="trophy in vm.trophies">
+		<img class="full-height" src="./images/leaderboard/trophy.svg">
+	</div>
+</div>
+
 <leaderboard-graph ng-if="vm.leaderboardData" data="vm.leaderboardData" buildings="vm.buildings"></leaderboard-graph>

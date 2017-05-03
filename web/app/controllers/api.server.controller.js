@@ -358,6 +358,37 @@ exports.leaderboard = function(req, res) {
 	});
 };
 
+exports.trophies = function(req, res) {
+
+	var query = `
+		SELECT
+			"building",
+			"year",
+			"isoweek"
+		FROM "trophies"
+		WHERE "building" = $1
+		ORDER BY "year", "isoweek" ASC
+	`;
+
+	pg.connect(config.connString, function(err, dbClient, done) {
+		if(err) {
+			throw err;
+		}
+
+		dbClient.query(query, [req.params.building], function(err, result) {
+			if(err) {
+				throw err;
+			}
+
+			res.status(200).send({
+				trophies: result.rows,
+			}); // send response
+
+			done(); // close db connection
+		});
+	});
+};
+
 exports.current = function(req, res) {
 	// return average of last 10 minutes of data in the database for the passed building in Watts
 

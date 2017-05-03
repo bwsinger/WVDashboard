@@ -54,6 +54,12 @@
 				}
 			});
 
+			Hobo.getTrophies(vm.buildingId).then(function(data) {
+				if(data.trophies.length) {
+					vm.trophies = data.trophies;
+				}
+			});
+
 			Hobo.getCurrent(vm.buildingId).then(function(data) {
 				vm.currentData = data;
 				

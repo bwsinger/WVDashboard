@@ -18,6 +18,7 @@
 			getPercentAll: getPercentAll,
 			getPercentBuilding: getPercentBuilding,
 			getPercentEnduse: getPercentEnduse,
+			getTrophies: getTrophies,
 		};
 
 		return factory;
@@ -83,6 +84,12 @@
 
 		function getPercentEnduse(timespan, building) {
 			return $http.get('./api/percent/enduse/'+building+'/'+timespan).then(function(res) {
+				return res.data;
+			});
+		}
+
+		function getTrophies(building) {
+			return $http.get('./api/trophies/'+building).then(function(res) {
 				return res.data;
 			});
 		}

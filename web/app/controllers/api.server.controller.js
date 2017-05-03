@@ -213,24 +213,28 @@ exports.buildings = function(req, res) {
 
 exports.leaderboard = function(req, res) {
 
-	var current_day = moment().day();
+	// Start of the week is last Friday at noon
+	var startFriday = moment().day(-2).hour(12).minute(0).seconds(0).millisecond(0);
 
-	//Adjust to make saturday 0
-	if(current_day === 6) {
-		current_day = 0;
+	// End of the week is next Friday at noon
+	var endFriday = moment().day(5).hour(12).minute(0).seconds(0).millisecond(0);
+
+	// When to unfreeze the results? Monday at Midnight
+	var unfreezeOn = moment().day(3).hour(0).minute(0).seconds(0).millisecond(0);
+
+	// Freeze the results during the appropriate period
+	var resultsFrozen = startFriday <= moment() && moment() < unfreezeOn;
+
+	// Display data from the previous week
+	if(resultsFrozen) {
+		startFriday.subtract(7, 'days');
+		endFriday.subtract(7, 'days');
 	}
-	else {
-		current_day++;
-	}
 
-	// get the extents of the week
-	var saturday = moment().subtract(current_day, 'days').startOf('day'); // start of saturday
-	var fridayAtNoon = saturday.clone().add(6, 'days').hour(12).minute(0).seconds(0); // friday at noon
+	// calculate goals per building for the week in question
+	var goals = _calcGoalsAll(req.goals, startFriday, endFriday);
 
-	// calculate the energy goals for each building for this week
-	var goals = _calcGoalsAll(req.goals, saturday, fridayAtNoon);
-
-	// gets the total kwh so far for the week
+	// get total kwh per building for the week in question
 	var query = `
 		SELECT
 			"building",
@@ -252,9 +256,9 @@ exports.leaderboard = function(req, res) {
 
 	var format = 'Y-MM-DD HH:mm:ss',
 		params = [
-		saturday.format(format),
-		fridayAtNoon.format(format)
-	];
+			startFriday.format(format),
+			endFriday.format(format)
+		];
 
 	pg.connect(config.connString, function(err, dbClient, done) {
 		if(err) {
@@ -277,67 +281,77 @@ exports.leaderboard = function(req, res) {
 				current_kwh[result.rows[i].building] = parseFloat(result.rows[i].kwh);
 			}
 
-			//console.log(current_kwh);
-
 			// track length is 1, where should the finish line be?
 			// need to allow some room for passing it
 			var zne_final = 0.75;
-			var exaggeration_factor = 0;
+
+			// TODO change this back to 0 once we have goals for the other buildings
+			// this makes the apparent difference between horses small
+			// var exaggeration_factor = 0;
+			var exaggeration_factor = -0.8;
 
 			// Caculate the ratio of the current time to the entire week to scale
 			// the weekly zne to the current day
-			var minutes_so_far = moment().diff(saturday, 'minutes'); // minutes since saturday midnight
-			var minutes_in_week = fridayAtNoon.diff(saturday, 'minutes'); // minutes from saturday to friday noon
 
-			// Don't change the results after friday noon
-			if(minutes_so_far > minutes_in_week) {
-				minutes_so_far = minutes_in_week;
-			}
+			// minutes between last friday noon and this friday noon
+			var minutes_in_week = endFriday.diff(startFriday, 'minutes');
 
-			var minute_ratio = minutes_so_far / minutes_in_week;
-			var zne_pos = zne_final * minute_ratio;
+			// minutes since last friday noon
+			// unless we're in the freeze period in which case
+			// its just the total minutes in the week so the results don't change
+			var minutes_so_far = resultsFrozen ? minutes_in_week : moment().diff(startFriday, 'minutes');
 
-			var positions = [];
+			var minute_ratio = minutes_so_far / minutes_in_week,
+				zne_pos = zne_final * minute_ratio,
+				positions = [],
+				best_pos = 0;
 
 			// Calculate the position of each building
 			for(var building in goals) {
 
+				var building_pos = null,
+					percent_used = 0; // assume no energy data
+
 				if(current_kwh[building] !== null) {
 					// how much of the zne goal has been used
 					// (compared to adjusted goal for the current day)
-					var percent_used = current_kwh[building] / (goals[building] * minute_ratio);
-					//console.log('used: '+(percent_used*100).toFixed(2)+'%');
+					percent_used = current_kwh[building] / (goals[building] * minute_ratio);
 
 					//do exaggeration
 					percent_used = 1 + (1 + exaggeration_factor) * (percent_used - 1);
 
 					// calculate the position compared to the zne "line" for current day
 					// Inverted because values lower than ZNE are good and higher are bad
-					positions.push({
-						building: building,
-						position: zne_pos / percent_used,
-					});
-					//console.log('Position: '+(zne_pos / percent_used));
+					building_pos = zne_pos / percent_used;
+
+					// if we're frozen, figure out which building was best
+					if(resultsFrozen && building_pos > best_pos) {
+						best_pos = building_pos;
+					}
 				}
-				else {
-					positions.push({
-						building: building,
-						position: null,
-					});
-				}
+
+				positions.push({
+					building: building,
+					position: building_pos,
+				});
 			}
 
 			var sorted = positions.slice().sort(function(a, b) { return a.position < b.position; });
 
 			for(var j = 0, lenj = positions.length; j < lenj; j++) {
 				positions[j].place = sorted.indexOf(positions[j])+1;
-
 				positions[j].good = positions[j].position >= zne_pos;
+
+				// Show the trophy for first place
+				positions[j].trophy = resultsFrozen && positions[j].place === 1;
 			}
 
-			positions.push({ building: 'ZNE', position: zne_pos });
-
-			res.status(200).send(positions); // send response
+			// if we're frozen, the finish line should be lined up
+			// with the winning building otherwise, don't show it
+			res.status(200).send({
+				finish: resultsFrozen ? best_pos : null,
+				buildings: positions,
+			}); // send response
 
 			done(); // close db connection
 		});

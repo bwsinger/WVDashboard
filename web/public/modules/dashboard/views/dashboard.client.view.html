@@ -9,6 +9,7 @@
 			<div class="col-xs-4 col-sm-4 col-md-4 col-lg-4 full-height mascot-bg">
 				<img class="mascot-light" src="./images/mascots/profile_light.svg" alt="Background glow for mascot image">
 				<img ng-if="vm.leaderboardData" class="mascot" ng-src="./images/mascots/{{vm.building}}-{{vm.place}}-{{vm.state}}.svg" alt="Horse for {{vm.building}}">
+				<img ng-if="vm.trophy" class="trophy-big" src="./images/leaderboard/trophy.svg">
 				<div ng-if="vm.currentData.latest" class="last-updated">Last updated <span ng-bind="vm.currentData.latest|date:'HH:mm'"></span></div>
 			</div>
 

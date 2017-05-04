@@ -1,103 +1,82 @@
 'use strict';
 
 var moment = require('moment'),
-	db = require('../../config/db');
-
-module.exports = {
-	compile: compile,
-	calcAll: calcAll,
-	calc: calc,
-};
+	goals = require('../models/goals.server.model');
 
 // compile the goals
-function compile(callback) {
-	var query = `
-		SELECT 
-			"g"."building",
-			"g"."season",
-			"s"."name",
-			"g"."hour",
+exports.compile = function() {
 
-			"g"."hvac_weekday", 	"g"."hvac_weekend",
-			"g"."kitchen_weekday", 	"g"."kitchen_weekend",
-			"g"."lights_weekday", 	"g"."lights_weekend",
-			"g"."plugs_weekday", 	"g"."plugs_weekend"
+	return goals.findAll()
+		.then(function(result) {
+			var goals = {};
 
-		FROM "goals" AS "g"
-		JOIN "seasons" AS "s"
-		ON "g"."season" = "s"."id"`;
+			for(var i = 0, len = result.rows.length; i < len; i++) {
 
-	db.query(query, handleResult);
+				var g = result.rows[i];
 
-	function handleResult(err, result) {
-		if(err) {
-			throw err;
-		}
-
-		var goals = {};
-
-		for(var i = 0, len = result.rows.length; i < len; i++) {
-
-			var g = result.rows[i];
-
-			if(!goals.hasOwnProperty(g.building)) {
-				goals[g.building] = {};
-			}
-
-			if(!goals[g.building].hasOwnProperty(g.name)) {
-				goals[g.building][g.name] = {};
-			}
-
-			goals[g.building][g.name][g.hour] = {
-				hvac: {
-					weekday: parseFloat(g.hvac_weekday),
-					weekend: parseFloat(g.hvac_weekend),
-				},
-				kitchen: {
-					weekday: parseFloat(g.kitchen_weekday),
-					weekend: parseFloat(g.kitchen_weekend),
-				},
-				lights: {
-					weekday: parseFloat(g.lights_weekday),
-					weekend: parseFloat(g.lights_weekend),
-				},
-				plugs: {
-					weekday: parseFloat(g.plugs_weekday),
-					weekend: parseFloat(g.plugs_weekend),
+				if(!goals.hasOwnProperty(g.building)) {
+					goals[g.building] = {};
 				}
-			};
 
-			// use spring data for all seasons for now
-			goals[g.building].summer = goals[g.building].spring;
-			goals[g.building].fall = goals[g.building].spring;
-			goals[g.building].winter = goals[g.building].spring;
-		}
+				if(!goals[g.building].hasOwnProperty(g.name)) {
+					goals[g.building][g.name] = {};
+				}
 
-		// use 215 data for all buildings for now
-		goals[2] = goals[1];
-		goals[3] = goals[1];
-		goals[4] = goals[1];
+				goals[g.building][g.name][g.hour] = {
+					hvac: {
+						weekday: parseFloat(g.hvac_weekday),
+						weekend: parseFloat(g.hvac_weekend),
+					},
+					kitchen: {
+						weekday: parseFloat(g.kitchen_weekday),
+						weekend: parseFloat(g.kitchen_weekend),
+					},
+					lights: {
+						weekday: parseFloat(g.lights_weekday),
+						weekend: parseFloat(g.lights_weekend),
+					},
+					plugs: {
+						weekday: parseFloat(g.plugs_weekday),
+						weekend: parseFloat(g.plugs_weekend),
+					}
+				};
 
-		callback(goals);
-	}
-}
+				// use spring data for all seasons for now
+				goals[g.building].summer = goals[g.building].spring;
+				goals[g.building].fall = goals[g.building].spring;
+				goals[g.building].winter = goals[g.building].spring;
+			}
+
+			// use 215 data for all buildings for now
+			goals[2] = goals[1];
+			goals[3] = goals[1];
+			goals[4] = goals[1];
+
+			return goals;
+		});
+};
 
 // calculate the goal for each building in the array of hourly goals
 // over the same time period
-function calcAll(hourly, start, end) {
+exports.calcAll = function(hourly, start, end) {
 	var goals = {};
 
 	for(let b in hourly) {
-		goals[b] = calc(hourly[b], start, end);
+		goals[b] = _calc(hourly[b], start, end);
 	}
 
 	return goals;
-}
+};
 
 // calculate the goal in kwh for an arbitrary time period]
 // given a set of hourly goals
-function calc(hourly, start, end, enduse) {
+exports.calc = function(hourly, start, end, enduse) {
+	return _calc(hourly, start, end, enduse);
+};
 
+// Helpers
+
+function _calc(hourly, start, end, enduse) {
 	var current = moment(start),
 		totalwatthours = 0;
 

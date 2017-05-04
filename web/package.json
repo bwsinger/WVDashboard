@@ -5,6 +5,7 @@
   "main": "server.js",
   "dependencies": {
     "apicache": "^0.8.3",
+    "bluebird": "^3.5.0",
     "body-parser": "^1.15.2",
     "compression": "^1.6.2",
     "cookie-parser": "^1.4.3",
@@ -27,7 +28,8 @@
     "node-schedule": "^1.2.1",
     "pg": "^6.1.0",
     "pug": "^2.0.0-beta6",
-    "request": "^2.79.0"
+    "request": "^2.79.0",
+    "request-promise": "^4.2.0"
   },
   "devDependencies": {},
   "scripts": {

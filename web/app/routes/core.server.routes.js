@@ -1,6 +1,7 @@
 'use strict';
 
+var core = require('../controllers/core.server.controller');
+
 module.exports = function(app) {
-	var core = require('../controllers/core.server.controller');
 	app.route('/').get(core.index);
 };

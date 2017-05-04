@@ -1,7 +1,8 @@
 'use strict';
 
 var pg = require('pg'),
-	config = require('./config');
+	config = require('./config'),
+	Promise = require('bluebird');
 
 var poolConfig = {
 	user: config.db.user,
@@ -19,4 +20,4 @@ pool.on('error', function(err) {
 	throw err;
 });
 
-module.exports = pool;
+module.exports = Promise.promisifyAll(pool);

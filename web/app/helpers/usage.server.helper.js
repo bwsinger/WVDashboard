@@ -1,52 +1,37 @@
 'use strict';
 
-var db = require('../../config/db');
+var hobodata = require('../models/hobodata.server.model');
 
-module.exports = {
-	periodAll: periodAll,
+exports.period = function(start, end) {
+
+	return hobodata.period(start, end)
+		.then(function(result) {
+			// Build object with week-to-date kwh values
+			var current_kwh = {};
+
+			for(var i = 0, len = result.rows.length; i < len; i++) {
+				current_kwh[result.rows[i].building] = parseFloat(result.rows[i].kwh);
+			}
+
+			return current_kwh;
+		});
 };
 
-// get total kwh over an arbitrary period
-function periodAll(start, end, callback) {
-	
-	var query = `
-			SELECT
-				"building",
-				ROUND(
-					(
-						SUM("hvac"/60) +
-						SUM("kitchen"/60) +
-						SUM("plugs"/60) +
-						SUM("lights"/60)
-					) / 1000,
-					2
-				) as "kwh"
-			FROM "hobodata"
-			WHERE "datetime" > $1
-			AND "datetime" <= $2
-			GROUP BY "building"
-			ORDER BY "building"
-		`,
-		format = 'Y-MM-DD HH:mm:ss',
-		params = [
-			start.format(format),
-			end.format(format)
-		];
+exports.enduses = function(has_ev, has_lab) {
+	var enduses = {
+		'hvac': true,
+		'lights': true,
+		'plugs': true,
+		'kitchen': true,
+	};
 
-	db.query(query, params, handleResult);
-
-	function handleResult(err, result) {
-		if(err) {
-			throw err;
-		}
-
-		// Build object with week-to-date kwh values
-		var current_kwh = {};
-
-		for(var i = 0, len = result.rows.length; i < len; i++) {
-			current_kwh[result.rows[i].building] = parseFloat(result.rows[i].kwh);
-		}
-
-		return callback(current_kwh);
+	if(has_ev) {
+		enduses.ev = true;
 	}
-}
+
+	if(has_lab) {
+		enduses.lab = true;
+	}
+
+	return enduses;
+};

@@ -3,6 +3,7 @@
 var moment = require('moment'),
 	rp = require('request-promise'),
 	URL = require('url'),
+	config = require('../../config/config'),
 
 	building = require('../models/building.server.model'),
 	trophy = require('../models/trophy.server.model'),
@@ -159,7 +160,9 @@ exports.current = function(req, res) {
 				data.push(current);
 			}
 
-			res.status(200).send(data);
+			res.status(200).send({
+				buildings: data
+			});
 		})
 		.catch(function() {
 			res.status(500).send({
@@ -218,7 +221,9 @@ exports.historical = function(req, res) {
 				});
 			}
 
-			res.status(200).send(data);
+			res.status(200).send({
+				intervals: data
+			});
 		})
 		.catch(function() {
 			res.status(500).send({
@@ -245,7 +250,9 @@ exports.percent = function(req, res) {
 
 			_doPercentAdjustment(data, result, req.params.timespan, req.goals);
 
-			res.status(200).send(_transformPercentObject(data));
+			res.status(200).send({
+				intervals: _transformPercentObject(data)
+			});
 		})
 		.catch(function() {
 			res.status(500).send({
@@ -269,7 +276,9 @@ exports.percentBuilding = function(req, res) {
 
 			_doPercentAdjustment(data, result, req.params.timespan, req.goals);
 
-			res.status(200).send(_transformPercentObject(data));
+			res.status(200).send({
+				intervals: _transformPercentObject(data)
+			});
 		})
 		.catch(function() {
 			res.status(500).send({
@@ -306,7 +315,9 @@ exports.percentEnduse = function(req, res) {
 				});
 			}
 
-			res.status(200).send(data);
+			res.status(200).send({
+				intervals: data
+			});
 		})
 		.catch(function() {
 			res.status(500).send({
@@ -317,8 +328,7 @@ exports.percentEnduse = function(req, res) {
 
 exports.weather = function(req, res) {
 
-	// TODO: move api key to config
-	var key = 'b7f090a458a3a954',
+	var key = config.weatherApiKey,
 		url = `https://api.wunderground.com/api/${key}/conditions/q/CA/Davis.json`;
 
 	rp(url)
@@ -418,8 +428,6 @@ function _doPercentAdjustment(data, result, timespan, buildingGoals) {
 				goal = goalsHelper.calc(buildingGoals[building], start, end),
 				kwh = parseFloat(result.rows[i].kwh),
 				percent = (kwh / goal) * 100; //calculate the percent of the zne
-
-			//console.log(kwh);
 
 			data[interval][building] = percent;
 		}

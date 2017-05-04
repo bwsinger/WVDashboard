@@ -101,7 +101,7 @@
 
 		function getHistoricalData() {
 			Hobo.getHistorical(vm.historicalTimespan, vm.buildingId, vm.enabled).then(function(data) {
-				vm.historicalData = data;
+				vm.historicalData = data.intervals;
 			});
 		}
 
@@ -151,20 +151,21 @@
 		function getPercentData() {
 
 			if(vm.percentState === 'enduse') {
-				Hobo.getPercentEnduse(vm.percentTimespan, vm.buildingId).then(function(data) {
-					vm.percentData = data;
-				});
+				Hobo.getPercentEnduse(vm.percentTimespan, vm.buildingId)
+					.then(handlePercentData);
 			}
 			else if(vm.percentState === 'all') {
-				Hobo.getPercentAll(vm.percentTimespan).then(function(data) {
-					vm.percentData = data;
-				});
+				Hobo.getPercentAll(vm.percentTimespan)
+					.then(handlePercentData);
 			}
 			else {
-				Hobo.getPercentBuilding(vm.percentTimespan, vm.buildingId).then(function(data) {
-					vm.percentData = data;
-				});
+				Hobo.getPercentBuilding(vm.percentTimespan, vm.buildingId)
+					.then(handlePercentData);
 			}
+		}
+
+		function handlePercentData(data) {
+			vm.percentData = data.intervals;
 		}
 
 	}

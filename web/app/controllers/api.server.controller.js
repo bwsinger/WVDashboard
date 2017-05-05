@@ -31,20 +31,29 @@ exports.buildings = function(req, res) {
 
 exports.leaderboard = function(req, res) {
 
+	var now = moment();
+
 	// Start of the week is last Friday at noon
-	var startFriday = moment().day(-2).hour(12).minute(0).seconds(0).millisecond(0);
+	var startFriday = moment(now).day(-2).hour(12).minute(0).seconds(0).millisecond(0);
 
 	// End of the week is next Friday at noon
-	var endFriday = moment().day(5).hour(12).minute(0).seconds(0).millisecond(0);
+	var endFriday = moment(now).day(5).hour(12).minute(0).seconds(0).millisecond(0);
 
 	// When to unfreeze the results? Monday at Midnight
-	var unfreezeOn = moment().day(1).hour(0).minute(0).seconds(0).millisecond(0);
+	var unfreezeOn = moment(now).day(1).hour(0).minute(0).seconds(0).millisecond(0);
 
 	// Freeze the results during the appropriate period
-	var resultsFrozen = startFriday <= moment() && moment() < unfreezeOn;
+	var resultsFrozen = false;
 
-	// Display data from the previous week
-	if(resultsFrozen) {
+	// Freeze the results after Friday noon
+	if(now >= endFriday) {
+		resultsFrozen = true;
+	}
+	// Freeze the results before monday midnight
+	else if(startFriday <= now && now < unfreezeOn) {
+		resultsFrozen = true;
+
+		// Display data from the previous week
 		startFriday.subtract(7, 'days');
 		endFriday.subtract(7, 'days');
 	}

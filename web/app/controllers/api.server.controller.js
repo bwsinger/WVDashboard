@@ -141,7 +141,22 @@ exports.leaderboard = function(req, res) {
 
 exports.trophies = function(req, res) {
 
-	trophy.findByBuilding(req.params.building)
+	var now = moment();
+
+	// Start of the week is last Friday at noon
+	var startFriday = moment(now).day(-2).hour(12).minute(0).seconds(0).millisecond(0);
+
+	// When to unfreeze the results? Monday at Midnight
+	var unfreezeOn = moment(now).day(1).hour(0).minute(0).seconds(0).millisecond(0);
+
+	var year = now.year(),
+		week = now.week();
+
+	if(startFriday <= now && now < unfreezeOn) {
+		week--;
+	}
+
+	trophy.findOldByBuilding(req.params.building, year, week)
 		.then(function(result) {
 			res.status(200).send({
 				trophies: result.rows,

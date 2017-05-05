@@ -2,19 +2,25 @@
 
 var db = require('../../config/db');
 
-exports.findByBuilding = function(id) {
+exports.findOldByBuilding = function(id, year, week) {
 
 	var query = `
-		SELECT
-			"building",
-			"year",
-			"isoweek"
-		FROM "trophies"
-		WHERE "building" = $1
-		ORDER BY "year", "isoweek" ASC
-	`;
+			SELECT
+				"building",
+				"year",
+				"isoweek"
+			FROM "trophies"
+			WHERE "building" = $1
+			AND ("year" < $2 OR "isoweek" < $3)
+			ORDER BY "year", "isoweek" ASC
+		`,
+		params = [
+			id,
+			year,
+			week,
+		];
 
-	return db.query(query, [id])
+	return db.query(query, params)
 		.then(function(results) {
 			return results;
 		})

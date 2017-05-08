@@ -52,9 +52,6 @@
 	height: 13.8%;
 	top: 7%;
 	left: 60%;
-    border-color: white;
-    border-width: 1px;
-    border-style: solid;
 	@include respond-to(laptop) {  }
 	@include respond-to(desktop) { width: 8%;height: 13.8%;top: 7%;left: 60%; }
 	@include respond-to(laptopW) {  }

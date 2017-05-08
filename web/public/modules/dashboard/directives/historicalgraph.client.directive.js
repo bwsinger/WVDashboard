@@ -14,6 +14,7 @@
 			link: link,
 			scope: {
 				data: '=',
+				timespan: '=',
 			}
 		};
 
@@ -38,15 +39,15 @@
 					return angular.element(window)[0].innerWidth;
 				}, function(newVal, oldVal) {
 					if(newVal !== oldVal) {
-						scope.render(scope.data);
+						scope.render(scope.data, scope.timespan);
 					}
 				});
 				scope.$watch('data', function() {
-					scope.render(scope.data);
+					scope.render(scope.data, scope.timespan);
 				}, true);
 
 				//Render the chart
-				scope.render = function(data) {
+				scope.render = function(data, timespan) {
 
 					// Setup sizing
 					var height = svg.nodes()[0].getBoundingClientRect().height - margin.top - margin.bottom,
@@ -90,7 +91,21 @@
 						.y(function(d) { return y(d.production); })
 						.defined(function(d) { return d.production !== null; });
 
-					// TODO add timespan dependent ticks (see percent ZNE directive)
+					var xTicks;
+					switch(timespan) {
+						case 'hourly':
+							xTicks = 25;
+							break;
+						case 'daily':
+							xTicks = 8;
+							break;
+						case 'weekly':
+							xTicks = 5;
+							break;
+						case 'monthly':
+							xTicks = 13;
+							break;
+					}
 
 					var yAxis = d3.axisLeft(y)
 									.ticks(5)
@@ -98,9 +113,47 @@
 									.tickSizeOuter(1);
 
 					var xAxis = d3.axisBottom(x)
-									.ticks(5)
+									.ticks(xTicks)
 									.tickSize(15)
-									.tickSizeOuter(1);
+									.tickSizeOuter(1)
+									.tickFormat(function(d) {
+
+										if(timespan === 'weekly') {
+											var start = d3.isoParse(d);
+											var end = new Date(start.valueOf());
+											end.setDate(end.getDate()+6);
+
+											// If they're the same month, omit the month on the end
+											if(start.getMonth() === end.getMonth()) {
+												var startFormatter = d3.timeFormat('%b %-e');
+												var endFormatter = d3.timeFormat('%-e');
+												return startFormatter(start)+'-'+endFormatter(end);
+											}
+											// If they're different months, print the month for both
+											else {
+												var formatter = d3.timeFormat('%b %-e');
+												return formatter(start)+'-'+formatter(end);
+											}
+										}
+										else {
+											var formatString = '';
+
+											switch(timespan) {
+												case 'hourly':
+													formatString = '%-H';
+													break;
+												case 'daily':
+													formatString = '%b %-e';
+													break;
+												case 'monthly':
+													formatString = '%b';
+													break;
+											}
+
+											var xFormatter = d3.timeFormat(formatString);
+											return xFormatter(d3.isoParse(d));
+										}
+									});
 
 					var stops = [];
 					var badColor = '#bf2626';

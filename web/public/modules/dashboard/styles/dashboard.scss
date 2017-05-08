@@ -552,6 +552,14 @@
 	left: 0;
 }
 
+.trophy-big {
+	position: absolute;
+	right: 5%;
+	width: 25%;
+	top: 5%;
+
+}
+
 // LEADERBOARD
 
 .leaderboard-container {
@@ -565,6 +573,20 @@
 	height: 100%;
 	bottom: 0;
 	position: absolute;
+}
+
+.trophies {
+	position: absolute;
+	top: 5%;
+	right: 0;
+	height: 20%;
+	width: 50%;
+	overflow: hidden;
+
+	div {
+		height: 30%;
+		margin-bottom: 5%;
+	}
 }
 
 // CURRENT POWER

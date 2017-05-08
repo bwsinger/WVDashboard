@@ -32,7 +32,7 @@
 		$rootScope.init = deferred.promise;
 
 		Hobo.getBuildings().then(function(data) {
-			Settings.setBuildings(data);
+			Settings.setBuildings(data.buildings);
 			deferred.resolve();
 		});
 	}

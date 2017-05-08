@@ -44,12 +44,19 @@
 			Hobo.getLeaderboard().then(function(data) {
 				vm.leaderboardData = data;
 
-				for(var i = 0, len = data.length; i < len; i++) {
-					if(data[i].building !== 'ZNE' && parseInt(data[i].building) === vm.buildingId) {
-						vm.place = data[i].place;
-						vm.state = data[i].good ? 'positive' : 'negative';
+				for(var i = 0, len = data.buildings.length; i < len; i++) {
+					if(parseInt(data.buildings[i].building) === vm.buildingId) {
+						vm.place = data.buildings[i].place;
+						vm.state = data.buildings[i].good ? 'positive' : 'negative';
+						vm.trophy = data.buildings[i].trophy;
 						break;
 					}
+				}
+			});
+
+			Hobo.getTrophies(vm.buildingId).then(function(data) {
+				if(data.trophies.length) {
+					vm.trophies = data.trophies;
 				}
 			});
 
@@ -94,7 +101,7 @@
 
 		function getHistoricalData() {
 			Hobo.getHistorical(vm.historicalTimespan, vm.buildingId, vm.enabled).then(function(data) {
-				vm.historicalData = data;
+				vm.historicalData = data.intervals;
 			});
 		}
 
@@ -144,20 +151,21 @@
 		function getPercentData() {
 
 			if(vm.percentState === 'enduse') {
-				Hobo.getPercentEnduse(vm.percentTimespan, vm.buildingId).then(function(data) {
-					vm.percentData = data;
-				});
+				Hobo.getPercentEnduse(vm.percentTimespan, vm.buildingId)
+					.then(handlePercentData);
 			}
 			else if(vm.percentState === 'all') {
-				Hobo.getPercentAll(vm.percentTimespan).then(function(data) {
-					vm.percentData = data;
-				});
+				Hobo.getPercentAll(vm.percentTimespan)
+					.then(handlePercentData);
 			}
 			else {
-				Hobo.getPercentBuilding(vm.percentTimespan, vm.buildingId).then(function(data) {
-					vm.percentData = data;
-				});
+				Hobo.getPercentBuilding(vm.percentTimespan, vm.buildingId)
+					.then(handlePercentData);
 			}
+		}
+
+		function handlePercentData(data) {
+			vm.percentData = data.intervals;
 		}
 
 	}

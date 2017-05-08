@@ -65,19 +65,6 @@
 					var cont = svg.append('g')
 						.attr('transform', 'translate('+margin.left+','+margin.top+')');
 
-					// separate out the data for buildings from the zne location
-					var buildingData = [],
-						zneData = [];
-
-					for(var i = 0, len = data.length; i < len; i++) {
-						if(data[i].building === 'ZNE') {
-							zneData.push(data[i]);
-						}
-						else {
-							buildingData.push(data[i]);
-						}
-					}
-
 					var names =  d3.scaleOrdinal()
 						.domain(buildings.map(function(d) {return d.id; }))
 						.range(buildings.map(function(d) {return d.name; }));
@@ -87,14 +74,13 @@
 						.domain([0, 1])
 					    .rangeRound([0, width]);
 
-
 					var y = d3.scaleBand()
-						.domain(buildingData.map(function(d) {return d.building; }))
+						.domain(data.buildings.map(function(d) {return d.building; }))
 						.rangeRound([0, height])
 						.paddingInner(0.03);
 
 					cont.selectAll('rect.background')
-						.data(buildingData).enter()
+						.data(data.buildings).enter()
 						.append('rect')
 							.attr('class', 'background')
 							.attr('fill', '#F3DEB4') // light yellow
@@ -104,7 +90,7 @@
 							.attr('height', y.bandwidth()+1);
 
 					cont.selectAll('rect.bar')
-						.data(buildingData).enter()
+						.data(data.buildings).enter()
 						.append('rect')
 							.attr('class', 'bar')
 							.attr('fill', function(d) {
@@ -115,29 +101,52 @@
 							.attr('width', function(d) { return x(d.position); })
 							.attr('height', y.bandwidth());
 
-					cont.append('image')
-							.attr('class', 'finish')
-							.attr('x', x(zneData[0].position))
-							.attr('y', 0)
-							.attr('height', height)
-							.attr('width', 72)
-							.attr('href', 'images/leaderboard/leaderboard_finish_line.svg');
+					if(data.finish) {
 
-					var horseExtra = 120,
-						horseHeight = y.bandwidth() + horseExtra,
-						horseWidth = horseHeight * 1.722222222;
+						var finishHeight = height,
+							finishWidth = finishHeight * 0.254716981;
+
+						cont.append('image')
+							.attr('class', 'finish')
+							.attr('x', x(data.finish) - finishWidth)
+							.attr('y', 0)
+							.attr('height', finishHeight)
+							.attr('width', finishWidth)
+							.attr('href', 'images/leaderboard/leaderboard_finish_line.svg');
+					}
+
+
+					var horseHeight = y.bandwidth() * 1.40, // account for the lower drop shadow
+						// use image ratio to calculate width
+						horseWidth = (horseHeight * 3.828571429),
+						// the right drop shadow is about 6% of the total width
+						// we need this to make the nose at the line, not the shadow of the nose
+						horseRightShadow =  horseWidth * 0.06;
 
 					cont.selectAll('image.horse')
-						.data(buildingData).enter()
+						.data(data.buildings).enter()
 						.append('image')
 							.attr('class', 'horse')
-							.attr('x', function(d) { return x(d.position) - 125; })
-							.attr('y', function(d) { return y(d.building) - 52; })
+							.attr('x', function(d) { return x(d.position) - horseWidth + horseRightShadow; })
+							.attr('y', function(d) { return y(d.building) - (y.bandwidth() * 0.05); })
 							.attr('href', function(d) {
 								return 'images/leaderboard/'+names(d.building)+'.svg';
 							})
 							.attr('height', horseHeight)
 							.attr('width', horseWidth);
+
+					var trophyHeight = y.bandwidth(),
+						trophyWidth = trophyHeight * 0.836538462;
+
+					cont.selectAll('image.trophy')
+						.data(data.buildings.filter(function(v) { return v.trophy; })).enter()
+						.append('image')
+							.attr('class', 'trophy')
+							.attr('x', function(d) { return x(d.position) + 15; })
+							.attr('y', function(d) { return y(d.building); })
+							.attr('href', 'images/leaderboard/trophy.svg')
+							.attr('height', trophyHeight)
+							.attr('width', trophyWidth);
 
 				};
 			});

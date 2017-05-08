@@ -1,34 +1,48 @@
 'use strict';
 
 var config = require('../../config/config'),
-	apicache = require('apicache').options({debug: config.apicachedebug }).middleware;
+	validate = require('../middleware/validate.server.middleware'),
+	append = require('../middleware/append.server.middleware'),
+	api = require('../controllers/api.server.controller'),
+	cache = require('apicache').options({debug: config.apicachedebug }).middleware;
 
 module.exports = function(app) {
-	var api = require('../controllers/api.server.controller');
 
 	// ROUTES
 	
-	app.route('/api/buildings').get(apicache('1 day'), api.buildings);
+	app.route('/api/buildings')
+		.get(cache('1 day'), api.buildings);
 
-	app.route('/api/leaderboard').get(api.goals, api.leaderboard);
+	app.route('/api/leaderboard')
+		.get(append.goals, api.leaderboard);
 
-	app.route('/api/current/all').get(api.currentAll);
+	app.route('/api/trophies/:building')
+		.get(api.trophies);
 
-	app.route('/api/current/building/:building').get(api.getEndUses, api.current);
+	app.route('/api/current/all')
+		.get(api.current);
 
-	app.route('/api/historical/:building/:timespan').get(api.getEndUses, api.historical);
+	app.route('/api/current/building/:building')
+		.get(append.endUses, api.currentByBuilding);
 
-	app.route('/api/percent/all/:timespan').get(api.goals, api.percentAll);
+	app.route('/api/historical/:building/:timespan')
+		.get(append.endUses, api.historical);
 
-	app.route('/api/percent/building/:building/:timespan').get(api.goals, api.percentBuilding);
+	app.route('/api/percent/all/:timespan')
+		.get(append.goals, api.percent);
 
-	app.route('/api/percent/enduse/:building/:timespan').get(api.goals, api.percentEnduse);
+	app.route('/api/percent/building/:building/:timespan')
+		.get(append.goals, api.percentBuilding);
 
-	app.route('/api/weather').get(apicache('10 minutes'), api.weather);
+	app.route('/api/percent/enduse/:building/:timespan')
+		.get(append.goals, api.percentEnduse);
+
+	app.route('/api/weather')
+		.get(cache('10 minutes'), api.weather);
 
 	// PARAMETERS
 
-	app.param('timespan', api.validateTimespan);
+	app.param('timespan', validate.timespan);
 
-	app.param('building', api.validateBuilding);
+	app.param('building', validate.building);
 };

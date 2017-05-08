@@ -58,7 +58,7 @@
 			});
 
 			Hobo.getCurrentAll().then(function(data) {
-				vm.lineData = data;
+				vm.lineData = data.buildings;
 				vm.dataReady = true;
 			});
 		}

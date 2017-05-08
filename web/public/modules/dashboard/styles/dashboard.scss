@@ -894,6 +894,28 @@
     @include respond-to(popularW) { font-size: 0.7vw; }
 }
 
+// total width of selector toggle is 40%
+
+.selector-toggle-left {
+    position: absolute;
+    height: 100%;
+    width: 13.333%;
+}
+
+.selector-toggle-middle {
+    position: absolute;
+    height: 100%;
+    width: 13.333%;
+    left: 44%;
+}
+
+.selector-toggle-right {
+    position: absolute;
+    height: 100%;
+    width: 13.333%;
+    right: 29%;
+}
+
 .selector-right {
 	text-align: left;
 }

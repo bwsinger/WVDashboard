@@ -78,9 +78,9 @@ def fetch():
         }
 
         try:
-            r = requests.post(url, json=payload, timeout=15)
+            r = requests.post(url, json=payload, timeout=30)
         except requests.exceptions.Timeout:
-            logging.error('Hobolink HTTP request timed out (15 seconds)')
+            logging.error('Hobolink HTTP request timed out (30 seconds)')
             continue
 
         lines = r.text.strip().split('\n')

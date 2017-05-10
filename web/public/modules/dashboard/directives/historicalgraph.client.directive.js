@@ -140,7 +140,7 @@
 
 											switch(timespan) {
 												case 'hourly':
-													formatString = '%-H';
+													formatString = '%-I%p';
 													break;
 												case 'daily':
 													formatString = '%b %-e';
@@ -261,10 +261,17 @@
 					// x-axis labels
 					gx.selectAll('text')
 						.attr('fill', 'white')
-						.attr('font-size', '2em')
 						.attr('font-family', 'LetterGothicStd')
 						.attr('font-weight', 'bold')
-						.attr('text-anchor', 'middle');
+						.attr('text-anchor', 'middle')
+						.attr('font-size', function() {
+							var size = '2em';
+							if(timespan === 'hourly') {
+								size = '1.2em';
+							}
+
+							return size;
+						});
 
 					var gy = cont.append('g')
 						// .attr('transform', 'translate(0,' + height + ')')

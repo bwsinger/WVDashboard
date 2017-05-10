@@ -39,10 +39,6 @@
                 var svg = d3.select(element[0])
                             .append('svg')
                             .attr('class', 'solarLine1')
-                            // .attr('id', 'allsolarLines')
-                            // 245 150 1345 710 -> The actual bounding box of the lines (1080p)
-                            // 0 0 1640 860     -> Old values that work better for some reason (1080p)
-                            // Not sure why, but these values work well for 16:9. Needs to be set via media queries
                             .attr("viewBox", "0 0 1600 1080")
                             .attr("preserveAspectRatio", "none" /*"xMidYMid meet"*/)
                             ;
@@ -97,25 +93,38 @@
                     path.each(function(d) { d.totalLength = this.getTotalLength(); })
                         .attr("length", function(d) { return d.totalLength; });
 
-                    // TODO:
-                    // arrow delay needs to be on a scale that maps the duration
-                    // to some reasonable amount of arrows
-                    var arrowDelay = 800,
-                        energy = 0;
+                    var energy = 0;
 
-                    // use data.demand / data.production depending on if its grid or solar
-                    // this is commented out until the scales for energy / delay are done
-                    // so the default values above are used in the meantime
+                    if( data && data.demand !== null && data.production !== null ) {
+                        if( scope.arrow === "arrow-red" ) {
+                            if(data.demand === 0){
+                                console.log("No Demand!");
+                                return;
+                            }
+                            energy = data.demand;
+                        } else if( scope.arrow === "arrow-yellow" ) {
+                            if(data.production === 0){
+                                console.log("No Solar!");
+                                return;
+                            }
+                            energy = data.production;
+                        } else {
+                            console.log("Error: soloarLine1.client.directive: unexpected arrow style class");
+                        }
+                    }
 
-                    // if( data && data.demand !== null && data.production !== null ) {
-                    //     if( scope.arrow === "arrow-red" ) {
-                    //         energy = data.demand;
-                    //     } else if( scope.arrow === "arrow-yellow" ) {
-                    //         energy = data.production;
-                    //     } else {
-                    //         console.log("Error: soloarLine1.client.directive: unexpected arrow style class");
-                    //     }
-                    // }
+                    var speedScale = d3.scaleLinear()
+                                                .domain([0, 50000])
+                                                .range([30,1]);
+
+                    var arrowDelayScale = d3.scaleLinear()
+                                                .domain([30,1])
+                                                .range([1200, 100]);
+
+                    var rate = speedScale(energy);
+                    var arrowDelay = arrowDelayScale(rate);
+
+                    // console.log(energy + " - " + rate);
 
                     setInterval(function() {
                         var thisPolygon = svg.append("polygon")
@@ -126,10 +135,8 @@
 
                     function transition(elem, energy) {
                         
-                        // TODO:
-                        // Duration needs to be on a scale that maps the energy value
-                        // to some range of reasonable durations
-                        var dur = (path.attr("length") * 16) - (energy * 5);
+                        var dur = (path.attr("length") * rate);
+                        // console.log(dur);
 
                         elem.transition()
                             .duration(dur) // total time for an arrow to move along path

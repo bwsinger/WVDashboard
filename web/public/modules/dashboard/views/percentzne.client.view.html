@@ -12,10 +12,15 @@
 <div class="selector">
 	<div class="selector-section selector-left" ng-click="vm.togglePercentState('enduse')">{{vm.building}}<br>end-uses</div>
 	<div class="selector-section">
-		<img ng-if="vm.percentState === 'enduse'" class="showall-toggle" src="./images/percentzne/usage_enduse_toggle.svg" ng-click="vm.togglePercentState();">
-		<img ng-if="vm.percentState === 'current'" class="showall-toggle" src="./images/percentzne/usage_me_toggle.svg" ng-click="vm.togglePercentState();">
-		<img ng-if="vm.percentState === 'all'" class="showall-toggle" src="./images/percentzne/usage_all_toggle.svg" ng-click="vm.togglePercentState();">
-		<div ng-click="vm.togglePercentState('current')">{{vm.building}}</div>
+		<!-- Toggle click boxes -->
+		<div class="selector-toggle-left" ng-click="vm.togglePercentState('enduse')"></div>
+		<div class="selector-toggle-middle" ng-click="vm.togglePercentState('current')"></div>
+		<div class="selector-toggle-right" ng-click="vm.togglePercentState('all')"></div>
+
+		<img ng-if="vm.percentState === 'enduse'" class="showall-toggle" src="./images/percentzne/usage_enduse_toggle.svg">
+		<img ng-if="vm.percentState === 'current'" class="showall-toggle" src="./images/percentzne/usage_me_toggle.svg">
+		<img ng-if="vm.percentState === 'all'" class="showall-toggle" src="./images/percentzne/usage_all_toggle.svg">
+		<div>{{vm.building}}</div>
 	</div>
 	<div class="selector-section selector-right" ng-click="vm.togglePercentState('all')">all<br>buildings</div>
 </div>

@@ -319,11 +319,11 @@
 	right: 18.3%;
 	padding: 0.2%;
 	letter-spacing: -0.15em;
-	@include respond-to(laptop) { top: 19%; }
+	@include respond-to(laptop) { top: 17%; }
     @include respond-to(desktop) {  }
-    @include respond-to(laptopW) { right: 20%; width: 13%; }
+    @include respond-to(laptopW) { right: 18%; width: 13%; }
     @include respond-to(laptop2W) { right: 20%; width: 12%; font-size: 1vw; }
-    @include respond-to(desktopW) { right: 23%; width: 10%; font-size: 1vw; }
+    @include respond-to(desktopW) { right: 18%; width: 14%; height: 11%; font-size: 1vw; }
     @include respond-to(popularW) { right: 24%; width: 9%; font-size: 1vw; height: 21%; }
 }
 
@@ -889,6 +889,28 @@
     @include respond-to(laptop2W) {  }
     @include respond-to(desktopW) {  }
     @include respond-to(popularW) { font-size: 0.7vw; }
+}
+
+// total width of selector toggle is 40%
+
+.selector-toggle-left {
+    position: absolute;
+    height: 100%;
+    width: 13.333%;
+}
+
+.selector-toggle-middle {
+    position: absolute;
+    height: 100%;
+    width: 13.333%;
+    left: 44%;
+}
+
+.selector-toggle-right {
+    position: absolute;
+    height: 100%;
+    width: 13.333%;
+    right: 29%;
 }
 
 .selector-right {

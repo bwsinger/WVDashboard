@@ -11,24 +11,25 @@
 
 		var vm = this,
 			tmonth = new Array("Jan", "Feb", "Mar", "Apr", "May", "June",
-								"July", "Aug", "Sept", "Oct", "Nov", "Dec"),
+								"July", "Aug", "Sept", "Oct", "Nov", "Dec")
+			// ,
 			// copied from core.scss
-			mqls = [
-				window.matchMedia("only screen and (max-aspect-ratio: 168888/100000)"),
-				window.matchMedia("only screen and (min-aspect-ratio: 1688881/1000000) and (max-aspect-ratio: 181197/100000)"),
-				window.matchMedia("only screen and (min-aspect-ratio: 1811971/1000000) and (max-aspect-ratio: 186425/100000)"),
-				window.matchMedia("only screen and (min-aspect-ratio: 1864251/1000000) and (max-aspect-ratio: 194118/100000)"),
-				window.matchMedia("only screen and (min-aspect-ratio: 1941181/1000000) and (max-aspect-ratio: 205/100)"),
-				window.matchMedia("only screen and (min-aspect-ratio: 2051/1000)")
-			],
-			strViewBoxs = [
-				"0 0 1600 1080",
-				"0 0 1600 1080",
-				"0 0 1600 1080",
-				"0 0 1600 1080",
-				"0 0 1600 1080",
-				"0 0 1600 1080"
-			]
+			// mqls = [
+			// 	window.matchMedia("only screen and (max-aspect-ratio: 168888/100000)"),
+			// 	window.matchMedia("only screen and (min-aspect-ratio: 1688881/1000000) and (max-aspect-ratio: 181197/100000)"),
+			// 	window.matchMedia("only screen and (min-aspect-ratio: 1811971/1000000) and (max-aspect-ratio: 186425/100000)"),
+			// 	window.matchMedia("only screen and (min-aspect-ratio: 1864251/1000000) and (max-aspect-ratio: 194118/100000)"),
+			// 	window.matchMedia("only screen and (min-aspect-ratio: 1941181/1000000) and (max-aspect-ratio: 205/100)"),
+			// 	window.matchMedia("only screen and (min-aspect-ratio: 2051/1000)")
+			// ],
+			// strViewBoxs = [
+			// 	"0 0 1600 1080",
+			// 	"0 0 1600 1080",
+			// 	"0 0 1600 1080",
+			// 	"0 0 1600 1080",
+			// 	"0 0 1600 1080",
+			// 	"0 0 1600 1080"
+			// ]
 			;
 
 		vm.toggleInfo = toggleInfo;
@@ -38,8 +39,8 @@
 		vm.allAddressFalse = allAddressFalse;
 		vm.GetClock = GetClock;
 		vm.timer = timer;
-		vm.MediaQuery = MediaQuery;
-		vm.viewBoxAdjuster = viewBoxAdjuster;
+		// vm.MediaQuery = MediaQuery;
+		// vm.viewBoxAdjuster = viewBoxAdjuster;
 		vm.dataReady = false;
 		vm.getData = getData;
 
@@ -154,39 +155,39 @@
 		}
 
 		// Media Query event listener
-		function MediaQuery(mq) {
-			if (mqls[0].matches) {
-				// console.log("laptop");
-				$('.solarLine1').attr("viewBox", strViewBoxs[0]);
-			}
-			else if (mqls[1].matches) {
-				// console.log("desktop");
-				$('.solarLine1').attr("viewBox", strViewBoxs[1]);
-			}
-			else if (mqls[2].matches) {
-				// console.log("laptopW");
-				$('.solarLine1').attr("viewBox", strViewBoxs[2]);
-			}
-			else if (mqls[3].matches) {
-				// console.log("laptop2W");
-				$('.solarLine1').attr("viewBox", strViewBoxs[3]);
-			}
-			else if (mqls[4].matches) {
-				// console.log("desktopW");
-				$('.solarLine1').attr("viewBox", strViewBoxs[4]);
-			}
-			else if (mqls[5].matches) {
-				// console.log("popularW");
-				$('.solarLine1').attr("viewBox", strViewBoxs[5]);
-			}
-		}
+		// function MediaQuery(mq) {
+		// 	if (mqls[0].matches) {
+		// 		// console.log("laptop");
+		// 		$('.solarLine1').attr("viewBox", strViewBoxs[0]);
+		// 	}
+		// 	else if (mqls[1].matches) {
+		// 		// console.log("desktop");
+		// 		$('.solarLine1').attr("viewBox", strViewBoxs[1]);
+		// 	}
+		// 	else if (mqls[2].matches) {
+		// 		// console.log("laptopW");
+		// 		$('.solarLine1').attr("viewBox", strViewBoxs[2]);
+		// 	}
+		// 	else if (mqls[3].matches) {
+		// 		// console.log("laptop2W");
+		// 		$('.solarLine1').attr("viewBox", strViewBoxs[3]);
+		// 	}
+		// 	else if (mqls[4].matches) {
+		// 		// console.log("desktopW");
+		// 		$('.solarLine1').attr("viewBox", strViewBoxs[4]);
+		// 	}
+		// 	else if (mqls[5].matches) {
+		// 		// console.log("popularW");
+		// 		$('.solarLine1').attr("viewBox", strViewBoxs[5]);
+		// 	}
+		// }
 
-		function viewBoxAdjuster() {
-			for (var i=0; i<6; i++){
-	            vm.MediaQuery(mqls[i]);
-	            // console.log(vm.strVB);
-	            mqls[i].addListener(vm.MediaQuery);
-	        }
-	    }
+		// function viewBoxAdjuster() {
+		// 	for (var i=0; i<6; i++){
+	 //            vm.MediaQuery(mqls[i]);
+	 //            // console.log(vm.strVB);
+	 //            mqls[i].addListener(vm.MediaQuery);
+	 //        }
+	 //    }
 	}
 })();

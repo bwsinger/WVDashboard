@@ -47,9 +47,7 @@ exports.compile = function() {
 				goals[g.building].winter = goals[g.building].spring;
 			}
 
-			// use 215 data for all buildings for now
-			goals[2] = goals[1];
-			goals[3] = goals[1];
+			// use 215 data for 1715 for now
 			goals[4] = goals[1];
 
 			return goals;

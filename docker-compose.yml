@@ -1,4 +1,4 @@
-version: '2'
+version: '3'
 services:
   db:
     environment:
@@ -18,8 +18,9 @@ services:
     build: ./web
     environment:
       - NODE_ENV=production
+      - PORT=80
     ports:
-      - "3000:3000"
+      - "8086:80"
     links:
      - db
     restart: always
